@@ -60,6 +60,8 @@ Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończe
 
 **Cel etapu:** stworzyć katalog najwyższej jakości gotowych skryptów Pythona dla GstarCAD-a, które klient może pobrać bezpośrednio z biblioteki i używać. To są skrypty, które są zbyt duże, zbyt rozbudowane albo wymagają zbyt wielu warstw funkcjonalności, żeby model sztucznej inteligencji generował je z każdego zapytania od nowa. Tworzymy je raz, ręcznie, dopieszczamy do perfekcji, dokumentujemy. Klient nie generuje takiego skryptu — on go zaciąga.
 
+**Etap trzeci jest też naturalnym momentem na poszerzenie zespołu o piątą osobę** — Robert Nowakowski ma zaprzyjaźnionego kolegę-programistę z porównywalnym do niego dwudziestoletnim stażem CAD-owym, ale z głębokim doświadczeniem programowania nakładek (.NET, ObjectARX, LISP). Jego perspektywa programisty CAD da pomysły na skrypty mistrzowskie, których ani chłopcy z pomocy, ani Robert szkoleniowiec by nie wymyślili. Wdrożenie tej osoby do projektu prowadzi Robert (Dawid nie ma bezpośredniego kontaktu), nazwisko i szczegóły uzupełniamy w miarę pojawiania się informacji.
+
 **Mierzalne kryteria zaliczenia etapu:**
 
 - Folder [`skrypty-mistrzowskie/`](skrypty-mistrzowskie/) zawiera co najmniej pięćdziesiąt różnych komend, każda z osobnym katalogiem, w katalogu co najmniej cztery pliki: kod źródłowy `.py`, polski przewodnik użytkownika, dwa zrzuty ekranu pokazujące działanie, plik testowy (rysunek DWG) na którym komenda działa.
