@@ -99,7 +99,7 @@ Komenda, która przeszła Twoją tablicę kontrolną i otrzymała Twój aprobaty
 
 Doszliście do końca pakietu wprowadzającego. W ciągu dziesięciu godzin lektury i ćwiczeń dostaliście podstawę wszystkiego, co potrzebne, żeby wejść w projekt z otwartymi oczami. Następny krok to spotkanie startowe, gdzie odbiorę Wasze pytania i przekażę formalnie pierwsze konkretne zadania.
 
-Pamiętajcie — żadne pytanie nie jest głupie. Jeśli coś z któregoś rozdziału nie jest jasne, piszcie. Jeśli macie pomysł, jak ulepszyć tę lekcję — piszcie. Ten pakiet jest dokumentem żywym i będzie się rozwijał razem z projektem.
+Pamiętajcie — żadne pytanie nie jest głupie. Jeśli coś z którejś lekcji nie jest jasne, piszcie. Jeśli macie pomysł, jak ulepszyć tę lekcję — piszcie. Ten pakiet jest dokumentem żywym i będzie się rozwijał razem z projektem.
 
 Powodzenia.
 
