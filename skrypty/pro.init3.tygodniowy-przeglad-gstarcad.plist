@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Procedura cyklicznego nadzoru projektu gstarcad-ai
+
+  Uruchamia skrypt skrypty/przeglad-tygodniowy.sh w każdy piątek o 8:00.
+  Zarządzana przez chezmoi — kopiowana do ~/Library/LaunchAgents/.
+
+  Instalacja:
+    1. Skopiuj ten plik do chezmoi:
+       cp ~/Code/gstarcad-ai/skrypty/pro.init3.tygodniowy-przeglad-gstarcad.plist \
+          ~/.local/share/chezmoi/private_Library/LaunchAgents/
+
+    2. Zastosuj chezmoi:
+       chezmoi apply
+
+    3. Załaduj procedurę do launchd:
+       launchctl load ~/Library/LaunchAgents/pro.init3.tygodniowy-przeglad-gstarcad.plist
+
+    4. Sprawdź, czy działa:
+       launchctl list | grep tygodniowy-przeglad
+
+  Wpis do MBP-Runbook (sekcja LaunchAgents) musi być dodany przez Dawida
+  per stała reguła decision_mbp_default_actions.
+
+  Wersja: 1.0 — 30 czerwca 2026
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>pro.init3.tygodniowy-przeglad-gstarcad</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/init3.pro/Code/gstarcad-ai/skrypty/przeglad-tygodniowy.sh</string>
+    </array>
+
+    <!--
+      StartCalendarInterval — uruchom co piątek o 8:00 czasu lokalnego.
+      Weekday: 5 = piątek (0=niedziela, 1=poniedziałek, ..., 6=sobota).
+    -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>5</integer>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- Zapisuj wyjście i błędy do logów -->
+    <key>StandardOutPath</key>
+    <string>/Users/init3.pro/Library/Logs/pro.init3.tygodniowy-przeglad-gstarcad.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/init3.pro/Library/Logs/pro.init3.tygodniowy-przeglad-gstarcad.err.log</string>
+
+    <!--
+      RunAtLoad: false — nie uruchamiaj po załadowaniu, tylko zgodnie z planem.
+      Jeśli chcesz przetestować ręcznie, użyj:
+        launchctl start pro.init3.tygodniowy-przeglad-gstarcad
+    -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <!--
+      KeepAlive: false — to jest procedura jednorazowa, nie ciągła.
+    -->
+    <key>KeepAlive</key>
+    <false/>
+
+    <!-- Zmienne środowiskowe — PATH dla wykonywalnych komend -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>LANG</key>
+        <string>pl_PL.UTF-8</string>
+    </dict>
+</dict>
+</plist>
