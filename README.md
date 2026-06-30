@@ -66,4 +66,4 @@ For commercial inquiries: contact TMSys directly via [tmsys.pl](https://tmsys.pl
 
 ---
 
-*Maintained by Dawid Jakubowski (Product Manager, GstarCAD nationwide — TMSys) with the GstarCAD support team: Jakub Moszko, Tomasz Gach, Rafał Trzusło.*
+*Maintained by Dawid Jakubowski (Product Manager, GstarCAD nationwide — TMSys) with the GstarCAD support team (Jakub Moszko, Tomasz Gach, Rafał Trzusło) and Robert Nowakowski — long-time TMSys collaborator, owner of a Polish CAD training company, host of the "Rysując w CAD" podcast, and 20+ year CAD industry veteran.*

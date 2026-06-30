@@ -48,6 +48,8 @@ I po piąte — najbardziej osobiste — **macie szansę być pierwszą trójką
 
 W cyklach tygodniowych. Każdy z Was poświęca średnio półtorej godziny dziennie. Każdy ma swój własny tor zadań — nie czekamy na siebie, każdy idzie do przodu swoim tempem. Co piątek rano automatyczna procedura nadzorcza przegląda postęp w całym repozytorium i zapisuje raport. Raport jest jawny — każdy z Was może zobaczyć, kto co zrobił, kto utknął, kto pcha do przodu. To nie jest narzędzie do oceniania. To narzędzie do dyscyplinowania samych siebie i do pokazywania światu, że projekt naprawdę żyje.
 
+Wraz z Wami w projekcie jest **Robert Nowakowski** — zewnętrzny stały współpracownik TMSys, prowadzący firmę szkoleniową, organizator szkoleń wyjazdowych dla naszych klientów, autor podcastów „Rysując w CAD". Ponad dwadzieścia lat doświadczenia w branży, codzienne rozmowy z projektantami i architektami. Jego rola w zespole jest inna niż Wasza — Robert jest konsultantem produktu, testerem rozwiązań i twórcą treści (webinary, podcasty). Nie zostawia codziennego wsparcia klientów, bo to właśnie do niego ich kierujemy na szkolenia. Jego pomysły na komendy będą prawdopodobnie najbardziej życiowe spośród wszystkich, bo zawodowo zajmuje się odpowiadaniem na pytanie „czego projektant naprawdę potrzebuje". Traktujcie go jak doświadczonego starszego brata zawodowego.
+
 Komunikujemy się głównie przez komentarze do zadań w GitHubie (zaproszenia do organizacji wyślę osobno) plus krótkie cotygodniowe spotkania ze mną. Pojawienie się problemu, którego nie umiecie sami rozwiązać, jest oczekiwane — to znak, że pracujemy na granicy nowego, a nie wykonujemy rutynę. Pytajcie wcześnie, nie odkładajcie tygodnia z myślą „sam ogarnę".
 
 ## Co teraz

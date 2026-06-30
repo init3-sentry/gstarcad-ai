@@ -13,15 +13,16 @@
 
 ## Cel
 
-Przeprowadzenie spotkania startowego z trójką Jakuba, Tomasza i Rafała — online albo na żywo, format do wyboru przez Dawida. Cel spotkania: formalne włączenie chłopaków do projektu, przedstawienie planu na sześć miesięcy, odpowiedź na pierwsze pytania, formalne przekazanie zadań T-001 do T-003 oraz T-005 do T-007.
+Przeprowadzenie spotkania startowego z trójką z pomocy technicznej (Jakub, Tomasz, Rafał) plus Robertem Nowakowskim — online albo na żywo, format do wyboru przez Dawida. Cel spotkania: formalne włączenie zespołu do projektu, przedstawienie planu na sześć miesięcy, odpowiedź na pierwsze pytania, formalne przekazanie zadań T-001 do T-003 oraz T-005 do T-007 dla chłopaków z pomocy, plus T-009 i T-010 dla Roberta.
 
 ## Kryteria akceptacji
 
 - [ ] Spotkanie odbyło się
-- [ ] Trójka chłopaków potwierdziła zrozumienie projektu, harmonogramu i swoich zadań
-- [ ] Konta w ChatGPT Team utworzone, zaproszenia wysłane do chłopaków, potwierdzenie przyjęcia
-- [ ] Krótka notatka po spotkaniu zapisana do folderu `przeglady/2026-07-XX-notatka-spotkania-startowego.md` w prywatnym repozytorium
-- [ ] Statusy zadań T-001, T-002, T-003 zaktualizowane na „w trakcie"
+- [ ] Cztery osoby (Jakub, Tomasz, Rafał, Robert) potwierdziły zrozumienie projektu, harmonogramu i swoich zadań
+- [ ] Konta w ChatGPT Team utworzone (cztery, nie trzy), zaproszenia wysłane, potwierdzenie przyjęcia
+- [ ] Robert otrzymał osobiście od Dawida wprowadzenie do swojej szczególnej roli (konsultant produktu plus twórca treści)
+- [ ] Krótka notatka po spotkaniu zapisana do folderu `przeglady-nadzorcze/2026-07-XX-notatka-spotkania-startowego.md` w prywatnym repozytorium
+- [ ] Statusy zadań T-001, T-002, T-003 i T-009 zaktualizowane na „w trakcie"
 
 ## Wskazówki
 

@@ -38,6 +38,8 @@ W projekt zaangażowany jest zespół pomocy technicznej GstarCAD w TMSys w skł
 
 Każdy z nich poświęca na ten projekt średnio półtorej godziny dziennie, łącznie z codziennymi obowiązkami obsługi klientów GstarCAD w Polsce. Pamiętaj, że obsługa techniczna sześćdziesięciu tysięcy klientów jest ich główną pracą — projekt jest świadomą inwestycją w narzędzie, które długoterminowo zmniejszy ilość prostych pytań, które trafiają na ich biurka.
 
+Plus do projektu na stałe dołącza **Robert Nowakowski** — zewnętrzny stały współpracownik TMSys z ponad dwudziestoletnim doświadczeniem w branży CAD. Robert prowadzi własną firmę szkoleniową, organizuje dla TMSys szkolenia wyjazdowe i nagrywa podcasty „Rysując w CAD". W projekcie jest dla nas trzykrotnym wzmocnieniem: po pierwsze, jako weteran branży i konsultant strategiczny przy projektowaniu komend (jego pomysły są bardziej życiowe niż nasze, bo dziesiątki lat rozmawia z architektami i projektantami); po drugie, jako tester nowych rozwiązań, prawdopodobnie najbardziej zaangażowany ze wszystkich; po trzecie, jako twórca treści — będzie prowadził webinary o naszym narzędziu i poświęci mu odcinki swojego podcastu.
+
 Wsparcie merytoryczne i przygotowanie materiałów (przewodniki dla sztucznej inteligencji, plan, dokumenty dla zarządu, materiały marketingowe, mechanizm nadzoru postępu) zapewnia Claude — system sztucznej inteligencji firmy Anthropic, działający bezpośrednio przy Dawidzie w narzędziu Claude Code. W praktyce oznacza to, że niemal cała dokumentacja, plan i kod podstawowy powstają w dialogu pomiędzy Dawidem a Claude'em, a zespół pomocy technicznej dochodzi do wzbogacania, weryfikacji empirycznej w GstarCAD-zie 2026 i obsługi klientów.
 
 ## Jak się włączyć
