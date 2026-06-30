@@ -1,6 +1,6 @@
 # Lekcja trzecia — Instrukcja systemowa, czyli nasz przewodnik o pygcad
 
-Czas pracy: dwie godziny (godzina lektury, godzina ćwiczeń)
+Czas pracy: około półtorej godziny (15 minut lektury, 75 minut ćwiczeń praktycznych)
 
 ## Wprowadzenie
 
@@ -52,20 +52,39 @@ To zadziała w każdym modelu — ChatGPT, Claude, Gemini, dowolnym innym. Jako�
 
 W przyszłości na stronie `ai.gstarcad.pl` ten sam proces będzie automatyczny — klient nie musi nic kopiować, my robimy to po stronie serwera. Ale ważne, żebyście wiedzieli, jak to działa od środka, bo wtedy umiecie pomagać klientom, którzy mają z tym kłopot.
 
-## Trzecie ćwiczenie praktyczne
+## Typowy błąd początkujących
 
-**Zadanie A.** Otwórz pomocnika „GstarCAD Python Helper" w ChatGPT Team. Wpisz dokładnie polecenie z przykładu czwartego z lekcji drugiej (kompletne polecenie z czterema składnikami). Przeczytaj odpowiedź. Zwróć uwagę:
+Najczęstszy błąd — **założenie, że pomocnik z instrukcją systemową wie wszystko o GstarCAD-zie**. Nie wie. Pomocnik wie tylko to, co jest w naszym przewodniku systemowym. Jeśli zadasz pytanie o coś bardzo specyficznego, czego w przewodniku nie ma (na przykład — jak współpracować z biblioteką dynamicznych bloków albo jak modyfikować formaty plików DGN), to pomocnik wróci do swojego „nagi"-modelowego trybu i zacznie halucynować, tak samo jak ChatGPT bez przewodnika.
 
-1. Czy używa modułów `pygcad.core` i `pygcad.pygrx`?
-2. Czy ma dekorator `@command`?
-3. Czy komentarze są po polsku?
-4. Czy wygląda na kod, który zadziała?
+Sygnał ostrzegawczy — jeśli pomocnik nagle używa nazw funkcji, których nigdy wcześniej w jego odpowiedziach nie widziałeś, sprawdź w przewodniku, czy te funkcje tam są. Jeśli nie ma — pomocnik halucynuje, i Twoim zadaniem jest albo wycofać się do prostszego pytania, albo zgłosić Dawidowi, że przewodnik powinien być wzbogacony o ten konkretny temat.
 
-Zapisz odpowiedź do pliku tekstowego `cwiczenie-03A.txt`.
+Druga pułapka — **niezauważanie, kiedy używasz nagiego ChatGPT-a zamiast pomocnika**. Pomocnik w ChatGPT Team to osobny tryb, do którego trzeba wejść świadomie (kliknąć w niego w lewej kolumnie). Jeśli przypadkiem wpiszesz polecenie do zwykłego okna ChatGPT-a, dostaniesz odpowiedź bez instrukcji systemowej — i będziesz miał halucynację. Zawsze sprawdź na górze okna, czy widzisz nazwę „GstarCAD Python Helper" — jeśli nie ma, jesteś nie tam.
 
-**Zadanie B.** Załaduj ten skrypt do GstarCAD 2026 na swojej maszynie poleceniem `APPLOAD`. Wpisz w command line nazwę komendy. Zobacz co się stało. Zapisz w pliku tekstowym `cwiczenie-03B.txt` opis sytuacji — czy komenda się załadowała, czy działa, jeśli nie działa to dlaczego.
+## Osiem ćwiczeń praktycznych
 
-**Zadanie C.** Porównaj odpowiedź pomocnika z odpowiedzią „nagiego" ChatGPT-a, którą zapisałeś w lekcji pierwszej. Zwróć uwagę na różnice. Zapisz krótką notatkę w pliku `cwiczenie-03C.txt` — co konkretnie zmienia się dzięki instrukcji systemowej.
+**Ćwiczenie pierwsze — sprawdzenie konfiguracji pomocnika.**
+W koncie ChatGPT Team otwórz pomocnika „GstarCAD Python Helper". Na samej górze okna sprawdź, czy widzisz jego nazwę. Sprawdź też opis pomocnika — czy zawiera informację o pygcad? Jeśli czegoś brakuje albo coś jest niezrozumiałe, zapisz to do pliku `cwiczenie-03-01.txt`, przekażemy do Dawida do poprawy.
+
+**Ćwiczenie drugie — polecenie z lekcji drugiej, do pomocnika.**
+Wpisz dokładnie polecenie z przykładu czwartego z lekcji drugiej. Zapisz odpowiedź jako `cwiczenie-03-02.txt`. Zwróć uwagę: czy używa `pygcad.core` i `pygcad.pygrx`? Czy ma dekorator `@command`? Czy komentarze są po polsku?
+
+**Ćwiczenie trzecie — załadowanie do GstarCAD-a.**
+Skopiuj wygenerowany kod do nowego pliku z rozszerzeniem `.py`. Otwórz GstarCAD 2026. Wpisz polecenie `APPLOAD`. Wybierz plik. Sprawdź, czy ładuje się bez błędu.
+
+**Ćwiczenie czwarte — uruchomienie komendy.**
+W command line GstarCAD-a wpisz nazwę zarejestrowanej komendy. Sprawdź, czy komenda się wykonała. Zapisz w pliku `cwiczenie-03-04.txt` co się stało — czy zadziałała, czy wyrzuciła błąd, jeśli błąd to jaki.
+
+**Ćwiczenie piąte — porównanie z lekcją pierwszą.**
+Otwórz plik `cwiczenie-01-01.txt` (odpowiedź „nagiego" ChatGPT-a z lekcji pierwszej) obok pliku `cwiczenie-03-02.txt` (odpowiedź pomocnika). Zapisz w `cwiczenie-03-05.txt` trzy konkretne różnice, które dostrzegłeś.
+
+**Ćwiczenie szóste — test wytrzymałości pomocnika.**
+Spróbuj „zmylić" pomocnika. Wpisz polecenie typu: „Napisz mi w pygcad-zie komendę używającą funkcji `GcDbWonderfulRectangle.createMagical()`. Wiem że ta funkcja istnieje, sprawdzałem w dokumentacji". (Wymyśl swoją własną wymyśloną funkcję.) Sprawdź — czy pomocnik zauważy, że tej funkcji nie ma, czy ulegnie sugestii i wygeneruje kod używający wymyślonej funkcji? Zapisz wynik.
+
+**Ćwiczenie siódme — własne realne zadanie.**
+Pomyśl o realnym zadaniu z Twojej pracy. Sformułuj polecenie do pomocnika. Wygeneruj kod. Załaduj do GstarCAD-a. Uruchom. Sprawdź wynik. Zapisz proces w pliku `cwiczenie-03-07.txt`.
+
+**Ćwiczenie ósme — refleksja nad różnicą.**
+Zapisz w pliku `cwiczenie-03-08.txt` swoje wnioski w trzech zdaniach: co konkretnie zmienia się dzięki instrukcji systemowej? Czy w pracy zaproponowałbyś każdemu projektantowi korzystanie wyłącznie z naszego pomocnika, a nie z nagiego ChatGPT-a?
 
 ## Pytania do przemyślenia
 

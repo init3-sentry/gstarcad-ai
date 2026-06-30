@@ -1,6 +1,6 @@
 # Lekcja druga — Jak pisać polecenia, żeby dostać sensowną odpowiedź
 
-Czas pracy: dwie godziny (godzina lektury, godzina ćwiczeń)
+Czas pracy: około półtorej godziny (15 minut lektury, 75 minut ćwiczeń praktycznych)
 
 ## Wprowadzenie
 
@@ -58,17 +58,43 @@ Pisz polecenia tak, jakbyś tłumaczył zadanie nowemu praktykantowi, który zac
 
 To może wydawać się czasochłonne, ale wręcz odwrotnie — czas, który zaoszczędzisz na nie powtarzaniu polecenia pięć razy, znacznie przekracza czas włożony w napisanie go raz, ale dobrze.
 
-## Drugie ćwiczenie praktyczne
+## Typowy błąd początkujących
 
-Otwórz konto ChatGPT Team TMSys. Wykonaj następujące zadania, jedno po drugim, w tym samym chatcie albo w osobnych — jak wolisz.
+Najczęstszy błąd — **uprzejmość w komunikacji z modelem**. „Czy mógłbyś łaskawie", „proszę", „byłbym wdzięczny" — to są słowa, które dodają objętości poleceniu, ale nie poprawiają jego jakości. Model nie ma uczuć, nie odczuwa uznania ani urazy.
 
-**Zadanie A.** Wpisz dokładnie polecenie z przykładu czwartego (dobrze sformułowane). Przeczytaj odpowiedź. Zwróć uwagę, że model używa pygcad. Zapisz odpowiedź do pliku tekstowego.
+Jeszcze gorsze — niektórzy próbują „motywować" model: „to bardzo ważne dla mnie", „jestem początkujący, więc proszę o cierpliwość". Model nie reaguje na motywację. On po prostu dobiera kolejne słowo na podstawie wzorców z tekstów treningowych. Im więcej dodatkowych słów wokół właściwego zadania, tym bardziej rozmywa się intencja.
 
-**Zadanie B.** Wpisz dokładnie polecenie z przykładu piątego (bardzo dobrze sformułowane). Przeczytaj odpowiedź. Zwróć uwagę, czy model przestrzega formatu — czy faktycznie odpowiedział tylko kodem bez wyjaśnień przed ani po? Czy komentarze są po polsku? Zapisz odpowiedź do drugiego pliku tekstowego.
+Pisz dyrektywnie — „napisz", „wygeneruj", „popraw", „zwróć". Nie obrazi się. Jakość odpowiedzi rośnie, gdy szum komunikacyjny maleje.
 
-**Zadanie C.** Wymyśl własne polecenie do modelu — coś z Waszej codziennej pracy, gdzie ktoś z klientów pytał Was o automatyzację. Skonstruuj polecenie według czterech składników (kontekst, zadanie, ograniczenia, format). Wpisz i sprawdź odpowiedź. Zapisz do trzeciego pliku.
+Druga pułapka — **lista zakazów zamiast pozytywnych wskazań**. „Nie używaj numpy, nie używaj pandas, nie używaj scipy, nie używaj win32com" — paradoksalnie zwiększa szansę, że model po którąś z tych nazw sięgnie. Lepiej: „użyj wyłącznie pygcad.core i pygcad.pygrx" — pozytywne wskazanie zawsze działa lepiej niż negacyjne.
 
-Te trzy pliki będą Waszym świadectwem zrozumienia tej lekcji. Przyjdą się w trakcie kolejnych lekcji.
+## Osiem ćwiczeń praktycznych
+
+Każde ćwiczenie wymaga konkretnego działania. Nie czytaj samych poleceń — wykonuj je.
+
+**Ćwiczenie pierwsze — kontrolne, przykład czwarty.**
+W koncie ChatGPT Team wpisz dokładnie polecenie z przykładu czwartego z tej lekcji (kompletne polecenie z kontekstem, zadaniem, ograniczeniami). Zapisz odpowiedź jako `cwiczenie-02-01.txt`. Zwróć uwagę, że model używa pygcad.
+
+**Ćwiczenie drugie — kontrolne, przykład piąty.**
+Otwórz nowy chat. Wpisz dokładnie polecenie z przykładu piątego (z formatem odpowiedzi). Zapisz odpowiedź jako `cwiczenie-02-02.txt`. Zwróć uwagę: czy model dostosował się do formatu? Czy faktycznie odpowiedział tylko kodem, bez przedmowy? Czy komentarze są po polsku?
+
+**Ćwiczenie trzecie — porównanie jakości.**
+Otwórz oba pliki z ćwiczeń pierwszego i drugiego obok siebie. Zapisz w pliku `cwiczenie-02-03.txt` trzy konkretne różnice, które dostrzegłeś. Nie ogólniki („drugi jest lepszy"), tylko konkrety („w pierwszym model dodał sześćset słów przedmowy, w drugim zero").
+
+**Ćwiczenie czwarte — modyfikacja polecenia.**
+Weź polecenie z przykładu piątego. Zamień w nim „prostokąt o wymiarach pięć na cztery metry" na „okrąg o promieniu dwa metry". Resztę polecenia zostaw bez zmiany. Wpisz w ChatGPT. Sprawdź, czy model trzymał format (tylko kod, polskie komentarze, dekorator `@command`). Zapisz wynik.
+
+**Ćwiczenie piąte — polecenie skrócone.**
+Weź to samo zadanie (rysowanie okręgu), ale teraz napisz polecenie używając tylko TRZECH składników (kontekst, zadanie, ograniczenia) — z pominięciem formatu odpowiedzi. Wpisz w ChatGPT. Porównaj jakość odpowiedzi z poprzednią (z ćwiczenia czwartego). Czy widzisz różnicę?
+
+**Ćwiczenie szóste — celowo źle.**
+Napisz polecenie celowo źle — jak w przykładzie pierwszym z tej lekcji („narysuj pokój"). Wpisz w ChatGPT. Sprawdź jakość odpowiedzi. To ćwiczenie ma na celu utwierdzenie Cię w przekonaniu, że konstrukcja polecenia naprawdę ma znaczenie.
+
+**Ćwiczenie siódme — własne polecenie z realnej pracy.**
+Pomyśl o sytuacji z ostatniego tygodnia, w której klient TMSys pytał Cię o automatyzację, której nie mogłeś mu od razu zaproponować. Skonstruuj polecenie do modelu według wszystkich czterech składników (kontekst, zadanie, ograniczenia, format). Wpisz. Zapisz wynik jako `cwiczenie-02-07.txt`. Oceń sam, czy odpowiedź jest na poziomie, który mógłbyś przekazać klientowi.
+
+**Ćwiczenie ósme — refleksja.**
+Zapisz w pliku `cwiczenie-02-08.txt` swoje trzy najważniejsze wnioski z tej lekcji. Jakie zachowanie zmienisz w swoich własnych poleceniach do modeli? Czy są rzeczy, które robiłeś prywatnie z ChatGPT-em źle?
 
 ## Co nie działa
 

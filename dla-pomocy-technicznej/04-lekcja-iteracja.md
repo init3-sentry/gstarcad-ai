@@ -1,6 +1,6 @@
 # Lekcja czwarta — Iteracja, czyli „nie pierwsza próba"
 
-Czas pracy: dwie godziny (lektura plus dwa ćwiczenia praktyczne)
+Czas pracy: około półtorej godziny (15 minut lektury, 75 minut ćwiczeń praktycznych)
 
 ## Wprowadzenie
 
@@ -62,21 +62,57 @@ Spotkasz się z pokusą — zamiast iterować, „pomóc" modelowi, podając mu 
 
 Lepsza strategia — opisać efekt, do którego dążysz, językiem naturalnym, i pozwolić modelowi znaleźć sposób. Jeśli Twój fragment jest błędny, model i tak zaadaptuje go bez krytyki. Model nie wie, że jesteś zwykłym praktykantem — traktuje Twoje słowa jak słowa eksperta. Stąd ostrożność w „podpowiadaniu".
 
-## Czwarte ćwiczenie praktyczne
+## Typowy błąd początkujących
 
-**Zadanie A.** Otwórz pomocnika „GstarCAD Python Helper". Wpisz polecenie:
+Najczęstszy błąd — **iterowanie w nieskończoność, bo wstyd zacząć od nowa**. Jeśli po trzech iteracjach kod ciągle nie działa, oznacza to, że model wpadł w pętlę i każda następna wersja jest gorsza. Wstyd jest fałszywym doradcą — lepiej zaczynać od nowa w nowym chacie, niż brnąć w siódmą próbę.
+
+Reguła kciuka — **trzy iteracje, potem nowy chat**. Sformułuj polecenie inaczej, z innym akcentem. Nowy chat oznacza, że model nie pamięta poprzednich nieudanych prób.
+
+Druga pułapka — **dawanie modelowi fragmentu kodu, który Twoim zdaniem ma być w odpowiedzi**. „Spróbuj użyć `GcDbWonderfulRectangle`, bo tak działa w AutoCAD-zie". Model przyjmie Twój fragment jako prawdę, nawet jeśli sam by go nie wygenerował, i zacznie budować wokół niego. Wynik — kod oparty na Twojej halucynacji, którą model utwierdził.
+
+Lepiej — opisać efekt, do którego dążysz, językiem naturalnym, i pozwolić modelowi znaleźć sposób. Twoje „podpowiedzi" są kosztowne.
+
+Trzecia pułapka — **niezauważanie powtarzania błędu**. Model po piątej iteracji może powtarzać tę samą złą strukturę. Jeśli widzisz, że poprawiając jedno, model rozbija coś innego — to znak, że jego kontekst się skomplikował. Czas na nowy chat z czystszym poleceniem.
+
+## Osiem ćwiczeń praktycznych
+
+**Ćwiczenie pierwsze — prosta komenda startowa.**
+W pomocniku „GstarCAD Python Helper" wpisz:
 
 > „Napisz komendę dla GstarCAD-a, która rysuje pięć równoległych poziomych linii w odstępach metra od siebie."
 
-Przeczytaj odpowiedź. Następnie zatestuj iterację — odpowiedz pomocnikowi:
+Zapisz odpowiedź jako `cwiczenie-04-01.py`.
+
+**Ćwiczenie drugie — pierwsza iteracja.**
+W tym samym chacie odpowiedz pomocnikowi:
 
 > „Zmień to. Pięć linii ma być pionowych, nie poziomych. Odstęp ma być pół metra, nie metra. Komenda ma się nazywać PIĘĆ_PIONOWYCH_LINII."
 
-Zwróć uwagę, czy w nowej wersji wszystkie trzy zmiany zostały uwzględnione. Jeśli nie — kontynuuj iterację.
+Sprawdź — czy wszystkie trzy zmiany zostały uwzględnione? Zapisz odpowiedź jako `cwiczenie-04-02.py`.
 
-**Zadanie B.** Skopiuj końcową wersję kodu do pliku `cwiczenie-04B.py`. Załaduj do GstarCAD 2026 przez `APPLOAD`. Uruchom komendę `PIĘĆ_PIONOWYCH_LINII`. Sprawdź czy rysuje pięć pionowych linii w odstępach pół metra. Jeśli daje błąd — wklej tekst błędu z powrotem do pomocnika i kontynuuj iterację, aż zadziała.
+**Ćwiczenie trzecie — załadowanie i test.**
+Skopiuj wersję z ćwiczenia drugiego do pliku `.py`. Załaduj do GstarCAD-a przez `APPLOAD`. Uruchom komendę. Czy działa? Zapisz wynik.
 
-Zapisz dziennik iteracji do pliku `cwiczenie-04-dziennik.txt` — każda kolejna wymiana między Tobą a modelem.
+**Ćwiczenie czwarte — iteracja w razie błędu.**
+Jeśli komenda nie działa, skopiuj DOKŁADNY tekst błędu z command line GstarCAD-a. Wklej do pomocnika z prośbą o poprawę. Zapisz każdą kolejną odpowiedź jako `cwiczenie-04-04a.py`, `cwiczenie-04-04b.py` i tak dalej.
+
+**Ćwiczenie piąte — rozbudowa po trzech sukcesywnych iteracjach.**
+Kiedy komenda już działa, poproś pomocnika o trzy KOLEJNE drobne zmiany, jedna po drugiej:
+
+1. „Niech kolor linii będzie zielony."
+2. „Niech linie będą na warstwie POMIARY (utwórz warstwę, jeśli nie istnieje)."
+3. „Niech komenda po wykonaniu wyświetli komunikat: 'Pięć linii narysowano na warstwie POMIARY'."
+
+Sprawdź, czy każda iteracja uwzględnia poprzednie zmiany i nie psuje wcześniejszych.
+
+**Ćwiczenie szóste — celowa pętla.**
+Otwórz nowy chat. Wpisz polecenie, które prowokuje model do błędu — na przykład „napisz mi komendę używającą funkcji `gcdbDrawSpecialCurve()`". Iteruj trzy razy, mówiąc modelowi, że odpowiedź nie działa. Zaobserwuj, czy każda kolejna wersja jest lepsza, gorsza, czy taka sama. To ćwiczenie ma Cię nauczyć, kiedy iterowanie nie ma sensu.
+
+**Ćwiczenie siódme — porównanie tonów.**
+Otwórz dwa równoległe chaty z pomocnikiem. W jednym pisz uprzejmie („proszę", „dziękuję"), w drugim dyrektywnie („napisz", „popraw", „zwróć"). Wpisz to samo polecenie. Porównaj jakość odpowiedzi. Czy są różnice?
+
+**Ćwiczenie ósme — własna reguła iteracji.**
+Zapisz w pliku `cwiczenie-04-08.txt` swoją osobistą regułę kciuka — kiedy iterujesz, kiedy zaczynasz od nowa. Twoja reguła, nie moja. Z czasem ją zweryfikujesz.
 
 ## Pytania do przemyślenia
 

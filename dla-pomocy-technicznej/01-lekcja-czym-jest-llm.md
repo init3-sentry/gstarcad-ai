@@ -1,6 +1,6 @@
 # Lekcja pierwsza — Czym jest model językowy i dlaczego on kłamie
 
-Czas pracy: dwie godziny (godzina lektury, godzina ćwiczenia praktycznego)
+Czas pracy: około półtorej godziny (15 minut lektury, 75 minut ćwiczeń praktycznych)
 
 ## O co tu chodzi
 
@@ -62,21 +62,45 @@ Konkretne sygnały, na które warto zwracać uwagę przy czytaniu kodu wygenerow
 
 **Piąty sygnał — kod, który wygląda na skopiowany z AutoCAD-a.** Jeśli widzisz `import win32com.client` i `acad = win32com.client.Dispatch("AutoCAD.Application")` — to definitywnie nie jest kod dla GstarCAD-a. To jest klasyczna halucynacja w naszej branży.
 
-## Pierwsze ćwiczenie praktyczne
+## Typowy błąd początkujących
 
-Otwórz konto ChatGPT Team TMSys (zaproszenie dostaniesz osobnym mailem). Załóż nowy chat. Wpisz dokładnie następujące zapytanie:
+Najczęstszy błąd osób, które dopiero zaczynają pracę z modelami językowymi — **wiara modelowi na słowo, bez sprawdzenia**. Łatwo dać się zwieść przekonującemu tonowi odpowiedzi. Model nie pisze „prawdopodobnie", „może", „spróbuj sprawdzić" — pisze wprost, jakby wszystko, co podaje, było zweryfikowanym faktem. To kwestia stylu, nie pewności.
+
+Sygnał ostrzegawczy, na który warto zwracać uwagę: **jeśli odpowiedź jest podejrzanie pewna siebie, bez ani jednego „prawdopodobnie", „zazwyczaj", „w większości przypadków" — model jest najprawdopodobniej w trybie halucynacji**. Prawdziwy ekspert hedguje. Halucynujący model nie.
+
+Druga oznaka — kiedy model używa nazw funkcji, klas albo modułów, które wyglądają „zbyt logicznie". `GcDbWonderfulRectangleWithRoundCorners` — brzmi sensownie, ale prawdopodobnie zmyślone. Im bardziej kompletna i „idealna" nazwa, tym większe ryzyko, że model ją wymyślił przed chwilą.
+
+## Osiem ćwiczeń praktycznych
+
+Wykonuj je po kolei, każde wymaga rzeczywistego działania, nie tylko czytania.
+
+**Ćwiczenie pierwsze — pierwsze zapytanie do „nagiego" modelu.**
+Otwórz konto ChatGPT Team TMSys (zaproszenie dostaniesz osobnym mailem). Załóż nowy chat. Wpisz dokładnie:
 
 > „Napisz mi komendę GstarCAD-a w Pythonie, która rysuje prostokąt o wymiarach pięć na trzy metry."
 
-Naciśnij wyślij. Przeczytaj odpowiedź uważnie. Zwróć uwagę na:
+Naciśnij wyślij. Przeczytaj odpowiedź. Zapisz całą odpowiedź do pliku `cwiczenie-01-01.txt`.
 
-1. Jakie importy proponuje model?
-2. Jakie nazwy funkcji są w kodzie?
-3. Czy te nazwy wyglądają wiarygodnie, czy bardziej jak zmyślone?
+**Ćwiczenie drugie — analiza importów.**
+W odpowiedzi z ćwiczenia pierwszego, wyróżnij wszystkie linie zaczynające się od `import` albo `from`. Zapisz je na osobnej liście. Następnie zastanów się — czy każdy z tych importów wygląda na prawdziwy moduł GstarCAD-a, czy może być wymyślony? Twoja intuicja na tym etapie wystarczy.
 
-**Ważne** — nie próbuj jeszcze ładować tego kodu do GstarCAD-a. To jest celowo wykonane przed lekcją trzecią, w której pokażemy, jak korzystać z naszego skonfigurowanego pomocnika, który nie halucynuje (bo dostaje przewodnik systemowy). Pierwsza próba — bez pomocnika — pokaże Wam wprost, jak halucynuje „nagi" model.
+**Ćwiczenie trzecie — analiza nazw funkcji i klas.**
+W odpowiedzi z ćwiczenia pierwszego, wyróżnij wszystkie nazwy funkcji (rzeczy zakończone nawiasami, jak `setStartPoint()`) i nazwy klas (rzeczy zaczynające się dużą literą, jak `GcDbLine`). Zapisz je na osobnej liście.
 
-Zapisz odpowiedź ChatGPT do osobnego pliku tekstowego (na przykład `cwiczenie-01-jakub.txt`). Wrócimy do niej w lekcji trzeciej, żeby porównać z tym, co dostaje model wyposażony w nasz przewodnik systemowy.
+**Ćwiczenie czwarte — porównanie z prawdziwą referencją.**
+Otwórz plik `biblioteka-rag/przewodnik-systemowy.md` (znajdziesz go w tym samym repozytorium). Przeszukaj go po nazwach, które wynotowałeś w ćwiczeniach drugim i trzecim. Ile z nich faktycznie tam występuje? Zapisz wynik w pliku `cwiczenie-01-04.txt` — coś w stylu „z dziewięciu zidentyfikowanych nazw, sześć występuje w przewodniku, trzy nie".
+
+**Ćwiczenie piąte — powtarzalność halucynacji.**
+W tym samym koncie ChatGPT otwórz NOWY chat (kluczowe — musi być nowy, żeby model nie pamiętał poprzedniego). Wpisz dokładnie to samo polecenie co w ćwiczeniu pierwszym. Porównaj nową odpowiedź z poprzednią. Czy są identyczne? Czy w nowej odpowiedzi pojawiły się inne nazwy funkcji?
+
+**Ćwiczenie szóste — drugi model.**
+Jeśli masz prywatne konto Claude albo Gemini, wpisz tam to samo polecenie. (Jeśli nie masz — pomiń to ćwiczenie.) Porównaj wszystkie trzy odpowiedzi: ChatGPT odpowiedź A, ChatGPT odpowiedź B, Claude/Gemini. Czy halucynują w identyczny sposób, czy każdy „wymyśla" co innego?
+
+**Ćwiczenie siódme — własne polecenie.**
+Wymyśl swoje własne zapytanie — coś z Twojej rzeczywistej pracy, czego klient TMSys mógłby Cię realnie spytać. Na przykład: „napisz komendę, która zmieni warstwę wszystkich tekstów na warstwę TEKSTY". Wpisz do ChatGPT. Powtórz analizę z ćwiczeń drugiego, trzeciego i czwartego. Zapisz wynik.
+
+**Ćwiczenie ósme — własna lista obserwacji.**
+Zapisz w pliku `cwiczenie-01-08.txt` swoje trzy największe zaskoczenia z tej lekcji. Konkrety, nie ogólniki. Na przykład: „zaskoczyło mnie, że ChatGPT za każdym razem używa innej nazwy funkcji dla tego samego zadania" albo „zaskoczyło mnie, że model używał `pyautocad`, którego nigdy w życiu nie słyszałem". Tę listę przeczytamy razem na spotkaniu startowym.
 
 ## Pytania do przemyślenia
 

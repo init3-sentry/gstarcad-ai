@@ -1,6 +1,6 @@
 # Lekcja piąta — Jak sprawdzać kod przed jego użyciem
 
-Czas pracy: dwie godziny (lektura plus praktyka)
+Czas pracy: około półtorej godziny (15 minut lektury, 75 minut ćwiczeń praktycznych)
 
 ## Wprowadzenie
 
@@ -55,13 +55,41 @@ Przed publikacją komendy w bibliotece sprawdź każdy z tych punktów. Jeśli c
 - [ ] Plik komendy ma nazwę adekwatną do jej funkcji (na przykład `eksport_warstw_do_pdf.py`)
 - [ ] W folderze obok pliku komendy znajdują się dwa zrzuty ekranu pokazujące działanie
 
-## Piąte ćwiczenie praktyczne
+## Typowy błąd początkujących
 
-**Zadanie A.** Wróć do kodu, który napisałeś w ćwiczeniach poprzednich lekcji (najlepiej do końcowej wersji z ćwiczenia czwartego B). Przejdź przez tablicę kontrolną. Zaznacz, które punkty są spełnione, a które nie. Jeśli któryś nie jest — wróć do pomocnika i popraw.
+Najczęstszy błąd — **uznanie, że jeśli `APPLOAD` załadował kod bez błędu, to wszystko jest w porządku**. Pomyślne załadowanie znaczy tylko, że Python potrafił przeczytać plik. Nie znaczy, że komenda zadziała, gdy ją uruchomisz.
 
-**Zadanie B.** Otwórz plik `cwiczenie-04B.py`. Otwórz go też w edytorze tekstowym z podkreślaniem składni (VS Code albo inny). Jeśli są podkreślenia czerwone — popraw. Jeśli są ostrzeżenia — przemyśl, czy warto je usuwać.
+Sprawdzanie kodu ma poziomy. Załadowanie to poziom trzeci z sześciu — najprostszy spośród tych, które naprawdę coś weryfikują. Komenda musi przejść jeszcze poziom czwarty (uruchomienie na pustym rysunku), piąty (uruchomienie na rysunku testowym) i ideale szósty (uruchomienie na realnym rysunku klienta). Skipowanie poziomów to standardowy sposób, w jaki klient otrzymuje kod, który u Ciebie „działał".
 
-**Zadanie C.** Załaduj komendę do GstarCAD-a 2026 na rysunku testowym `materialy-testowe/rysunek-mieszkania.dwg`. Uruchom. Sprawdź czy rysuje pięć pionowych linii. Zrób zrzut ekranu przed uruchomieniem komendy i po uruchomieniu. Zapisz oba zrzuty do swojego katalogu zadania.
+Druga pułapka — **wiara w to, że ten sam kod zadziała identycznie u każdego klienta**. Komenda, która działa u Ciebie na pustym rysunku, może wywalać się u klienta z trzydziestoma tysiącami obiektów. Komenda, która działa u Ciebie na rysunku w polskich jednostkach, może dawać dziwne wyniki u klienta z imperialną konfiguracją.
+
+Trzecia pułapka — **sprawdzanie tylko „czy działa", bez sprawdzania „czy działa dobrze"**. Komenda, która rysuje prostokąt, może go rysować w niewłaściwej warstwie, w niewłaściwym kolorze, w niewłaściwym miejscu. „Działa" to za mało. Trzeba weryfikować zgodność z konkretnymi oczekiwaniami.
+
+## Osiem ćwiczeń praktycznych
+
+**Ćwiczenie pierwsze — pełna tablica kontrolna.**
+Wróć do końcowej wersji kodu z ćwiczenia czwartego (`cwiczenie-04-04.py` albo finalna wersja po iteracji). Przejdź przez całą tablicę kontrolną z tej lekcji (dwanaście punktów). Zaznacz, które punkty są spełnione, a które nie. Zapisz wynik jako `cwiczenie-05-01.txt`.
+
+**Ćwiczenie drugie — edytor składni.**
+Otwórz plik kodu w edytorze tekstowym z podkreślaniem składni (VS Code albo Notepad++). Jeśli są podkreślenia czerwone — popraw przez iterację z pomocnikiem. Jeśli są żółte ostrzeżenia — zdecyduj, które warto usunąć. Zapisz końcową wersję pliku.
+
+**Ćwiczenie trzecie — załadowanie do GstarCAD-a.**
+Otwórz GstarCAD 2026. Wpisz `APPLOAD`. Wybierz plik. Sprawdź, czy ładuje się bez błędu. Jeśli nie — skopiuj tekst błędu, iteruj.
+
+**Ćwiczenie czwarte — uruchomienie na pustym rysunku.**
+Otwórz nowy, pusty rysunek w GstarCAD-zie. Uruchom komendę z pliku. Sprawdź, czy komenda działa zgodnie z opisem. Zapisz wynik.
+
+**Ćwiczenie piąte — uruchomienie na rysunku testowym.**
+Otwórz w GstarCAD-zie jeden z rysunków testowych z folderu `materialy-testowe/` (jeśli istnieje — albo dowolny realny rysunek z Twojej dotychczasowej pracy). Uruchom tę samą komendę. Sprawdź, czy zachowuje się tak samo, czy są różnice.
+
+**Ćwiczenie szóste — zrzuty ekranu „przed i po".**
+Przed uruchomieniem komendy zrób zrzut ekranu GstarCAD-a. Uruchom komendę. Zrób drugi zrzut ekranu. Zapisz oba do swojego katalogu zadania jako `cwiczenie-05-06-przed.png` i `cwiczenie-05-06-po.png`. To są materiały dla dokumentacji komendy w bibliotece.
+
+**Ćwiczenie siódme — sprawdzenie odporności na sytuacje brzegowe.**
+Otwórz rysunek, który jest „dziwny" — bardzo duży (kilka tysięcy obiektów), albo z dziwnymi nazwami warstw, albo z polskimi znakami w nazwach obiektów. Uruchom tę samą komendę. Sprawdź, czy działa, czy daje sensowny błąd. Zapisz wynik.
+
+**Ćwiczenie ósme — raport weryfikacji.**
+Napisz w pliku `cwiczenie-05-08.txt` krótki raport weryfikacji (trzy-cztery zdania): czy komenda jest gotowa do publikacji w bibliotece, jakie są jej ograniczenia, czego klient powinien być świadomy przy jej używaniu. To jest pierwowzór realnego raportu, jaki będziesz pisał dla każdego skryptu, który trafi do publikacji.
 
 ## Co znaczy „gotowe do publikacji"
 
