@@ -1,7 +1,7 @@
 # Mapa drogowa projektu gstarcad-ai
 
 Wersja: 1.0 — 30 czerwca 2026 (pierwsza wersja przy starcie projektu).
-Autor: Dawid Jakubowski (dyrektor produktu GstarCAD nationwide, TMSys) + Claude (Anthropic).
+Autor: Dawid Jakubowski (PM produktu GstarCAD nationwide, TMSys) + Claude (Anthropic).
 
 Dokument jest naszym wewnętrznym kompasem strategicznym. Pokazuje co, kiedy i w jakiej kolejności robimy. Zmieniany jest świadomie i z datą — żeby było widać, kiedy coś się przesunęło i dlaczego. Każda kolejna wersja jest pełnym przepisaniem z aktualną datą.
 

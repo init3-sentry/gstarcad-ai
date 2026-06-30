@@ -28,7 +28,7 @@ Trzecią grupą są **decydenci w dużych biurach projektowych**, dla których a
 
 ## Kto za tym stoi
 
-Projekt prowadzi **Dawid Jakubowski**, dyrektor produktu GstarCAD nationwide w TMSys. W TMSys od szesnastu lat — najpierw jako sprzedawca, potem lider zespołu sprzedaży, następnie dyrektor produktu, a od końca 2026 roku odpowiedzialny też za rozwój produktu na rynku niemieckim oraz na Litwie, Łotwie, w Estonii, na Ukrainie i w Rumunii.
+Projekt prowadzi **Dawid Jakubowski**, PM produktu GstarCAD nationwide w TMSys. W TMSys od szesnastu lat — najpierw jako sprzedawca, potem lider zespołu sprzedaży, następnie PM produktu, a od końca 2026 roku odpowiedzialny też za rozwój produktu na rynku niemieckim oraz na Litwie, Łotwie, w Estonii, na Ukrainie i w Rumunii.
 
 W projekt zaangażowany jest zespół pomocy technicznej GstarCAD w TMSys w składzie:
 

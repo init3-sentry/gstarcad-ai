@@ -2,13 +2,13 @@
 
 Drogi Jakubie, drogi Tomaszu, drogi Rafale,
 
-Włączam Was — formalnie, jako dyrektor produktu GstarCAD nationwide w TMSys — do projektu, który będzie miał istotne znaczenie dla naszej firmy w nadchodzących latach. Projekt nazywa się **gstarcad-ai**. Jego celem jest uczynienie GstarCAD-a najbardziej rozpoznawalnym systemem projektowym komputerowo wspomaganym, który jako pierwszy w Polsce buduje produkcyjne wsparcie sztucznej inteligencji dla swoich klientów. Innymi słowy — chcemy żeby kiedy projektant CAD myśli „chciałbym zautomatyzować to zadanie", jego pierwszą myślą był GstarCAD, a nie konkurencyjny program.
+Włączam Was — formalnie, jako PM produktu GstarCAD nationwide w TMSys — do projektu, który będzie miał istotne znaczenie dla naszej firmy w nadchodzących latach. Projekt nazywa się **gstarcad-ai**. Jego celem jest uczynienie GstarCAD-a najbardziej rozpoznawalnym systemem projektowym komputerowo wspomaganym, który jako pierwszy w Polsce buduje produkcyjne wsparcie sztucznej inteligencji dla swoich klientów. Innymi słowy — chcemy żeby kiedy projektant CAD myśli „chciałbym zautomatyzować to zadanie", jego pierwszą myślą był GstarCAD, a nie konkurencyjny program.
 
 W tym dokumencie wyjaśniam, dlaczego ten projekt jest ważny dla firmy, jakiej roli oczekuję od Was, ile czasu to zajmie, i — co dla mnie istotne — co Wy z tego osobiście wyniesiecie w wymiarze rozwoju zawodowego.
 
 ## Dlaczego to robimy
 
-Sześćdziesiąt tysięcy aktywnych klientów GstarCAD-a w Polsce to baza, którą zbudowaliśmy przez ostatnie szesnaście lat. Ale rynek się zmienia. W ciągu ostatnich dwóch lat sztuczna inteligencja przestała być modnym hasłem, a stała się realnym narzędziem, którego coraz większa grupa projektantów używa codziennie. ChatGPT, Claude, Gemini — to są dziś nazwy znane każdemu specjaliście pod pięćdziesiąty rok życia w branży inżynierskiej.
+Sześćdziesiąt tysięcy aktywnych klientów GstarCAD-a w Polsce to baza, którą zbudowaliśmy przez ostatnie szesnaście lat. Ale rynek się zmienia. W ciągu ostatnich dwóch lat sztuczna inteligencja przestała być modnym hasłem, a stała się realnym narzędziem, którego coraz większa grupa projektantów używa codziennie. ChatGPT, Claude, Gemini — to są dziś nazwy znane każdemu specjaliście pod czterdziesty rok życia w branży inżynierskiej.
 
 Nasz konkurent ZWCAD prowadzi od roku 2025 agresywną wojnę cenową. Nie wygramy z nim wyłącznie cennikiem. Musimy mieć argument, który jest realnie po naszej stronie i którego nie da się skopiować — bo wymaga decyzji architektonicznej, którą ZWCAD musiałby podjąć rok wcześniej. Tym argumentem jest **natywne wsparcie Pythona w GstarCAD 2026**.
 
@@ -28,11 +28,11 @@ Trzech rzeczy.
 
 Realistycznie — średnio półtorej godziny dziennie, czyli siedem-osiem godzin tygodniowo, przez okres najbliższych dwunastu tygodni. Po pierwszych dwunastu tygodniach intensywność spadnie do trzech-czterech godzin tygodniowo, bo będziecie pracować już głównie nad wzbogacaniem istniejących materiałów, a nie nad budowaniem od zera.
 
-Pamiętam, że Wasza główna praca to obsługa sześćdziesięciu tysięcy klientów GstarCAD w Polsce. Projekt nie ma jej zastąpić ani z nią konkurować — projekt jest świadomą inwestycją w narzędzie, które za pół roku zmniejszy ilość prostych pytań, które trafiają na Wasze biurka. Klient, który dziś dzwoni z pytaniem „jak zrobić hurtowy eksport warstw do PDF-ów", za pół roku usłyszy od Was: „proszę wejść na `ai.gstarcad.pl`, wpisać dokładnie to pytanie, dostanie Pan gotowy skrypt w ciągu minuty". Trzydzieści minut telefonu zamieni się w trzydzieści sekund.
+Pamiętam, że Wasza główna praca to obsługa tysięcy klientów GstarCAD. Projekt nie ma jej zastąpić ani z nią konkurować — projekt jest świadomą inwestycją w narzędzie, które za pół roku zmniejszy ilość prostych pytań, które trafiają na Wasze biurka. Klient, który dziś dzwoni z pytaniem „jak zrobić hurtowy eksport warstw do PDF-ów", za pół roku usłyszy od Was: „proszę wejść na `ai.gstarcad.pl`, wpisać dokładnie to pytanie, dostanie Pan gotowy skrypt w ciągu minuty". Trzydzieści minut telefonu zamieni się w trzydzieści sekund.
 
 ## Co Ty z tego wyniesiesz osobiście
 
-To jest część, na której zależy mi szczególnie, bo nie chcę żebyście traktowali ten projekt jako dodatkową robotę, którą wciska Wam dyrektor produktu. Chcę żebyście zobaczyli w tym swoją osobistą wartość.
+To jest część, na której zależy mi szczególnie, bo nie chcę żebyście traktowali ten projekt jako dodatkową robotę, którą wciska Wam PM produktu. Chcę żebyście zobaczyli w tym swoją osobistą wartość.
 
 **Po pierwsze — staniesz się specjalistą w czymś, na co rynek pracy będzie miał popyt przez najbliższe pięć-dziesięć lat.** Wiedza, jak skutecznie pracować ze sztuczną inteligencją w środowisku inżynierskim, jest dziś rzadka i wysoko ceniona. Za rok pracy w tym projekcie będziesz mieć w portfelu konkretne doświadczenie: pisanie skryptów Python dla CAD-a, projektowanie poleceń dla modeli językowych, weryfikowanie automatycznie generowanego kodu. To są umiejętności, które na rynku pracy są warte konkretne pieniądze.
 
@@ -48,7 +48,7 @@ I po piąte — najbardziej osobiste — **macie szansę być pierwszą trójką
 
 W cyklach tygodniowych. Każdy z Was poświęca średnio półtorej godziny dziennie. Każdy ma swój własny tor zadań — nie czekamy na siebie, każdy idzie do przodu swoim tempem. Co piątek rano automatyczna procedura nadzorcza przegląda postęp w całym repozytorium i zapisuje raport. Raport jest jawny — każdy z Was może zobaczyć, kto co zrobił, kto utknął, kto pcha do przodu. To nie jest narzędzie do oceniania. To narzędzie do dyscyplinowania samych siebie i do pokazywania światu, że projekt naprawdę żyje.
 
-Komunikujemy się głównie przez komentarze do zadań w GitHubie (zaproszenia do organizacji wyślę osobno) plus krótkie cotygodniowe spotkania ze mną — albo w mojej pracowni w Krakowie (jeśli akurat jesteście w okolicy), albo online. Pojawienie się problemu, którego nie umiecie sami rozwiązać, jest oczekiwane — to znak, że pracujemy na granicy nowego, a nie wykonujemy rutynę. Pytajcie wcześnie, nie odkładajcie tygodnia z myślą „sam ogarnę".
+Komunikujemy się głównie przez komentarze do zadań w GitHubie (zaproszenia do organizacji wyślę osobno) plus krótkie cotygodniowe spotkania ze mną. Pojawienie się problemu, którego nie umiecie sami rozwiązać, jest oczekiwane — to znak, że pracujemy na granicy nowego, a nie wykonujemy rutynę. Pytajcie wcześnie, nie odkładajcie tygodnia z myślą „sam ogarnę".
 
 ## Co teraz
 
@@ -68,7 +68,7 @@ Jeśli coś z tego dokumentu nie jest jasne — piszcie do mnie bezpośrednio.
 
 Pozdrawiam,
 **Dawid Jakubowski**
-Dyrektor produktu GstarCAD nationwide
+PM produktu GstarCAD nationwide
 TMSys
 
 ---
