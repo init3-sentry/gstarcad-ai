@@ -45,6 +45,7 @@ Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończe
 **Mierzalne kryteria zaliczenia etapu:**
 
 - Domena `ai.gstarcad.pl` jest aktywna i prowadzi do działającej aplikacji.
+- **Aplikacja ma nowoczesny interfejs typu chat** — nie formularz. Klient widzi okno rozmowy z modelem, wpisuje polecenie, obserwuje odpowiedź modelu w czasie rzeczywistym linia po linii (streaming). W ramach tej samej rozmowy może dopisać kolejne polecenia typu „popraw kolor na niebieski", „dodaj obsługę pustego rysunku" — historia rozmowy widoczna. To wzorzec, którego klient AI 2026 się spodziewa (ChatGPT, Claude, Cursor). Formularz stron internetowych sprzed pięciu lat by go rozczarował.
 - Aplikacja korzysta z modelu Sonnet 5 firmy Anthropic, klucz programistyczny zakupiony przez TMSys z zabezpieczonym limitem miesięcznym dwustu dolarów na start.
 - Strona ma trzy warstwy dostępu: anonimową (do trzech zapytań na dobę, do dwóch tysięcy pięciuset żetonów na odpowiedź), z adresem pocztowym (do pięciu zapytań na dobę, do sześciu tysięcy żetonów) i z numerem licencji GstarCAD weryfikowanym w bazie TMSys (do dziesięciu zapytań na dobę, do dwunastu tysięcy żetonów).
 - Wszystkie zabezpieczenia przed nadużyciem są wdrożone: Cloudflare Turnstile (test odróżnienia człowieka od bota), limit na adres internetowy, sztywna struktura polecenia po stronie serwera, twarde ograniczenie liczby żetonów odpowiedzi, próg powiadomienia o przekroczeniu stu dolarów miesięcznie, próg blokady przy dwustu dolarach.
@@ -70,9 +71,30 @@ Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończe
 - Dla pięciu najatrakcyjniejszych skryptów (kreator klatki schodowej, generator zestawienia materiałowego, audyt zgodności z normą, kreator BIM-lite, narzędzie do porównania dwóch wersji rysunku) są przygotowane krótkie filmy wideo (do dwóch minut każdy) opublikowane na koncie YouTube TMSys.
 - Co najmniej tysiąc unikalnych klientów TMSys pobrało biblioteczkę w ciągu pierwszych dwóch miesięcy od jej publikacji.
 
+### Etap 3.5 — Plugin ASKAI dla GstarCAD
+
+**Czas trwania:** od 1 grudnia 2026 do 31 grudnia 2026 (cztery tygodnie).
+
+**Cel etapu:** dostarczenie klientom natywnego doświadczenia sztucznej inteligencji **wewnątrz GstarCAD-a**, bez konieczności wychodzenia do przeglądarki. Krytyczne dla realnego wrażenia „AI wbudowana w mój CAD", które jest tym, czego klient docelowy (a szczególnie decydent techniczny i CIO korporacji) się dziś spodziewa.
+
+Klient wpisuje w wiersz poleceń GstarCAD-a nową komendę `ASKAI`. Otwiera się okno dialogowe z chatem. Wpisuje polecenie po polsku, obserwuje strumień odpowiedzi modelu w czasie rzeczywistym, klika przycisk „Wykonaj tutaj" — wygenerowany skrypt ładuje się automatycznie do bieżącego rysunku, bez wychodzenia z okna GstarCAD-a i bez ręcznego `APPLOAD`. Kolejne polecenia w tej samej sesji, jeśli klient chce.
+
+**Mierzalne kryteria zaliczenia etapu:**
+
+- Plugin w Pythonie rejestrujący komendę `ASKAI` przez dekorator `@command` z modułu `pygcad.core`.
+- Okno dialogowe z chat-style interface napisane w bibliotece `tkinter` (standardowa biblioteka Pythona, cross-Windows-kompatybilna, nie wymaga dodatkowych zależności u klienta).
+- Streaming odpowiedzi modelu z zaplecza `ai.gstarcad.pl` — klient widzi kod generowany na żywo, tak samo jak w oknie strony webowej.
+- Przycisk „Wykonaj tutaj" wykonujący wygenerowany skrypt bezpośrednio w bieżącym rysunku — funkcja automatycznego ładowania kodu bez konieczności zapisu do pliku.
+- Autoryzacja poprzez numer licencji GstarCAD — te same limity dziennych zapytań co przez stronę webową (dziesięć zapytań na dobę dla klienta z licencją, po dwanaście tysięcy żetonów każde).
+- Test u co najmniej pięciu klientów pilotażowych — dwa biura projektowe (obecni klienci TMSys), dwaj indywidualni projektanci, jedna korporacja z bazy pięćdziesięciu największych (kandydat na pilotaż korporacyjny).
+- Instrukcja instalacji dla klientów końcowych w pięknym polskim — jeden krótki film oraz jednostronicowy przewodnik pisemny.
+- Publikacja pluginu jako pakietu do pobrania ze sklepu TMSys — darmowo dla wszystkich klientów z aktywną licencją GstarCAD.
+
+**Znaczenie strategiczne etapu:** Ten plugin realnie odróżnia GstarCAD od konkurencji. AutoCAD nie ma niczego takiego (i długo mieć nie będzie — Autodesk pracuje w innym rytmie). ZWCAD nie ma natywnego Pythona, więc nie da rady zbudować takiego mechanizmu. BricsCAD wymagałby konfiguracji, której klient nie chce robić. **Konfiguracji GstarCAD + Plugin ASKAI + zaplecze AI nie da się skopiować bez roku dedykowanej pracy przez konkurenta.** Plus — dla korporacji ten plugin to konkretny obiekt, który CIO pokazuje zarządowi jako „nasze wdrożenie AI w warsztacie projektowym". Nie strona internetowa gdzieś tam. Coś, co widzą projektanci co dzień w swoim narzędziu pracy.
+
 ### Etap czwarty — Doładowania, konkurs i rozszerzenie międzynarodowe
 
-**Czas trwania:** od 1 grudnia 2026 do 30 czerwca 2027 (siedem miesięcy).
+**Czas trwania:** od 1 stycznia 2027 do 30 czerwca 2027 (sześć miesięcy).
 
 **Cel etapu:** uruchomić mechanizm doładowań (umożliwiający klientom przekraczanie dziennych limitów za niewielką opłatą), uruchomić cotygodniowy konkurs „skrypt tygodnia" jako narzędzie marketingu treści, oraz przygotować strukturalną i językową infrastrukturę pod rozszerzenie projektu na rynek niemiecki w roku 2027.
 
@@ -96,7 +118,8 @@ Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończe
 | 31 sierpnia 2026 | Etap drugi zakończony — aplikacja `ai.gstarcad.pl` działa publicznie | oczekuje |
 | 1 września 2026 | Pierwsza kampania marketingowa skierowana do projektantów spoza bazy TMSys | oczekuje |
 | 30 listopada 2026 | Etap trzeci zakończony — galeria pięćdziesięciu skryptów | oczekuje |
-| 1 grudnia 2026 | Uruchomienie doładowań i konkursu tygodnia | oczekuje |
+| 31 grudnia 2026 | Etap 3.5 zakończony — plugin ASKAI dla GstarCAD wydany dla klientów | oczekuje |
+| 1 stycznia 2027 | Uruchomienie doładowań i konkursu tygodnia | oczekuje |
 | 1 stycznia 2027 | Pierwsza wewnętrzna ocena dwunastomiesięczna projektu | oczekuje |
 | 1 marca 2027 | Uruchomienie wersji niemieckiej `ai.gstarcad.de` | oczekuje |
 | 30 czerwca 2027 | Projekt osiąga samofinansowanie | oczekuje |
