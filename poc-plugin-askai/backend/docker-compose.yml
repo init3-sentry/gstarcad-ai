@@ -1,0 +1,16 @@
+services:
+  gs-ai-poc:
+    build: .
+    image: gs-ai-poc:0.2
+    container_name: gs-ai-poc
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8082:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

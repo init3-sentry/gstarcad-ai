@@ -1,6 +1,15 @@
-# Backend PoC — gdzie żyje
+# Backend PoC
+
+## Wersje
+
+- **v0.1 stub** (wdrożone 1 lipca 2026, dzień 2 planu) — sztywny kod pygcad zwracany zawsze, ignoruje prompt. Weryfikacja pipeline strumieniowego end-to-end.
+- **v0.2 hybrid** (kod gotowy 1 lipca 2026 wieczorem, deploy po powrocie z testów) — realny model Anthropic Sonnet 5, graceful fallback do stubu jeśli brak klucza. Deploy: patrz [`DEPLOY.md`](DEPLOY.md).
+
+## Gdzie żyje działający backend
 
 Backend proof of concept **nie jest w tym folderze**. Żyje na serwerze `sentry-cloud` (Oracle Cloud Frankfurt, publiczny adres `130.61.116.107`) jako kontener Docker.
+
+Ten folder zawiera **kod źródłowy** (SoT), z którego stawia się produkcyjny backend na sentry-cloud. Zmiany robimy tu w git, potem `scp` na serwer i rebuild.
 
 ## Adresy
 
