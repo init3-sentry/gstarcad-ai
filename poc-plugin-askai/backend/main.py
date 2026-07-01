@@ -77,47 +77,74 @@ app.add_middleware(
 )
 
 
-STUB_CODE = """# Wygenerowane przez gs-ai PoC (tryb stub — sweep-2, retest Text + Polyline 2D)
-# Test 1: GcDbText poprawnym konstruktorem (nie bezargumentowym z przewodnika)
-# Test 2: GcDbPolyline (2D) w izolacji, po swiezym restarcie CAD zeby baza byla czysta
-from pygcad.core.runtime import *
-from pygcad.pygrx import *
+STUB_CODE = """# Wygenerowane przez gs-ai PoC (tryb stub — sweep-4 pomocnicze funkcje + enum + importy)
+# Weryfikacja diagnostyczna bez interakcji z uzytkownikiem:
+# - Test 1: gcedPrompt vs gcutPrintf istnienie
+# - Test 2: gcedGetReal vs gcutGetReal istnienie
+# - Test 3: Gcad.eOk enum vs numeric 5100
+# - Test 4: submodul pygcad.core.runtime i widoczne symbole w pygcad.core
 
-def openMS():
-    database = gcdbWorkingDatabase()
-    (status, blockTbl) = database.getBlockTable(GcDb.OpenMode.kForRead)
-    (status, record) = blockTbl.getAt(GCDB_MODEL_SPACE, GcDb.OpenMode.kForWrite)
-    blockTbl.close()
-    return record
-
-# Test 1: GcDbText poprawnym konstruktorem (point, string)
+# Test 1: prompt/printf
 try:
-    record = openMS()
-    text = GcDbText(GcGePoint3d(10, -90, 0), "PoC")
-    (status, objId) = record.appendGcDbEntity(text)
-    record.close()
-    text.close()
-    gcedPrompt("[SWEEP2 1/2] GcDbText OK: 'PoC' w (10,-90) konstruktor 2-arg")
+    printf_ok = False
+    try:
+        gcutPrintf
+        printf_ok = True
+    except NameError:
+        pass
+    # gcedPrompt zakladamy jako sprawdzony (uzywamy do wypisania wyniku)
+    if printf_ok:
+        gcutPrintf("\\n[SWEEP4 1/4] gcutPrintf DZIALA - to wypisane przez gcutPrintf, gcedPrompt tez OK")
+    else:
+        gcedPrompt("[SWEEP4 1/4] gcutPrintf nie istnieje, gcedPrompt jest jedynym pomocnikiem")
 except Exception as err:
-    gcedPrompt("[SWEEP2 1/2] GcDbText FAIL: " + type(err).__name__ + ": " + str(err))
+    gcedPrompt("[SWEEP4 1/4] FAIL: " + type(err).__name__ + ": " + str(err))
 
-# Test 2: GcDbPolyline (2D) prostokat 100x50 w (10,-190)
+# Test 2: GetReal ktora wersja
 try:
-    record = openMS()
-    poly = GcDbPolyline()
-    poly.addVertexAt(0, GcGePoint2d(10, -190))
-    poly.addVertexAt(1, GcGePoint2d(110, -190))
-    poly.addVertexAt(2, GcGePoint2d(110, -140))
-    poly.addVertexAt(3, GcGePoint2d(10, -140))
-    poly.setClosed(True)
-    (status, objId) = record.appendGcDbEntity(poly)
-    record.close()
-    poly.close()
-    gcedPrompt("[SWEEP2 2/2] GcDbPolyline (2D) OK: prostokat (10,-190)-(110,-140)")
+    ed_real = False
+    ut_real = False
+    try:
+        gcedGetReal
+        ed_real = True
+    except NameError:
+        pass
+    try:
+        gcutGetReal
+        ut_real = True
+    except NameError:
+        pass
+    gcedPrompt("[SWEEP4 2/4] GetReal: gcedGetReal=" + str(ed_real) + ", gcutGetReal=" + str(ut_real))
 except Exception as err:
-    gcedPrompt("[SWEEP2 2/2] GcDbPolyline (2D) FAIL: " + type(err).__name__ + ": " + str(err))
+    gcedPrompt("[SWEEP4 2/4] FAIL: " + type(err).__name__ + ": " + str(err))
 
-gcedPrompt("[SWEEP2] Zakonczono retest Text + Polyline 2D")
+# Test 3: Gcad.eOk enum
+try:
+    eOk_val = "brak"
+    try:
+        eOk_val = str(int(Gcad.eOk))
+    except NameError:
+        eOk_val = "NameError - Gcad brak w namespace"
+    except AttributeError:
+        eOk_val = "AttributeError - Gcad.eOk nie istnieje"
+    except Exception as e:
+        eOk_val = "Wyjatek: " + str(e)
+    gcedPrompt("[SWEEP4 3/4] Gcad.eOk = " + eOk_val + " (moj przewodnik zakladal numeric 5100)")
+except Exception as err:
+    gcedPrompt("[SWEEP4 3/4] FAIL: " + type(err).__name__ + ": " + str(err))
+
+# Test 4: pygcad module structure
+try:
+    import pygcad
+    import pygcad.core
+    has_runtime = hasattr(pygcad.core, 'runtime')
+    core_symbols = [x for x in dir(pygcad.core) if not x.startswith('_')][:8]
+    gcedPrompt("[SWEEP4 4/4] pygcad.core.runtime jako submodul: " + str(has_runtime))
+    gcedPrompt("[SWEEP4 4/4b] pygcad.core widoczne (8 pierwszych): " + str(core_symbols))
+except Exception as err:
+    gcedPrompt("[SWEEP4 4/4] FAIL: " + type(err).__name__ + ": " + str(err))
+
+gcedPrompt("[SWEEP4] Zakonczono weryfikacje pomocniczych funkcji + enum + importow")
 """
 
 
