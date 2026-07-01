@@ -1,12 +1,25 @@
 # Wzorcowe komendy GstarCAD-a w Pythonie
 
+> ⚠️ **UWAGA (2026-07-01):** te pięć wzorcowych komend zostało napisanych 30 czerwca 2026 na podstawie przewodnika-systemowego który sam nie był zweryfikowany empirycznie w rzeczywistym pygcad. Empiryczne testy z pluginem PoC w tej sesji wykryły cztery istotne błędy w tym przewodniku:
+>
+> - `GcDbLayerTableRecord.setColorIndex()` nie istnieje w pygcad
+> - `getLayerTable()` może zwrócić samą `ErrorStatus` zamiast tuple przy błędach (state pollution po poprzednim wyjątku)
+> - `GcDbText()` bez argumentów rzuca `TypeError` — konstruktor wymaga `(point, string)`
+> - `GcDb3dPolyline + setClosed + setColorIndex + appendGcDbEntity` crashuje GstarCAD do desktopa (repro wysłane Williamowi Wangowi)
+>
+> **Wzorcowe komendy 03, 04, 05 używają dokładnie tych wzorców z bugami** — nie są bezpieczne do dalszego użycia bez empirycznej weryfikacji. Task #23 śledzi weryfikację.
+>
+> **Empirycznie potwierdzone jako działające na 2026-07-01 (GstarCAD 2027 Plus PL):** GcDbCircle, GcDbLine, GcDbArc, GcDbEllipse.
+>
+> **Nie używać jako reference dla zespołu Jakuba/Tomasza/Rafała, dopóki v2 przewodnika + poprawione wzorce nie powstaną na podstawie empirycznych testów + odpowiedzi Williama Wanga od R&D.**
+
 Ten folder zawiera pięć wzorcowych komend dla GstarCAD 2026, przygotowanych jako wzór do naśladowania dla zespołu pomocy technicznej TMSys.
 
 ## Cel
 
 Każda z pięciu komend pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią one referencyjną podstawę dla każdej kolejnej komendy, którą zespół będzie pisał — od typowego rysowania, przez interakcję z użytkownikiem, po automatyzację raportowania.
 
-Komendy są napisane w pełni samodzielnie przez Dawida Jakubowskiego (z asystą Claude'a) i wcześniej zweryfikowane empirycznie w GstarCAD 2026 — to znaczy, że każda z nich gwarantowanie działa.
+Komendy są napisane w pełni samodzielnie przez Dawida Jakubowskiego (z asystą Claude'a). **Pierwotnie zawierały fałszywe stwierdzenie o wcześniejszej empirycznej weryfikacji — zostało poprawione 2026-07-01.**
 
 ## Komendy
 

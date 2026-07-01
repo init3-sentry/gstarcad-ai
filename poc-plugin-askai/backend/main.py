@@ -77,15 +77,47 @@ app.add_middleware(
 )
 
 
-STUB_CODE = """# Wygenerowane przez gs-ai PoC (tryb stub)
+STUB_CODE = """# Wygenerowane przez gs-ai PoC (tryb stub — sweep-2, retest Text + Polyline 2D)
+# Test 1: GcDbText poprawnym konstruktorem (nie bezargumentowym z przewodnika)
+# Test 2: GcDbPolyline (2D) w izolacji, po swiezym restarcie CAD zeby baza byla czysta
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
 
-@command(local_name='ODPOWIEDZ_STUB')
-def stubResponse():
-    \"\"\"Backend jest w trybie stub — brak klucza Anthropic na sentry-cloud.
-    Wpisz klucz do /opt/gs-ai-poc/.env i wykonaj docker compose restart.\"\"\"
-    gcedPrompt("[STUB] Backend nie ma jeszcze klucza Anthropic.")
+def openMS():
+    database = gcdbWorkingDatabase()
+    (status, blockTbl) = database.getBlockTable(GcDb.OpenMode.kForRead)
+    (status, record) = blockTbl.getAt(GCDB_MODEL_SPACE, GcDb.OpenMode.kForWrite)
+    blockTbl.close()
+    return record
+
+# Test 1: GcDbText poprawnym konstruktorem (point, string)
+try:
+    record = openMS()
+    text = GcDbText(GcGePoint3d(10, -90, 0), "PoC")
+    (status, objId) = record.appendGcDbEntity(text)
+    record.close()
+    text.close()
+    gcedPrompt("[SWEEP2 1/2] GcDbText OK: 'PoC' w (10,-90) konstruktor 2-arg")
+except Exception as err:
+    gcedPrompt("[SWEEP2 1/2] GcDbText FAIL: " + type(err).__name__ + ": " + str(err))
+
+# Test 2: GcDbPolyline (2D) prostokat 100x50 w (10,-190)
+try:
+    record = openMS()
+    poly = GcDbPolyline()
+    poly.addVertexAt(0, GcGePoint2d(10, -190))
+    poly.addVertexAt(1, GcGePoint2d(110, -190))
+    poly.addVertexAt(2, GcGePoint2d(110, -140))
+    poly.addVertexAt(3, GcGePoint2d(10, -140))
+    poly.setClosed(True)
+    (status, objId) = record.appendGcDbEntity(poly)
+    record.close()
+    poly.close()
+    gcedPrompt("[SWEEP2 2/2] GcDbPolyline (2D) OK: prostokat (10,-190)-(110,-140)")
+except Exception as err:
+    gcedPrompt("[SWEEP2 2/2] GcDbPolyline (2D) FAIL: " + type(err).__name__ + ": " + str(err))
+
+gcedPrompt("[SWEEP2] Zakonczono retest Text + Polyline 2D")
 """
 
 
