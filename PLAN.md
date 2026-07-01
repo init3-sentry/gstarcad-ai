@@ -20,6 +20,26 @@ Pierwszy i drugi cel są priorytetowe (per decyzja strategiczna Dawida z czerwca
 
 Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończenia i konkretne wymierne kryteria zaliczenia. Etapy nie są równe długością — krótsze są bardziej intensywne, dłuższe pozwalają na pracę o niskim, ale stałym tempie.
 
+### Etap zerowy — Proof of Concept pluginu ASKAI
+
+**Czas trwania:** od 1 lipca 2026 do 8 lipca 2026 (jeden tydzień, równolegle z rozpoczęciem etapu pierwszego).
+
+**Cel etapu:** techniczne potwierdzenie, że nasz kluczowy element strategiczny — plugin ASKAI wewnątrz GstarCAD — jest wykonalny. Robimy to jak najwcześniej, przed budową marketingowej narracji wokół tego pluginu, żeby nie zbudować strategii na fundamencie, który może się okazać niemożliwy do postawienia. Zasada „fail fast, fail cheap" — jeśli okaże się, że są techniczne przeciwwskazania, dowiadujemy się o nich teraz, a nie za sześć miesięcy, gdy mamy już oczekiwania klientów.
+
+**Wykonawcy:** Dawid (testy techniczne na osobnej maszynie z systemem Windows, na której zainstalowane są równocześnie GstarCAD 2026 i GstarCAD 2027) plus Claude (pisanie kodu, dokumentacji, iteracja).
+
+**Mierzalne kryteria zaliczenia etapu:**
+
+- Minimalna komenda `ASKAI` zarejestrowana przez dekorator `@command` z modułu `pygcad.core`, załadowana przez polecenie `APPLOAD`, otwierająca okno dialogowe w bibliotece `tkinter` bez zamrażania GstarCAD-a.
+- Skrypt Pythona w kontekście GstarCAD wykonuje zewnętrzne wywołanie HTTPS do backendu — brak blokad zapory ogniowej, brak konfliktów z pygcad-em.
+- Streaming odpowiedzi z backendu widoczny w oknie dialogowym — tekst pojawia się linia po linii w czasie rzeczywistym, GstarCAD nie zamraża się w trakcie odbioru.
+- Przycisk „Wykonaj tutaj" wykonujący wygenerowany kod bezpośrednio w bieżącym rysunku — obiekty pojawiają się na rysunku, bez konieczności ręcznego zapisu do pliku i ponownego `APPLOAD`.
+- Pełen test end-to-end na jednym poleceniu („narysuj okrąg o promieniu pięć") wywołujący prawdziwy backend Anthropic Sonnet 5.
+- **Testy wykonane równocześnie na GstarCAD 2026 i GstarCAD 2027** — porównanie działania, identyfikacja różnic w API programistycznym między wersjami (skoro producent nie dostarczył jeszcze pełnej dokumentacji dla 2027, weryfikujemy empirycznie).
+- Krótki raport techniczny w folderze `poc-plugin-askai/` w repozytorium — co działa, co nie działa, jakie są różnice między wersjami 2026 i 2027, jakie ryzyka techniczne pozostają dla etapu 3.5.
+
+**Znaczenie strategiczne etapu:** Ten tydzień decyduje o tym, czy budujemy plan marketingowy wokół pluginu ASKAI, czy musimy przeprojektować strategię. Jeśli PoC pokazuje, że plugin działa — mamy pewność, że plan może być realizowany. Jeśli PoC pokazuje przeszkody techniczne — dowiadujemy się o nich w pierwszym tygodniu projektu, kiedy koszt zmiany planu jest minimalny.
+
 ### Etap pierwszy — Biblioteka wiedzy o pygcad dla sztucznej inteligencji
 
 **Czas trwania:** od 1 lipca 2026 do 31 lipca 2026 (cztery tygodnie).
@@ -38,7 +58,9 @@ Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończe
 
 ### Etap drugi — Aplikacja internetowa ai.gstarcad.pl
 
-**Czas trwania:** od 1 sierpnia 2026 do 31 sierpnia 2026 (cztery tygodnie).
+**Czas trwania:** od 1 sierpnia 2026 do 15 września 2026 (sześć tygodni). Pierwsze cztery tygodnie sierpnia to zamknięta beta — testy wewnętrzne z pięcioma-dziesięcioma klientami TMSys wybranymi ręcznie, bez publicznej premiery. **Publiczna premiera zsynchronizowana z polską premierą GstarCAD 2027**, planowaną na drugą połowę września 2026.
+
+**Uzasadnienie synchronizacji z GstarCAD 2027:** światowa premiera GstarCAD 2027 następuje 1 lipca 2026 (dziś), ale TMSys od kilku lat konsekwentnie NIE prowadzi premier wakacyjnych na polskim rynku — polska premiera GstarCAD 2027 planowana jest na drugą połowę września 2026. Synchronizacja premiery aplikacji `ai.gstarcad.pl` z premierą wersji 2027 daje trzy strategiczne korzyści: (a) jeden mocny komunikat prasowy zamiast dwóch rozproszonych — „nowa wersja plus nowe AI"; (b) wrześniowy moment marketingowy jest znacznie skuteczniejszy niż wakacyjny — dziennikarze branżowi są w pracy, klienci wracają z urlopów; (c) klienci obecnej wersji 2026 dostają konkretny argument aktualizacji do 2027, bo pozycjonujemy AI jako element premiery 2027 (choć technicznie kompatybilne z obiema wersjami).
 
 **Cel etapu:** uruchomić publiczną stronę pod adresem `ai.gstarcad.pl`, na której każdy klient TMSys może w prosty sposób wygenerować dla siebie skrypt Pythona dla GstarCAD-a, bez konieczności samodzielnego promptowania modelu i bez konieczności posiadania własnej subskrypcji jakiegokolwiek narzędzia sztucznej inteligencji.
 
@@ -112,11 +134,13 @@ Klient wpisuje w wiersz poleceń GstarCAD-a nową komendę `ASKAI`. Otwiera się
 | Data | Wydarzenie | Status |
 |---|---|---|
 | 30 czerwca 2026 | Start projektu — repozytoria utworzone, struktura folderów, pierwsze dokumenty | wykonane |
-| 7 lipca 2026 | Pierwsze wersje wszystkich kluczowych dokumentów (instrukcja systemowa, pakiet dla chłopaków, streszczenie dla prezesów, plan marketingowy, mechanizm nadzoru) | oczekuje |
-| 14 lipca 2026 | Pierwsze formalne włączenie zespołu pomocy technicznej (Jakub, Tomasz, Rafał) do projektu | oczekuje |
+| 1 lipca 2026 | Światowa premiera GstarCAD 2027 (przez GstarSoft HQ, chiński producent) — początek etapu zerowego (PoC pluginu ASKAI) | ROZPOCZĘTE |
+| 8 lipca 2026 | Etap zerowy zakończony — techniczna weryfikacja pluginu ASKAI, decyzja o kontynuacji budowy narracji marketingowej | oczekuje |
+| 14 lipca 2026 | Pierwsze formalne włączenie zespołu pomocy technicznej (Jakub, Tomasz, Rafał, Robert) do projektu | oczekuje |
 | 31 lipca 2026 | Etap pierwszy zakończony | oczekuje |
-| 31 sierpnia 2026 | Etap drugi zakończony — aplikacja `ai.gstarcad.pl` działa publicznie | oczekuje |
-| 1 września 2026 | Pierwsza kampania marketingowa skierowana do projektantów spoza bazy TMSys | oczekuje |
+| 31 sierpnia 2026 | Aplikacja `ai.gstarcad.pl` w zamkniętej becie — testy wewnętrzne z pięcioma-dziesięcioma wybranymi klientami TMSys | oczekuje |
+| **Druga połowa września 2026** | **Polska premiera GstarCAD 2027 zsynchronizowana z publiczną premierą aplikacji `ai.gstarcad.pl`** — jeden komunikat prasowy, pełna kampania marketingowa startuje | KLUCZOWA DATA |
+| 1 października 2026 | Pierwsza runda kampanii dla nowych klientów (spoza bazy TMSys) rozpoczyna się | oczekuje |
 | 30 listopada 2026 | Etap trzeci zakończony — galeria pięćdziesięciu skryptów | oczekuje |
 | 31 grudnia 2026 | Etap 3.5 zakończony — plugin ASKAI dla GstarCAD wydany dla klientów | oczekuje |
 | 1 stycznia 2027 | Uruchomienie doładowań i konkursu tygodnia | oczekuje |
