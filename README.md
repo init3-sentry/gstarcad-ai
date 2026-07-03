@@ -44,9 +44,11 @@ gstarcad-ai/
 ├── tasks/                             ← individual task descriptions (T-001, T-002, ...)
 ├── przeglady/                         ← weekly review reports
 ├── biblioteka-rag/                    ← AI knowledge base for pygcad
-│   ├── przewodnik-systemowy.md        ← main system prompt for LLMs
-│   └── przyklady/                     ← 30+ working .py example commands
-├── web-app/                           ← the ai.gstarcad.pl web service
+│   ├── przewodnik-systemowy.md        ← main system prompt for LLMs (v2, empirically grounded)
+│   ├── oficjalne-materialy-gstarcad-2027/ ← official pygcad samples + manual (from the GstarCAD 2027 installation)
+│   └── przyklady/                     ← 5 reference commands (empirical verification in progress — see folder README)
+├── poc-plugin-askai/                  ← ASKAI plugin proof of concept (plugin + working FastAPI backend)
+├── web-app/                           ← the ai.gstarcad.pl web service (planned — backend will grow out of poc-plugin-askai/backend)
 │   ├── backend/                       ← FastAPI server, SQLite, Anthropic API
 │   └── frontend/                      ← user-facing Polish form
 ├── dla-pomocy-technicznej/            ← onboarding pack for the support team

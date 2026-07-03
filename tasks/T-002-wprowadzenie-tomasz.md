@@ -4,7 +4,7 @@
 |---|---|
 | Identyfikator | T-002 |
 | Etap | pierwszy |
-| Przypisany do | **Tomasz Gach** (tomasz.gach@tmsys.pl) |
+| Przypisany do | **Tomasz Gach** (tomasz.gach [małpa] tmsys.pl) |
 | Przewidywany czas | 8 godzin (cztery dni roboczy po dwie godziny) |
 | Status | oczekuje |
 | Data wejścia | 2026-06-30 |

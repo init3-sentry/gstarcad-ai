@@ -10,8 +10,7 @@
 #             bezpośrednio w kontekście bieżącego rysunku
 #
 # Dzień 5 (podpięcie realnego modelu Anthropic zamiast stubu) realizowany
-# jest po stronie backendu na sentry-cloud — patrz operations/infra-runbook.md
-# w repozytorium init3-sentry/init3-cortex, hasło "gs-ai".
+# jest po stronie backendu — patrz poc-plugin-askai/backend/.
 #
 # Sposób użycia w GstarCAD 2026:
 #   1. Uruchom GstarCAD 2026

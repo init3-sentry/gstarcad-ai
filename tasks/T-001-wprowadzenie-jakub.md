@@ -4,7 +4,7 @@
 |---|---|
 | Identyfikator | T-001 |
 | Etap | pierwszy |
-| Przypisany do | **Jakub Moszko** (jakub.moszko@tmsys.pl) |
+| Przypisany do | **Jakub Moszko** (jakub.moszko [małpa] tmsys.pl) |
 | Przewidywany czas | 8 godzin (cztery dni roboczy po dwie godziny) |
 | Status | oczekuje |
 | Data wejścia | 2026-06-30 |

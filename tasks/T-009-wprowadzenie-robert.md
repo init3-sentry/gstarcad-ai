@@ -4,7 +4,7 @@
 |---|---|
 | Identyfikator | T-009 |
 | Etap | pierwszy |
-| Przypisany do | **Robert Nowakowski** (robert.nowakowski@tmsys.pl) — stały współpracownik zewnętrzny TMSys, prowadzący firmę szkoleniową |
+| Przypisany do | **Robert Nowakowski** (robert.nowakowski [małpa] tmsys.pl) — stały współpracownik zewnętrzny TMSys, prowadzący firmę szkoleniową |
 | Przewidywany czas | 6 godzin (rozłożone na cały tydzień, w wolnych przerwach między szkoleniami) |
 | Status | oczekuje |
 | Data wejścia | 2026-06-30 |

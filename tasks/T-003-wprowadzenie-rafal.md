@@ -4,7 +4,7 @@
 |---|---|
 | Identyfikator | T-003 |
 | Etap | pierwszy |
-| Przypisany do | **Rafał Trzusło** (rafal.trzuslo@tmsys.pl) |
+| Przypisany do | **Rafał Trzusło** (rafal.trzuslo [małpa] tmsys.pl) |
 | Przewidywany czas | 8 godzin (cztery dni roboczy po dwie godziny) |
 | Status | oczekuje |
 | Data wejścia | 2026-06-30 |
