@@ -2,7 +2,7 @@
 
 > ✅ **Wersja 3 (2026-07-09):** kolekcja rozszerzona o pięć kolejnych wzorców (06-10) pokrywających wymiarowanie, tekst etykiet, wstawianie bloku, interakcyjne rysowanie z podglądem (jig) i eksport migawki DWG. Wszystkie napisane wg **v2 przewodnika-systemowego** (`../przewodnik-systemowy.md`) + oficjalne samples GstarSoft z GstarCAD 2027 (`../oficjalne-materialy-gstarcad-2027/`).
 >
-> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **13/20** zwalidowanych (01-12, 14; wzorzec 13 wstrzymany — crash odczytu polilinii).
+> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **14/20** zwalidowanych empirycznie na SP1 (01-14).
 >
 > **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL:**
 > - **2026-07-01:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`.
@@ -37,17 +37,18 @@ Każda komenda pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią
 | `09_line_jig_interactive.py` | `RYSUJ_LINIE_INTERAKTYWNIE` | Jig — interakcyjne rysowanie linii z podglądem w czasie rzeczywistym, `GcEdJig` z metodami `sampler/update/entity/doIt` (per `linejig.py`) |
 | `10_save_dwg_snapshot.py` | `ZAPISZ_MIGAWKE_DWG` | Eksport pliku — nowa baza `GcDbDatabase(True, False)` z dwoma okręgami, zapis do DWG na Pulpicie (per `testdb.py`) |
 
-### Grupa C: warstwy RGB, inwentaryzacja i grupy (11-14)
+### Grupa C: warstwy RGB, inwentaryzacja, odczyt polilinii i grupy (11-14)
 
-Zwalidowane empirycznie na **GstarCAD 2027 Premium PL, SP1 (R27.1.0.2606)** 2026-07-09 (`../weryfikacja/sweep-6-verify.py`).
+Zwalidowane empirycznie na **GstarCAD 2027 Premium PL, SP1 (R27.1.0.2606)** 2026-07-09/10 (`../weryfikacja/sweep-6-verify.py`, `sweep-7-verify.py`).
 
 | Plik | Komenda | Co robi |
 |---|---|---|
 | `11_entities_on_layers.py` | `RYSUJ_SCHEMAT` | Warstwy z kolorem RGB (`GcCmColor.setRGB`) + przypisanie encji przez `setLayer` (per `entity_in_layers.py`) 🟢 |
 | `12_count_entities_by_type.py` | `ZLICZ_OBIEKTY` | Iteracja model space + klasyfikacja `isA().name()` (klasy z prefiksem `AcDb`) (per `testdb.py`) 🟢 |
+| `13_list_polyline_vertices.py` | `WYPISZ_WIERZCHOLKI` | Odczyt wierzchołków polilinii 2D — `gcedEntSel` + `vertexIterator` + `GcDb2dVertex.position()` (per `pliniter.py`). Wymaga `SETVAR PLINETYPE 0` przed narysowaniem polilinii (tworzy `GcDb2dPolyline`) 🟢 |
 | `14_group_selected.py` | `POGRUPUJ` | Słownik grup + `GcDbGroup` + `setAt` + `append` na zaznaczeniu (per `groups.py`) 🟢 |
 
-> ⚠️ **Wzorzec 13 (`13_list_polyline_vertices.py`, odczyt wierzchołków polilinii) WSTRZYMANY (🔴).** Test odczytu przez `vertexIterator` crashuje GstarCAD-a do pulpitu (SP1 również), przyczyna nieizolowana. Trzeci zaobserwowany crash wokół polilinii (obok `GcDb3dPolyline`). Nie publikować, dopóki nie powstanie czysta reprodukcja + ewentualna odpowiedź GstarSoft R&D. Numeracja zostawia lukę celowo — 13 dołączy po walidacji.
+> ℹ️ **Wzorzec 13 — historia walidacji.** Pierwsze próby crashowały GstarCAD-a do pulpitu, co wyglądało na bug polilinii. Izolacja krok-po-kroku (`sweep-7-verify.py`, log do pliku przeżywający crash) wykazała, że **każde wywołanie pygcad wzorca działa** (`gcedEntSel` → `gcdbOpenObject` → `isKindOf` → `vertexIterator` → `position` — komplet odczytany bez crashu), a crashe korelowały z **przełączaniem okna (Alt+Tab) / bezczynnością nad sesją RDP**, nie z kodem. **Winowajcą jest niestabilność środowiska GstarCAD 2027 SP1 na tym LC/RDP, nie wzorzec.** Kod zwalidowany 2026-07-10. Odczyt lekkiej `GcDbPolyline` (bez `PLINETYPE 0`) używa innego API (`numVerts`/`getPointAt`) — osobny, jeszcze nie napisany wariant.
 
 ## Jak ich używać
 
