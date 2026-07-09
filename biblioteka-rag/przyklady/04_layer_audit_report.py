@@ -80,7 +80,9 @@ def auditLayersToFile():
             if statusName != Gcad.eOk:
                 layerName = "?"
 
-            colorIdx = _safeCall(record.colorIndex)
+            # LayerTableRecord NIE ma colorIndex() (empirycznie 2026-07-09, AttributeError).
+            # Indeks koloru czytamy przez color() -> GcCmColor, potem .colorIndex() na kolorze.
+            colorIdx = _safeCall(lambda: record.color().colorIndex())
             isFrozen = _safeCall(record.isFrozen, False)
             isHidden = _safeCall(record.isOff, False)
             isLocked = _safeCall(record.isLocked, False)

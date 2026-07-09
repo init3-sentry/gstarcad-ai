@@ -15,6 +15,11 @@
 #   - Encje wewnątrz bloku dodajemy do jego BlockTableRecord (nie do model space!)
 #   - Referencja bloku = GcDbBlockReference(punkt_wstawienia_GcGePoint3d, block_id)
 #   - block_id pobieramy przez blockTable.getObjIdAt("nazwa_bloku")
+#
+# UWAGA (empirycznie 2026-07-09, GstarCAD 2027 Plus PL): blockTable.add(record)
+# zwraca GOŁY ErrorStatus, NIE tuple (status, id) — jak layerTable.add. Dlatego
+# NIE rozpakowujemy add(); id definicji pobieramy osobno przez getObjIdAt PO
+# dodaniu rekordu. (Odróżnić od getObjIdAt / appendGcDbEntity, które zwracają tuple.)
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -37,16 +42,11 @@ def _ensureMarkerBlock(database):
         blockTable.close()
         return blockId
 
-    # Definicja nowego bloku: nowy BlockTableRecord z dwiema liniami
+    # Definicja nowego bloku: nowy BlockTableRecord z dwiema liniami.
+    # add() zwraca goły status (NIE tuple) — nie rozpakowujemy.
     blockDef = GcDbBlockTableRecord()
     blockDef.setName(BLOCK_NAME)
-    status, blockId = blockTable.add(blockDef)
-    blockTable.close()
-
-    if status != Gcad.eOk:
-        blockDef.close()
-        gcutPrintf("\n[BŁĄD] Nie można dodać definicji bloku.")
-        return None
+    blockTable.add(blockDef)
 
     # Dwie linie tworzące krzyżyk (poziomą i pionową) — dodajemy je
     # DO REKORDU BLOKU, nie do model space.
@@ -63,8 +63,15 @@ def _ensureMarkerBlock(database):
     )
     blockDef.appendGcDbEntity(lineV)
     lineV.close()
-
     blockDef.close()
+
+    # Id definicji bloku pobieramy osobno PO dodaniu (add nie zwraca id)
+    status, blockId = blockTable.getObjIdAt(BLOCK_NAME)
+    blockTable.close()
+    if status != Gcad.eOk:
+        gcutPrintf("\n[BŁĄD] Nie można odczytać id nowo utworzonego bloku.")
+        return None
+
     gcutPrintf(f"\nUtworzono nowy blok: {BLOCK_NAME}")
     return blockId
 

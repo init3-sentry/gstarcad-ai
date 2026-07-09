@@ -126,8 +126,8 @@ def verifyLayerProps():
                 probed = True
                 for label, fn in [
                     ("getName", lambda: rec.getName()),
-                    ("colorIndex", lambda: rec.colorIndex()),
-                    ("color", lambda: rec.color()),
+                    ("colorIndex(bezpośrednio)", lambda: rec.colorIndex()),
+                    ("color().colorIndex()", lambda: rec.color().colorIndex()),
                     ("isFrozen", lambda: rec.isFrozen()),
                     ("isOff", lambda: rec.isOff()),
                     ("isLocked", lambda: rec.isLocked()),
@@ -187,8 +187,7 @@ def verifyBlock():
             try:
                 blockDef = GcDbBlockTableRecord()
                 blockDef.setName("SWEEP5_BLK")
-                status, blockId = btWrite.add(blockDef)
-                btWrite.close()
+                btWrite.add(blockDef)  # add() zwraca goły status, NIE tuple
                 l1 = GcDbLine(GcGePoint3d(-10, 0, 0), GcGePoint3d(10, 0, 0))
                 blockDef.appendGcDbEntity(l1)
                 l1.close()
@@ -196,6 +195,8 @@ def verifyBlock():
                 blockDef.appendGcDbEntity(l2)
                 l2.close()
                 blockDef.close()
+                status, blockId = btWrite.getObjIdAt("SWEEP5_BLK")  # id osobno po add
+                btWrite.close()
             except Exception as defErr:
                 gcutPrintf(f"\n[SWEEP5 BLOCK] FAIL (definicja): {type(defErr).__name__}: {defErr}")
                 return
