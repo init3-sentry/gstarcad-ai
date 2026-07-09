@@ -181,3 +181,36 @@ def verifyPlineReadStep():
         _log(f"=== READ_STEP koniec: odczytano {step} wierzchołków BEZ crashu ===")
     except Exception as err:
         _log(f"FAIL READ_STEP (wyjątek, NIE crash): {type(err).__name__}: {err}")
+
+
+@command(local_name='VERIFY_ENTSEL_STEP')
+def verifyEntselStep():
+    """Instrumentowany tor SELEKCJI (gcedEntSel) — podejrzany o crash. Log do pliku.
+    Uruchom i wskaż polilinię CZYSTO (bez wciskania Escape wcześniej)."""
+    try:
+        _log("=== ENTSEL_STEP start ===", truncate=True)
+        en = gds_name()
+        pt = GcGePoint3d()
+        _log("PRZED: gcedEntSel (wskaż polilinię myszą)")
+        rc = gcedEntSel("\nWskaz polilinie: ", en, pt)
+        _log(f"PO: gcedEntSel rc={rc} (RTNORM={RTNORM})")
+        if rc != RTNORM:
+            _log("STOP: nie wybrano (rc != RTNORM)")
+            return
+        _log("PRZED: gcdbGetObjectId")
+        eid = GcDbObjectId()
+        r = gcdbGetObjectId(eid, en)
+        _log(f"PO: gcdbGetObjectId r={r}")
+        _log("PRZED: gcdbOpenObject(kForRead)")
+        status, obj = gcdbOpenObject(eid, GcDb.kForRead)
+        _log(f"PO: gcdbOpenObject status={status}")
+        _log("PRZED: isA().name()")
+        nm = obj.isA().name()
+        _log(f"PO: isA().name() = {nm}")
+        _log("PRZED: isKindOf(GcDb2dPolyline)")
+        is2d = obj.isKindOf(GcDb2dPolyline.desc())
+        _log(f"PO: isKindOf(GcDb2dPolyline) = {is2d}")
+        obj.close()
+        _log("=== ENTSEL_STEP koniec BEZ crashu ===")
+    except Exception as err:
+        _log(f"FAIL ENTSEL_STEP (wyjątek, NIE crash): {type(err).__name__}: {err}")
