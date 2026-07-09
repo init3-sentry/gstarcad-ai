@@ -214,3 +214,60 @@ def verifyEntselStep():
         _log("=== ENTSEL_STEP koniec BEZ crashu ===")
     except Exception as err:
         _log(f"FAIL ENTSEL_STEP (wyjątek, NIE crash): {type(err).__name__}: {err}")
+
+
+@command(local_name='VERIFY_FULL13')
+def verifyFull13():
+    """PEŁNY tor wzorca 13 instrumentowany, dokładnie jego sekwencja:
+    gcedEntSel -> open(typecheck) -> close -> open(2) -> vertexIterator -> close rodzica
+    -> odczyt wierzchołków. Uruchom CZYSTO (bez Escape). Log do pliku."""
+    try:
+        _log("=== FULL13 start ===", truncate=True)
+        en = gds_name()
+        pt = GcGePoint3d()
+        _log("PRZED: gcedEntSel (wskaż polilinię)")
+        rc = gcedEntSel("\nWskaz polilinie: ", en, pt)
+        _log(f"PO: gcedEntSel rc={rc}")
+        if rc != RTNORM:
+            _log("STOP: nie wybrano")
+            return
+        eid = GcDbObjectId()
+        gcdbGetObjectId(eid, en)
+
+        _log("PRZED: gcdbOpenObject #1 (typecheck)")
+        status, obj = gcdbOpenObject(eid, GcDb.kForRead)
+        _log(f"PO: gcdbOpenObject #1 status={status}")
+        _log("PRZED: isKindOf")
+        is2d = obj.isKindOf(GcDb2dPolyline.desc())
+        _log(f"PO: isKindOf = {is2d}")
+        _log("PRZED: obj.close() #1")
+        obj.close()
+        _log("PO: obj.close() #1")
+        if not is2d:
+            _log("STOP: nie 2dPolyline")
+            return
+
+        _log("PRZED: gcdbOpenObject #2 (do iteracji)")
+        status, line = gcdbOpenObject(eid, GcDb.kForRead)
+        _log(f"PO: gcdbOpenObject #2 status={status}")
+        _log("PRZED: line.vertexIterator()")
+        vit = line.vertexIterator()
+        _log("PO: line.vertexIterator()")
+        _log("PRZED: line.close() (rodzic, przed iteracją wierzchołków)")
+        line.close()
+        _log("PO: line.close()")
+
+        step = 0
+        while not vit.done() and step < 100:
+            _log(f"--- w{step}: PRZED objectId ---")
+            vid = vit.objectId()
+            status, vo = gcdbOpenObject(vid, GcDb.kForRead)
+            vtx = GcDb2dVertex.cast(vo)
+            p = vtx.position()
+            _log(f"    pos=({p.x:.1f},{p.y:.1f})")
+            vtx.close()
+            vit.step()
+            step += 1
+        _log(f"=== FULL13 koniec: {step} wierzchołków BEZ crashu ===")
+    except Exception as err:
+        _log(f"FAIL FULL13 (wyjątek, NIE crash): {type(err).__name__}: {err}")
