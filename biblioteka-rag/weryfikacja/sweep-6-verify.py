@@ -127,56 +127,44 @@ def verifyModelSpaceIteration():
 
 @command(local_name='VERIFY_2DPOLY')
 def verify2dPolyline():
-    """wzorzec 13: utworzenie GcDb2dPolyline + odczyt wierzchołków przez vertexIterator."""
+    """wzorzec 13 (TRYB TYLKO-ODCZYT — dokładnie jak realny wzorzec): wskaż istniejącą
+    polilinię 2D i odczytaj jej wierzchołki przez vertexIterator. NIE konstruuje polilinii
+    (poprzednia wersja z GcDb2dPolyline()+appendVertex crashowała CAD do pulpitu na
+    pre-SP1 i SP1 — zgadywana sekwencja API, usunięta 2026-07-09).
+
+    PRZYGOTOWANIE: narysuj polilinię PRZED uruchomieniem. Aby powstał GcDb2dPolyline
+    (a nie lekki GcDbPolyline), ustaw najpierw `SETVAR PLINETYPE 0`, potem narysuj
+    polecenie PLINE / Polilinia.
+    """
     try:
-        modelSpace, err = _openModelSpace()
-        if modelSpace is None:
-            gcutPrintf(f"\n[SWEEP6 2DPOLY] FAIL (setup): {err}")
+        en = gds_name()
+        pt = GcGePoint3d()
+        rc = gcedEntSel("\nWskaż polilinię 2D (SETVAR PLINETYPE 0 przed rysowaniem): ", en, pt)
+        if rc != RTNORM:
+            gcutPrintf("\n[SWEEP6 2DPOLY] pominięto — nic nie wskazano")
             return
-        # utworzenie: GcDb2dPolyline musi trafić do bazy zanim dodamy wierzchołki
-        try:
-            poly = GcDb2dPolyline()
-        except Exception as e:
-            modelSpace.close()
-            gcutPrintf(f"\n[SWEEP6 2DPOLY] FAIL (konstruktor GcDb2dPolyline): {type(e).__name__}: {e}")
+        eid = GcDbObjectId()
+        gcdbGetObjectId(eid, en)
+        status, obj = gcdbOpenObject(eid, GcDb.kForRead)
+        if status != Gcad.eOk:
+            gcutPrintf("\n[SWEEP6 2DPOLY] FAIL: nie można otworzyć wskazanego obiektu")
             return
-        status, polyId = modelSpace.appendGcDbEntity(poly)
-        # dodaj wierzchołki do polilinii już w bazie
-        vtx_ok = "OK"
-        try:
-            for (x, y) in [(0, 0), (300, 0), (300, 200), (0, 200)]:
-                v = GcDb2dVertex()
-                v.setPosition(GcGePoint3d(x, y, 0))
-                poly.appendVertex(v)
-                v.close()
-        except Exception as e:
-            vtx_ok = f"NIE({type(e).__name__}: {e})"
-        poly.close()
-        modelSpace.close()
-
-        if vtx_ok != "OK":
-            gcutPrintf(f"\n[SWEEP6 2DPOLY] czesciowo — utworzenie OK, dodawanie wierzcholkow: {vtx_ok}")
+        if not obj.isKindOf(GcDb2dPolyline.desc()):
+            obj.close()
+            gcutPrintf("\n[SWEEP6 2DPOLY] to nie GcDb2dPolyline — ustaw SETVAR PLINETYPE 0 i narysuj polilinię")
             return
-
-        # odczyt wierzchołków (per pliniter.py)
-        status, obj = gcdbOpenObject(polyId, GcDb.kForRead)
+        vit = obj.vertexIterator()
+        obj.close()
         read_count = 0
-        if obj.isKindOf(GcDb2dPolyline.desc()):
-            vit = obj.vertexIterator()
-            obj.close()
-            while not vit.done():
-                vid = vit.objectId()
-                status, vo = gcdbOpenObject(vid, GcDb.kForRead)
-                vtx = GcDb2dVertex.cast(vo)
-                _ = vtx.position()
-                vtx.close()
-                read_count += 1
-                vit.step()
-        else:
-            obj.close()
-            gcutPrintf("\n[SWEEP6 2DPOLY] FAIL: utworzony obiekt nie jest GcDb2dPolyline")
-            return
-        gcutPrintf(f"\n[SWEEP6 2DPOLY] PASS — utworzono + odczytano wierzchołków={read_count}")
+        while not vit.done():
+            vid = vit.objectId()
+            status, vo = gcdbOpenObject(vid, GcDb.kForRead)
+            vtx = GcDb2dVertex.cast(vo)
+            _ = vtx.position()
+            vtx.close()
+            read_count += 1
+            vit.step()
+        gcutPrintf(f"\n[SWEEP6 2DPOLY] PASS — odczytano wierzchołków={read_count}")
     except Exception as err:
         gcutPrintf(f"\n[SWEEP6 2DPOLY] FAIL: {type(err).__name__}: {err}")
 
@@ -226,10 +214,11 @@ def verifyGroup():
 
 @command(local_name='SWEEP6_ALL')
 def sweep6All():
-    """Wszystkie cztery po kolei. Jeśli któryś crashuje/zatruwa sesję — użyj pojedynczych."""
+    """Trzy NIEINTERAKCYJNE testy po kolei (RGB, iteracja, grupy).
+    VERIFY_2DPOLY NIE jest tu włączony — wymaga wskazania narysowanej polilinii,
+    więc uruchamiaj go osobno po narysowaniu polilinii (SETVAR PLINETYPE 0)."""
     gcutPrintf("\n===== SWEEP6 START =====")
     verifyRgbLayer()
     verifyModelSpaceIteration()
-    verify2dPolyline()
     verifyGroup()
     gcutPrintf("\n===== SWEEP6 KONIEC =====")
