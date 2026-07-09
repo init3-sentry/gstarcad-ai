@@ -4,7 +4,10 @@
 >
 > **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **10/20** po tej sesji.
 >
-> **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL (2026-07-01):** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Wzorce 03-10 dodatkowo używają `GcDbPolyline` 2D, `GcCmColor + setColor`, `GcDbAlignedDimension`, `GcDbText`, `GcDbBlockReference`, `GcEdJig`, `GcDbDatabase.saveAs` — te są 🟡 (kanoniczne wzorce z oficjalnych samples GstarSoft), planowana walidacja end-to-end przy najbliższej sesji na LC.
+> **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL:**
+> - **2026-07-01:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`.
+> - **2026-07-09** (przez `../weryfikacja/sweep-5-verify.py`, testy `SWEEP5_*`): `GcDbText(punkt, str)` + `setHeight`, `GcDbPolyline` 2D + `addVertexAt`, `GcCmColor + setColor`, `GcDbAlignedDimension`, definicja bloku + `GcDbBlockReference`, `GcDbLayerTableRecord.color()/isFrozen()/isOff()/isLocked()/getName()`. Przy okazji poprawiono empirycznie wzorce 03/04/06/07/08 (pułapki: `colorIndex()` na warstwie nie istnieje → `color().colorIndex()`; `SymbolTable.add()` zwraca goły status, nie tuple).
+> - Wciąż 🟡 (kanoniczne z samples, jeszcze nie odpalone end-to-end): `GcEdJig` (wzorzec 09), `GcDbDatabase.saveAs` (wzorzec 10).
 
 Ten folder zawiera wzorcowe komendy dla GstarCAD 2026/2027, przygotowane jako wzór do naśladowania dla zespołu pomocy technicznej TMSys.
 

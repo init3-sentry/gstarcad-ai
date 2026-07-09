@@ -293,7 +293,7 @@ if status != Gcad.eOk:
 
 ---
 
-## Known pitfalls — empirically confirmed (2026-07-01, GstarCAD 2027 Plus PL)
+## Known pitfalls — empirically confirmed (2026-07-01 and 2026-07-09, GstarCAD 2027 Plus PL)
 
 These are real failures observed in testing. Never generate these patterns:
 
@@ -301,10 +301,13 @@ These are real failures observed in testing. Never generate these patterns:
 |---|---|---|---|
 | 1 | `GcDbLayerTableRecord.setColorIndex(n)` | `AttributeError` | `GcCmColor()` + `color.setColorIndex(n)` + `record.setColor(color)` |
 | 2 | `if status != 5100:` after DB calls | wrong branch even on success (`Gcad.eOk == 0`) | compare with `Gcad.eOk` / `RTNORM` symbolically |
-| 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | pass required arguments (verification of exact signature in progress — prefer other entity types until confirmed) |
+| 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | `GcDbText(GcGePoint3d(...), "tekst")`; set height via `setHeight(h)` (2-arg ctor + setHeight confirmed working 2026-07-09) |
 | 4 | `GcDb3dPolyline` + `setClosed` + `setColorIndex` + `appendGcDbEntity` | **hard crash of GstarCAD to desktop** (reported to GstarSoft R&D) | avoid `GcDb3dPolyline` entirely; use 2D `GcDbPolyline` with `addVertexAt` |
+| 5 | `GcDbLayerTableRecord.colorIndex()` | `AttributeError` — the method does NOT exist on the layer record | read the index through the color object: `record.color().colorIndex()` (confirmed 2026-07-09) |
+| 6 | `status, id = someTable.add(record)` | `TypeError: cannot unpack non-iterable ErrorStatus` — `SymbolTable.add()` returns a **bare** `ErrorStatus`, not a tuple | call `someTable.add(record)` without unpacking, then read the id separately: `status, id = someTable.getObjIdAt(name)`. (`getObjIdAt` and `appendGcDbEntity` DO return tuples — only `add` does not.) |
+| 7 | leaving a table open for write after an exception aborts its `.close()` | session poisoned — a later `getBlockTable(kForWrite)` returns non-`eOk` until a new drawing/restart | wrap the whole command in `try/except` and close tables on the error path too; if a session gets stuck, open a fresh drawing (confirmed 2026-07-09) |
 
-**Entity types empirically confirmed working:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Prefer these when the user's request allows a choice. `GcDbPolyline` (2D) and `GcDbAlignedDimension` follow official samples and are expected to work, but were not yet in the confirmed set.
+**Entity types / calls empirically confirmed working:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse` (2026-07-01); `GcDbText(point, str)` + `setHeight`, `GcDbPolyline` (2D) + `addVertexAt`, `GcDbAlignedDimension(pt1, pt2, textPt, str)`, block definition (`GcDbBlockTableRecord` + `add` + `getObjIdAt`) with `GcDbBlockReference`, and `GcDbLayerTableRecord.color()/isFrozen()/isOff()/isLocked()/getName()` (2026-07-09). All confirmed on GstarCAD 2027 Plus PL.
 
 `gcutPrintf` and `gcedPrompt` both work for command-line output (`gcutPrintf` is what official samples mostly use; note `gcutPrintf` does not auto-prepend a newline — start messages with `\n`).
 
@@ -314,6 +317,7 @@ These are real failures observed in testing. Never generate these patterns:
 
 Per project policy, claims are labeled by source:
 
-- 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; all four pitfalls in the table above.
-- 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): all canonical patterns in this document — model-space skeleton, transactions, layer creation with `GcCmColor`, selection sets, table iteration, jigs, `GcDbPolyline`/`GcDbAlignedDimension`, DWG read/write, `gcadErrorStatusText`.
-- 🔴 **Unverified / in progress:** exact `GcDbText` constructor signature (retest pending); `GcDbPolyline` 2D end-to-end in isolation (retest pending); GstarSoft R&D answers to the crash report (expected within days). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
+- 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; pitfalls 1–4 in the table above.
+- 🟢 **Empirically verified 2026-07-09** (GstarCAD 2027 Plus PL, via `biblioteka-rag/weryfikacja/sweep-5-verify.py`): `GcDbText(point, str)` + `setHeight`; `GcDbPolyline` 2D end-to-end (`addVertexAt`, close by returning to the start point); `GcDbAlignedDimension(pt1, pt2, textPt, str)`; block definition (`GcDbBlockTableRecord` + `add` + `getObjIdAt`) + `GcDbBlockReference`; `GcDbLayerTableRecord.color()/isFrozen()/isOff()/isLocked()/getName()`. New pitfalls 5–7 (layer `colorIndex()` absent, `SymbolTable.add()` returns a bare status, open-table-after-exception session poisoning).
+- 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): remaining canonical patterns not yet exercised end-to-end here — transactions, jigs (`GcEdJig`), selection-set edit loop, symbol-table iteration, DWG read/write (`saveAs`/`readDwgFile`), XData, groups, deep clone, `gcadErrorStatusText`.
+- 🔴 **Unverified / in progress:** GstarSoft R&D answer to the `GcDb3dPolyline` crash report (expected within days); systematic API diff GstarCAD 2026 vs 2027; `GcDbMText`, angular/diametric dimensions, boolean/trim operations. When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
