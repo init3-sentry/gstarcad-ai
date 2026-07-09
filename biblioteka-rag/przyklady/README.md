@@ -2,7 +2,7 @@
 
 > ✅ **Wersja 3 (2026-07-09):** kolekcja rozszerzona o pięć kolejnych wzorców (06-10) pokrywających wymiarowanie, tekst etykiet, wstawianie bloku, interakcyjne rysowanie z podglądem (jig) i eksport migawki DWG. Wszystkie napisane wg **v2 przewodnika-systemowego** (`../przewodnik-systemowy.md`) + oficjalne samples GstarSoft z GstarCAD 2027 (`../oficjalne-materialy-gstarcad-2027/`).
 >
-> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **10/20** po tej sesji.
+> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **13/20** zwalidowanych (01-12, 14; wzorzec 13 wstrzymany — crash odczytu polilinii).
 >
 > **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL:**
 > - **2026-07-01:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`.
@@ -36,6 +36,18 @@ Każda komenda pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią
 | `08_block_insert.py` | `WSTAW_MARKER` | Praca z blokami — tworzy definicję bloku `GS_MARKER` (krzyżyk), wstawia jego referencję (`GcDbBlockReference` per `dynBlockTableReference.py`) |
 | `09_line_jig_interactive.py` | `RYSUJ_LINIE_INTERAKTYWNIE` | Jig — interakcyjne rysowanie linii z podglądem w czasie rzeczywistym, `GcEdJig` z metodami `sampler/update/entity/doIt` (per `linejig.py`) |
 | `10_save_dwg_snapshot.py` | `ZAPISZ_MIGAWKE_DWG` | Eksport pliku — nowa baza `GcDbDatabase(True, False)` z dwoma okręgami, zapis do DWG na Pulpicie (per `testdb.py`) |
+
+### Grupa C: warstwy RGB, inwentaryzacja i grupy (11-14)
+
+Zwalidowane empirycznie na **GstarCAD 2027 Premium PL, SP1 (R27.1.0.2606)** 2026-07-09 (`../weryfikacja/sweep-6-verify.py`).
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `11_entities_on_layers.py` | `RYSUJ_SCHEMAT` | Warstwy z kolorem RGB (`GcCmColor.setRGB`) + przypisanie encji przez `setLayer` (per `entity_in_layers.py`) 🟢 |
+| `12_count_entities_by_type.py` | `ZLICZ_OBIEKTY` | Iteracja model space + klasyfikacja `isA().name()` (klasy z prefiksem `AcDb`) (per `testdb.py`) 🟢 |
+| `14_group_selected.py` | `POGRUPUJ` | Słownik grup + `GcDbGroup` + `setAt` + `append` na zaznaczeniu (per `groups.py`) 🟢 |
+
+> ⚠️ **Wzorzec 13 (`13_list_polyline_vertices.py`, odczyt wierzchołków polilinii) WSTRZYMANY (🔴).** Test odczytu przez `vertexIterator` crashuje GstarCAD-a do pulpitu (SP1 również), przyczyna nieizolowana. Trzeci zaobserwowany crash wokół polilinii (obok `GcDb3dPolyline`). Nie publikować, dopóki nie powstanie czysta reprodukcja + ewentualna odpowiedź GstarSoft R&D. Numeracja zostawia lukę celowo — 13 dołączy po walidacji.
 
 ## Jak ich używać
 
