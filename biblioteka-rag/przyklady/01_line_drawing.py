@@ -6,9 +6,14 @@
 # obiektu linii, dodanie go do rysunku, zamknięcie wszystkiego, raport
 # do command line.
 #
-# Sposób użycia: Wczytaj plik w GstarCAD 2026 poleceniem APPLOAD.
+# Sposób użycia: Wczytaj plik w GstarCAD 2026/2027 poleceniem APPLOAD.
 # Następnie wpisz w command line nazwę RYSUJ_LINIE_WZORCOWA — komenda
 # rysuje linię od punktu (0,0,0) do punktu (100,100,0).
+#
+# Konwencje (v2 przewodnika-systemowego):
+#   - status z operacji na bazie porównujemy z Gcad.eOk (== 0)
+#   - stałe trybu otwarcia: GcDb.kForRead / GcDb.kForWrite (jak w oficjalnych samples)
+#   - komunikaty przez gcutPrintf z prefixem "\n"
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -22,13 +27,17 @@ def drawSampleLine():
         database = gcdbWorkingDatabase()
 
         # Otwórz tabelę bloków do odczytu
-        status, blockTable = database.getBlockTable(GcDb.OpenMode.kForRead)
+        status, blockTable = database.getBlockTable(GcDb.kForRead)
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można otworzyć tabeli bloków.")
+            return
 
         # Otwórz przestrzeń modelu (Model Space) do zapisu
-        status, modelSpace = blockTable.getAt(GCDB_MODEL_SPACE, GcDb.OpenMode.kForWrite)
-
-        # Tabela bloków nie jest już potrzebna — zwolnij ją
+        status, modelSpace = blockTable.getAt(GCDB_MODEL_SPACE, GcDb.kForWrite)
         blockTable.close()
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można otworzyć przestrzeni modelu.")
+            return
 
         # Utwórz dwa punkty 3D dla początku i końca linii
         startPoint = GcGePoint3d(0.0, 0.0, 0.0)
@@ -39,13 +48,14 @@ def drawSampleLine():
 
         # Dodaj linię do przestrzeni modelu (do bazy danych rysunku)
         status, lineId = modelSpace.appendGcDbEntity(line)
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można dodać linii do przestrzeni modelu.")
 
-        # Zwolnij obiekt linii i przestrzeni modelu
+        # Zwolnij obiekt linii i przestrzeni modelu (odwrotna kolejność do otwarcia)
         modelSpace.close()
         line.close()
 
-        # Wyświetl komunikat w command line GstarCAD-a
-        gcedPrompt("Wzorcowa linia narysowana pomyślnie.")
+        gcutPrintf("\nWzorcowa linia narysowana pomyślnie.")
 
     except Exception as err:
-        gcedPrompt(f"---- [BŁĄD] przy rysowaniu linii: {err}")
+        gcutPrintf(f"\n[BŁĄD] przy rysowaniu linii: {err}")

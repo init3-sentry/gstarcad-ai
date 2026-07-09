@@ -1,14 +1,26 @@
 # Wzorcowa komenda 05 — Masowa zmiana koloru zaznaczonych obiektów.
 #
-# Demonstruje pracę z zaznaczeniem użytkownika (selection set): zapytanie
-# o zbiór wyboru przez gcedSSGet, iterację po zaznaczonych obiektach,
-# rzutowanie obiektu na typ GcDbEntity (klasa bazowa) i modyfikację jednej
-# jego właściwości (koloru).
+# Demonstruje pracę z selection set wg kanonicznego wzorca z oficjalnego
+# samples entsel.py: gcedSSGet z 5-argumentowym podpisem, gcedSSLength,
+# iterowanie gcedSSName + gcdbGetObjectId + gcdbOpenGcDbEntity, obowiązkowe
+# gcedSSFree na końcu.
 #
-# Sposób użycia: APPLOAD w GstarCAD 2026, następnie wpisz ZMIEN_KOLOR_NA_ZIELONY.
-# GstarCAD poprosi Cię o zaznaczenie obiektów (możesz użyć zaznaczania
-# oknem, krzyżem albo wskazywania pojedynczych). Po zatwierdzeniu zaznaczenia
-# wszystkie wskazane obiekty zmienią kolor na zielony.
+# Sposób użycia: APPLOAD w GstarCAD 2026/2027, następnie wpisz
+# ZMIEN_KOLOR_NA_ZIELONY. GstarCAD poprosi o zaznaczenie obiektów
+# (oknem, krzyżem, klikaniem pojedynczych). Po Enterze wszystkie
+# wskazane obiekty zmienią kolor na zielony (indeks ACI 3).
+#
+# Historia wzorca: pierwsza wersja (2026-06-30) używała
+# `if status != 5100: return` — literał 5100 NIE jest statusem sukcesu
+# dla gcedSSGet. Kanoniczny status sukcesu dla operacji użytkownika
+# to symboliczne RTNORM. Skutek błędu: komenda zawsze wchodziła w gałąź
+# "Anulowano" nawet po poprawnym zaznaczeniu. Poprawka wprowadzona
+# 2026-07-09 (v2 przewodnika-systemowego).
+#
+# Konwencje (v2 przewodnika-systemowego):
+#   - gcedSSGet zwraca RTNORM przy sukcesie (NIE Gcad.eOk, NIE literał 5100)
+#   - selection set trzymamy w gds_name(); obowiązek gcedSSFree(sset) na końcu
+#   - gcdbOpenGcDbEntity zwraca już GcDbEntity — nie trzeba isKindOf/cast
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -18,62 +30,61 @@ from pygcad.pygrx import *
 def changeSelectedToGreen():
     """Zmienia kolor wszystkich zaznaczonych obiektów na zielony."""
     try:
-        # Stała: zielony to kolor o indeksie 3 w standardowej palecie GstarCAD-a
-        TARGET_COLOR = 3
+        TARGET_COLOR = 3  # 3 = zielony (indeks ACI, standard AutoCAD/GstarCAD)
 
-        # Poproś użytkownika o zaznaczenie obiektów
-        gcedPrompt("Wybierz obiekty do zmiany koloru, zakończ Enter-em.")
-        status, selectionSet = gcedSSGet()
+        gcutPrintf("\nWybierz obiekty do zmiany koloru, zakończ Enter-em.")
 
-        # Sprawdź czy użytkownik faktycznie coś zaznaczył
-        if status != 5100:
-            gcedPrompt("Nic nie wybrano. Operacja anulowana.")
+        # Selection set trzymany w gds_name() — kanoniczny bufor selection.
+        # 5-arg podpis gcedSSGet(mode, pt1, pt2, filter, ssname). Same None
+        # = tryb interaktywny (użytkownik wybiera). 'A' zamiast pierwszego
+        # None wybrałoby wszystkie obiekty rysunku bez pytania.
+        sset = gds_name()
+        gcedSSGet(None, None, None, None, sset)
+
+        status, length = gcedSSLength(sset)
+        if status != RTNORM or length <= 0:
+            gcedSSFree(sset)
+            gcutPrintf("\nNic nie wybrano. Operacja anulowana.")
             return
 
-        # Pobierz liczbę zaznaczonych obiektów
-        count = selectionSet.length()
-
-        if count == 0:
-            gcedPrompt("Pusty zbiór wyboru. Operacja anulowana.")
-            return
-
-        # Liczniki dla raportu końcowego
         modifiedCount = 0
         skippedCount = 0
 
-        # Iteruj po wszystkich zaznaczonych obiektach
-        for i in range(count):
+        entName = gds_name()
+        entId = GcDbObjectId()
+
+        for i in range(length):
             try:
-                # Pobierz identyfikator obiektu o pozycji i w zbiorze wyboru
-                status, entityId = selectionSet.getAt(i)
+                # Pobierz nazwę i-tej encji w selection set, potem zamień
+                # ją na trwały ObjectId (bezpieczniejszy uchwyt do bazy).
+                gcedSSName(sset, i, entName)
+                gcdbGetObjectId(entId, entName)
 
-                # Otwórz obiekt do zapisu
-                status, entity = gcdbOpenObject(entityId, GcDb.OpenMode.kForWrite)
-
-                # Sprawdź czy obiekt jest pochodną GcDbEntity (czyli ma kolor)
-                if entity.isKindOf(GcDbEntity.desc()):
-                    # Rzutuj na klasę bazową GcDbEntity (operacja bezpieczna po sprawdzeniu)
-                    entityCast = GcDbEntity.cast(entity)
-                    # Ustaw nowy indeks koloru
-                    entityCast.setColorIndex(TARGET_COLOR)
-                    modifiedCount += 1
-                else:
+                # gcdbOpenGcDbEntity zwraca już GcDbEntity — bez potrzeby
+                # isKindOf/cast (per entsel.py). Trzeci argument False =
+                # nie otwieraj erased entities.
+                status, entity = gcdbOpenGcDbEntity(entId, GcDb.kForWrite, False)
+                if status != Gcad.eOk or entity is None:
                     skippedCount += 1
+                    continue
 
-                # Zwolnij obiekt
+                entity.setColorIndex(TARGET_COLOR)
                 entity.close()
+                modifiedCount += 1
 
             except Exception as itemErr:
-                # Jeśli zmiana koloru dla pojedynczego obiektu zawiodła,
-                # pomiń go i kontynuuj — nie wywalaj całej komendy
-                gcedPrompt(f"Pominięto obiekt {i}: {itemErr}")
+                # Pojedyncza encja mogła być np. na warstwie zablokowanej —
+                # pomijamy ją, ale całej komendy nie wywalamy.
+                gcutPrintf(f"\nPominięto obiekt {i}: {itemErr}")
                 skippedCount += 1
 
-        # Raport końcowy
-        gcedPrompt(
-            f"Zmiana koloru zakończona. Zmodyfikowano: {modifiedCount}, "
+        # Selection set trzeba zwolnić zawsze (per entsel.py)
+        gcedSSFree(sset)
+
+        gcutPrintf(
+            f"\nZmiana koloru zakończona. Zmodyfikowano: {modifiedCount}, "
             f"pominięto: {skippedCount}."
         )
 
     except Exception as err:
-        gcedPrompt(f"---- [BŁĄD] przy zmianie koloru: {err}")
+        gcutPrintf(f"\n[BŁĄD] przy zmianie koloru: {err}")

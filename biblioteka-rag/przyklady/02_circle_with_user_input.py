@@ -4,42 +4,58 @@
 # zapytanie o promień przy pomocy gcedGetReal, sprawdzenie czy użytkownik
 # nie anulował operacji, użycie wartości w konstrukcji okręgu.
 #
-# Sposób użycia: APPLOAD w GstarCAD 2026, następnie wpisz RYSUJ_OKRĄG_Z_PYTANIEM
-# w command line. GstarCAD zapyta Cię o promień, podaj go (na przykład 25)
-# i naciśnij Enter — okrąg pojawi się w środku rysunku.
+# Sposób użycia: APPLOAD w GstarCAD 2026/2027, następnie wpisz
+# RYSUJ_OKRAG_Z_PYTANIEM w command line. GstarCAD zapyta o promień —
+# podaj go (np. 25), Enter — okrąg pojawi się w środku układu.
+#
+# Uwaga o nazwie komendy: świadomie bez polskiego "Ą" — command line
+# GstarCAD-a nie renderuje pewnych diakrytyków w niektórych wersjach,
+# więc zbieramy nazwy komend do ASCII.
+#
+# Konwencje (v2 przewodnika-systemowego):
+#   - gcedGetReal / gcedSSGet / gcedGetPoint zwracają RTNORM przy sukcesie
+#     (NIE Gcad.eOk — to inna rodzina statusów, "input result")
+#   - operacje na bazie porównujemy z Gcad.eOk
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
 
 
-@command(local_name='RYSUJ_OKRĄG_Z_PYTANIEM')
+@command(local_name='RYSUJ_OKRAG_Z_PYTANIEM')
 def drawCircleByUserRadius():
     """Pyta użytkownika o promień i rysuje okrąg w środku układu współrzędnych."""
     try:
         # Zapytaj użytkownika o promień okręgu
-        status, radius = gcedGetReal("Podaj promień okręgu (w jednostkach rysunku): ")
+        status, radius = gcedGetReal("\nPodaj promień okręgu (w jednostkach rysunku): ")
 
-        # Status 5100 oznacza poprawne pobranie wartości
-        # Jeśli użytkownik anulował operację (Escape), wyjdź bez błędu
-        if status != 5100:
-            gcedPrompt("Anulowano przez użytkownika.")
+        # RTNORM = użytkownik podał wartość poprawnie. Cokolwiek innego
+        # (Escape, puste wejście, błąd parsowania) — anulujemy komendę.
+        if status != RTNORM:
+            gcutPrintf("\nAnulowano przez użytkownika.")
             return
 
         # Sprawdź czy podany promień jest sensowny
         if radius <= 0:
-            gcedPrompt("Promień musi być liczbą dodatnią. Operacja anulowana.")
+            gcutPrintf("\nPromień musi być liczbą dodatnią. Operacja anulowana.")
             return
 
         # Pobierz bazę danych rysunku
         database = gcdbWorkingDatabase()
 
         # Otwórz tabelę bloków i model space
-        status, blockTable = database.getBlockTable(GcDb.OpenMode.kForRead)
-        status, modelSpace = blockTable.getAt(GCDB_MODEL_SPACE, GcDb.OpenMode.kForWrite)
-        blockTable.close()
+        status, blockTable = database.getBlockTable(GcDb.kForRead)
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można otworzyć tabeli bloków.")
+            return
 
-        # Przygotuj parametry okręgu — środek, wektor normalny (w GstarCAD-zie zawsze Z = 1
-        # dla okręgów leżących płasko na rysunku), promień
+        status, modelSpace = blockTable.getAt(GCDB_MODEL_SPACE, GcDb.kForWrite)
+        blockTable.close()
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można otworzyć przestrzeni modelu.")
+            return
+
+        # Przygotuj parametry okręgu: środek, wektor normalny (Z=1 dla okręgu
+        # leżącego płasko na płaszczyźnie XY), promień
         center = GcGePoint3d(0.0, 0.0, 0.0)
         normalVector = GcGeVector3d(0.0, 0.0, 1.0)
 
@@ -48,13 +64,14 @@ def drawCircleByUserRadius():
 
         # Dodaj okrąg do rysunku
         status, circleId = modelSpace.appendGcDbEntity(circle)
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można dodać okręgu do przestrzeni modelu.")
 
         # Zwolnij obiekty
         modelSpace.close()
         circle.close()
 
-        # Komunikat sukcesu
-        gcedPrompt(f"Okrąg o promieniu {radius} narysowany w środku układu.")
+        gcutPrintf(f"\nOkrąg o promieniu {radius} narysowany w środku układu.")
 
     except Exception as err:
-        gcedPrompt(f"---- [BŁĄD] przy rysowaniu okręgu: {err}")
+        gcutPrintf(f"\n[BŁĄD] przy rysowaniu okręgu: {err}")
