@@ -1,24 +1,38 @@
 # Wzorcowe komendy GstarCAD-a w Pythonie
 
-> ✅ **Wersja 2 (2026-07-09):** wszystkie pięć wzorców zostało przepisanych na podstawie **v2 przewodnika-systemowego** (`../przewodnik-systemowy.md`), który sam wyrasta z (a) oficjalnych samples GstarSoft dla GstarCAD 2027 (`../oficjalne-materialy-gstarcad-2027/`) i (b) empirycznych testów pluginu ASKAI z 2026-07-01 na GstarCAD 2027 Plus PL. Wcześniejsza wersja (2026-06-30) zawierała cztery krytyczne błędy skopiowane z niezweryfikowanego przewodnika v1. Historia tych błędów oraz uzasadnienie każdej poprawki znajdują się w komentarzach nagłówkowych plików.
+> ✅ **Wersja 3 (2026-07-09):** kolekcja rozszerzona o pięć kolejnych wzorców (06-10) pokrywających wymiarowanie, tekst etykiet, wstawianie bloku, interakcyjne rysowanie z podglądem (jig) i eksport migawki DWG. Wszystkie napisane wg **v2 przewodnika-systemowego** (`../przewodnik-systemowy.md`) + oficjalne samples GstarSoft z GstarCAD 2027 (`../oficjalne-materialy-gstarcad-2027/`).
 >
-> **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL (2026-07-01):** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Wzorce dodatkowo używają `GcDbPolyline` (2D) oraz kanonicznych patternów z oficjalnych samples `tablerec.py` / `tbliter.py` / `entsel.py` — te patterny są 🟡 (dokumentowane przez GstarSoft), ale nie zweryfikowane end-to-end w tym repo.
+> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **10/20** po tej sesji.
+>
+> **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL (2026-07-01):** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Wzorce 03-10 dodatkowo używają `GcDbPolyline` 2D, `GcCmColor + setColor`, `GcDbAlignedDimension`, `GcDbText`, `GcDbBlockReference`, `GcEdJig`, `GcDbDatabase.saveAs` — te są 🟡 (kanoniczne wzorce z oficjalnych samples GstarSoft), planowana walidacja end-to-end przy najbliższej sesji na LC.
 
-Ten folder zawiera pięć wzorcowych komend dla GstarCAD 2026/2027, przygotowanych jako wzór do naśladowania dla zespołu pomocy technicznej TMSys.
+Ten folder zawiera wzorcowe komendy dla GstarCAD 2026/2027, przygotowane jako wzór do naśladowania dla zespołu pomocy technicznej TMSys.
 
 ## Cel
 
-Każda z pięciu komend pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią one referencyjną podstawę dla każdej kolejnej komendy, którą zespół będzie pisał — od typowego rysowania, przez interakcję z użytkownikiem, po automatyzację raportowania.
+Każda komenda pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią referencyjną podstawę dla każdej kolejnej komendy pisanej przez zespół — od typowego rysowania, przez interakcję z użytkownikiem, po automatyzację raportowania i eksportu plików.
 
 ## Komendy
+
+### Grupa A: podstawowe rysowanie i wprowadzanie danych (01-05)
 
 | Plik | Komenda | Co robi |
 |---|---|---|
 | `01_line_drawing.py` | `RYSUJ_LINIE_WZORCOWA` | Najprostsza komenda — rysuje wzorcową linię z (0,0,0) do (100,100,0) |
-| `02_circle_with_user_input.py` | `RYSUJ_OKRAG_Z_PYTANIEM` | Demonstruje interakcję — pyta użytkownika o promień, rysuje okrąg |
-| `03_rectangle_with_layer.py` | `RYSUJ_POKOJ` | Praca z warstwami — tworzy warstwę POKOJE (kanoniczny `GcCmColor + setColor`) i rysuje na niej prostokąt (`GcDbPolyline` 2D) |
+| `02_circle_with_user_input.py` | `RYSUJ_OKRAG_Z_PYTANIEM` | Interakcja — pyta użytkownika o promień (`gcedGetReal` → `RTNORM`), rysuje okrąg |
+| `03_rectangle_with_layer.py` | `RYSUJ_POKOJ` | Praca z warstwami — tworzy warstwę POKOJE (`GcCmColor + setColor`), rysuje prostokąt (`GcDbPolyline` 2D) |
 | `04_layer_audit_report.py` | `AUDYT_WARSTW` | Audyt — iteruje po warstwach (`newIterator` per `tbliter.py`), generuje raport, zapisuje do pliku |
 | `05_change_selected_color.py` | `ZMIEN_KOLOR_NA_ZIELONY` | Praca z zaznaczeniem — `gcedSSGet + gcedSSName + gcdbOpenGcDbEntity` per `entsel.py` |
+
+### Grupa B: adnotacje, bloki, interakcja i eksport (06-10)
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `06_dimension_aligned.py` | `WYMIAR_LINIOWY` | Wymiarowanie — pyta o dwa punkty, wstawia `GcDbAlignedDimension` z automatyczną etykietą długości (per `ployline_dim.py`) |
+| `07_text_label.py` | `WSTAW_ETYKIETE` | Tekst jednowierszowy — punkt wstawienia + treść przez `gcedGetString`, `GcDbText(punkt, str)` z `setHeight(25)` |
+| `08_block_insert.py` | `WSTAW_MARKER` | Praca z blokami — tworzy definicję bloku `GS_MARKER` (krzyżyk), wstawia jego referencję (`GcDbBlockReference` per `dynBlockTableReference.py`) |
+| `09_line_jig_interactive.py` | `RYSUJ_LINIE_INTERAKTYWNIE` | Jig — interakcyjne rysowanie linii z podglądem w czasie rzeczywistym, `GcEdJig` z metodami `sampler/update/entity/doIt` (per `linejig.py`) |
+| `10_save_dwg_snapshot.py` | `ZAPISZ_MIGAWKE_DWG` | Eksport pliku — nowa baza `GcDbDatabase(True, False)` z dwoma okręgami, zapis do DWG na Pulpicie (per `testdb.py`) |
 
 ## Jak ich używać
 
@@ -27,45 +41,55 @@ Krok drugi — wpisz w command line polecenie `APPLOAD`.
 Krok trzeci — w oknie dialogowym wybierz plik `.py`, który chcesz wczytać, naciśnij „Załaduj".
 Krok czwarty — w command line wpisz nazwę komendy (z tabeli wyżej). Komenda się wykona.
 
-Możesz wczytać wszystkie pięć komend od razu — każda rejestruje się pod swoją własną nazwą, nie ma konfliktów.
+Możesz wczytać wszystkie komendy od razu — każda rejestruje się pod swoją własną nazwą, nie ma konfliktów.
 
 ## Co warto z nich nauczyć
 
-**Pierwsza komenda** uczy minimalnego cyklu: otwarcie bazy → dostęp do model space → utworzenie obiektu → dodanie do bazy → zamknięcie wszystkiego → komunikat. Każda następna komenda zawiera ten sam szkielet, tylko z dodatkowymi elementami. Zwróć uwagę na sprawdzanie statusu przez `Gcad.eOk` po każdym otwarciu tabeli i po `appendGcDbEntity`.
+**Wzorce 01-05** uczą podstawowego cyklu pracy z pygcad:
 
-**Druga komenda** uczy interakcji z użytkownikiem przez `gcedGetReal`. Zwróć uwagę na sprawdzanie statusu przez **`RTNORM`** (a nie przez literał `5100`, jak było w v1 wzorca — literał daje w istocie ZAWSZE odrzucenie danych, ponieważ prawdziwy `RTNORM` ma inną wartość). Rodziny statusów są dwie: `Gcad.eOk` dla operacji na bazie, `RTNORM` dla operacji z linii poleceń (input użytkownika, selection set).
+- **01** — minimalny szkielet: baza → block table → model space → nowa encja → `appendGcDbEntity` → zamknięcie. Sprawdzanie statusu przez `Gcad.eOk`.
+- **02** — pobieranie liczby od użytkownika. Sprawdzanie statusu **przez `RTNORM`** (a nie literał `5100` — literały są zawodne). Dwie rodziny statusów: `Gcad.eOk` dla operacji na bazie, `RTNORM` dla operacji z linii poleceń.
+- **03** — wzorzec „sprawdź warstwę, utwórz jeśli trzeba, użyj". Kolor warstwy przez `GcCmColor` + `setColor` (bezpośrednie `setColorIndex` na LayerTableRecord nie istnieje). Prostokąt jako `GcDbPolyline` 2D (`GcDb3dPolyline` crashuje CAD).
+- **04** — iteracja tabeli symboli. Kanoniczny `newIterator` → `iterator.start()` → `while not iterator.done()` → `getRecord()` → `iterator.step()`. Właściwości warstwy pobierane defensywnie.
+- **05** — praca z selection set. Kanoniczny `gds_name()` bufor, obowiązkowe `gcedSSFree`, iteracja przez `gcedSSName` + `gcdbGetObjectId` + `gcdbOpenGcDbEntity` (który zwraca już `GcDbEntity` — bez `isKindOf`/`cast`).
 
-**Trzecia komenda** uczy pracy z tabelą warstw. Wzorzec „sprawdź czy warstwa istnieje, utwórz jeśli nie, użyj" jest jednym z najczęściej powtarzanych w skryptach CAD-owych. **Kolor warstwy** ustawiamy przez obiekt `GcCmColor` (`color.setColorIndex(n)` + `record.setColor(color)`) — bezpośrednio na `GcDbLayerTableRecord` nie ma metody `setColorIndex`. Do rysowania prostokąta używamy **`GcDbPolyline` 2D** z `addVertexAt`, zamykamy przez powrót do punktu startowego — `GcDb3dPolyline + setClosed` empirycznie crashuje GstarCAD-a do desktopu.
+**Wzorce 06-10** uczą kolejnych typowych zadań CAD-owych:
 
-**Czwarta komenda** uczy iteracji po tabelach symboli — tu warstw, ale ten sam wzorzec stosuje się dla bloków, stylów tekstu, stylów wymiarowania. Wzorzec jest kanoniczny — dokładnie taki jak w oficjalnym `tbliter.py`: `newIterator` → `iterator.start()` → `while not iterator.done()` → `getRecord()` bez argumentu → `iterator.step()`. Właściwości warstwy (`colorIndex`, `isFrozen`, `isOff`, `isLocked`) pobieramy defensywnie, bo nie wszystkie są jeszcze empirycznie zweryfikowane na tej wersji API.
-
-**Piąta komenda** uczy pracy z zaznaczeniem użytkownika wg kanonicznego `entsel.py`: selection set trzymamy w `gds_name()`, iterujemy przez `gcedSSName` + `gcdbGetObjectId` + `gcdbOpenGcDbEntity` (który zwraca już `GcDbEntity` — bez potrzeby `isKindOf` / `cast`). Selection set **zawsze zwalniamy** przez `gcedSSFree(sset)` na końcu.
+- **06** — wymiarowanie liniowe. `GcDbAlignedDimension(pt1, pt2, textPt, "etykieta")` — cztery informacje: dwa końce mierzonego odcinka, punkt gdzie ma stanąć linia wymiarowa (offset prostopadły), tekst etykiety. Puste `""` jako etykieta = GstarCAD wygeneruje wartość automatycznie z pomierzonych punktów.
+- **07** — tekst jednowierszowy. `GcDbText(punkt, string)` — dwuargumentowy konstruktor (bezargumentowy rzuca TypeError). Wysokość ustawia się osobno przez `setHeight`. Do bardziej złożonych bloków tekstu (wielowierszowych z formatowaniem) istnieje `GcDbMText`, ale ten wzorzec pokazuje najprostszy scenariusz.
+- **08** — praca z blokami. Wzorzec „upewnij się, że definicja bloku istnieje, wstaw referencję". Definicję bloku dodaje się przez nowy `GcDbBlockTableRecord` z ustawioną nazwą, do którego dodaje się encje składowe bloku (dodawanie identyczne jak do model space). Referencję bloku dodaje się do model space przez `GcDbBlockReference(punkt_wstawienia, block_id)`.
+- **09** — interakcyjne rysowanie z podglądem. Wzorzec „jig" jest standardem CAD-owym: linia przykleja się do kursora dopóki użytkownik nie kliknie. Implementacja przez dziedziczenie z `GcEdJig` i nadpisanie czterech metod: `sampler` (pobiera nowy input), `update` (aktualizuje encję), `entity` (zwraca encję do renderowania), `doIt` (orkiestruje pętlę `drag()` + finalny `append`). Ten sam wzorzec da się zastosować do elipsy, okręgu, prostokąta — dowolnej encji, którą można animować.
+- **10** — eksport do pliku DWG. Nowa, pusta baza danych to `GcDbDatabase(True, False)` — poza tym praca z nią jest identyczna jak z `gcdbWorkingDatabase()` (`getBlockTable`, `getAt(GCDB_MODEL_SPACE, ...)`, `appendGcDbEntity`). Zapis do pliku: `database.saveAs(sciezka)`, status musi być `Gcad.eOk`. Ten wzorzec można rozbudować o eksport wybranych encji z bieżącego rysunku (przez `deepClone`) — jest do tego oficjalny sample `deepClone.py`.
 
 ## Konwencje, które warto zachowywać
 
-Te konwencje powtarzają się w każdej z pięciu komend — i mają się powtarzać w każdej kolejnej komendzie pisanej dla projektu:
+Te konwencje powtarzają się w każdej z komend — i mają się powtarzać w każdej kolejnej komendzie pisanej dla projektu:
 
 1. **Każda funkcja jest opakowana w blok `try/except`** — łapie wyjątki i komunikuje błąd przez `gcutPrintf`, zamiast wywalać konsolę Pythona w GstarCAD-zie.
 2. **Wszystkie komunikaty do command line używają `gcutPrintf`** z prefiksem `"\n"` (bo `gcutPrintf` sam nie dodaje nowej linii). `gcedPrompt` też działa, ale kanoniczne samples GstarSoft używają `gcutPrintf`.
-3. **Statusy porównujemy symbolicznie**: `Gcad.eOk` po operacjach na bazie (getBlockTable, getLayerTable, getAt, appendGcDbEntity, gcdbOpenObject), `RTNORM` po operacjach z linii poleceń (gcedGetReal, gcedGetPoint, gcedSSGet). **Nigdy przez literał liczbowy** (np. `!= 5100`) — literał sam może się różnić od rzeczywistej stałej.
+3. **Statusy porównujemy symbolicznie**: `Gcad.eOk` po operacjach na bazie (getBlockTable, getLayerTable, getAt, appendGcDbEntity, gcdbOpenObject, saveAs), `RTNORM` po operacjach z linii poleceń (gcedGetReal, gcedGetPoint, gcedGetString, gcedSSGet). **Nigdy przez literał liczbowy** (np. `!= 5100`) — literał sam może się różnić od rzeczywistej stałej.
 4. **Wszystkie komentarze są po polsku.**
 5. **Każdy otwarty obiekt jest zamykany** (`.close()`) w odwrotnej kolejności do otwarcia. Selection set zawsze przez `gcedSSFree`.
 6. **Komendy mają polskie nazwy** przez `@command(local_name='POLSKA_NAZWA')`, bez polskich diakrytyków w samej nazwie (`OKRAG`, nie `OKRĄG`) — command line GstarCAD-a nie renderuje pewnych znaków w niektórych wersjach.
 7. **Krótka instrukcja użycia jest w nagłówku pliku** — komentarz na samej górze pliku.
-8. **Importy są na początku**: `from pygcad.core.runtime import *` oraz `from pygcad.pygrx import *` (obie te przestrzenie są potrzebne, obie są małe i przewidywalne — wildcard OK).
+8. **Importy są na początku**: `from pygcad.core.runtime import *` oraz `from pygcad.pygrx import *`.
+9. **Definicja bloku ≠ referencja bloku** — encje wewnątrz definicji dodaje się do `BlockTableRecord`, referencję (`GcDbBlockReference`) dodaje się do model space.
 
 ## Co jeszcze warto pokazać
 
-Te pięć wzorców pokrywa najpopularniejsze potrzeby. Z czasem warto rozszerzyć kolekcję o:
+Pierwsza dziesiątka wzorców pokrywa najczęstsze potrzeby. Do 20 (cel etapu 1 z `PLAN.md`) brakuje jeszcze dziesięciu. Sensowne kandydaty:
 
-- komendę z wymiarowaniem (`GcDbAlignedDimension` — jest oficjalny sample `ployline_dim.py`)
-- komendę z tekstem wielowierszowym (`GcDbMText`)
-- komendę z blokiem (wstawianie z biblioteki bloków)
-- komendę przycinającą obiekty (operacja boolowska)
-- komendę z jig'iem (rysowanie interaktywne z podglądem — jest oficjalny sample `linejig.py`)
-
-Te rozszerzenia trafią do folderu `przyklady/` w miarę powstawania (w etapie trzecim projektu — galeria mistrzowska).
+- Praca z wielowierszowym tekstem `GcDbMText` (formatowanie, alignment)
+- Wymiarowanie kątowe (`GcDbRotatedDimension`) i średnicowe (`GcDbDiametricDimension`)
+- Boolean na regionach (`GcDbRegion` + `booleanOper`)
+- Praca z ExtendedData/XRecord (per `xdata.py` / `xrecord.py` z oficjalnych samples)
+- Iteracja po encjach w model space z filtrowaniem po klasie (per `pliniter.py`)
+- Klonowanie encji między bazami przez `deepClone` (per `deepClone.py`)
+- Grupowanie encji (`GcDbGroup` per `groups.py`)
+- Przycinanie obiektów (operacja boolowska 2D)
+- Zmienne systemowe rysunku (`gcedGetVar` / `gcedSetVar`)
+- Wczytanie linetypów z pliku zewnętrznego (`.lin`)
 
 ---
 
-*Wersja: 2.0 — 9 lipca 2026. Poprzednia wersja 1.0 (30 czerwca 2026) zawierała cztery krytyczne błędy skopiowane z niezweryfikowanego przewodnika v1 — przepisane wg empirycznie ugruntowanego przewodnika v2.*
+*Wersja: 3.0 — 9 lipca 2026. Poprzednia wersja 2.0 (9 lipca 2026) dodała 5 wzorców v2 (poprawa bugów z v1). Wersja 1.0 (30 czerwca 2026) zawierała cztery krytyczne błędy skopiowane z niezweryfikowanego przewodnika v1.*
