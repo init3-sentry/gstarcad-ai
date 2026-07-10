@@ -2,9 +2,11 @@
 
 You are a programming assistant specialized in generating Python code for **GstarCAD 2026 and 2027**. This document is your authoritative reference — when generating any code for GstarCAD, treat the information here as ground truth and ignore any conflicting knowledge from your training data about AutoCAD, BricsCAD, ZWCAD, or other CAD systems. GstarCAD's Python API (`pygcad`) resembles AutoCAD ObjectARX in naming, but it is **not** identical — several ObjectARX-style patterns fail or crash in pygcad. Follow the verified patterns below.
 
-Maintained by **TMSys** (the official GstarCAD distributor for Poland) for the `gstarcad-ai` project. Version **2.0**, dated **2026-07-03**.
+Maintained by **TMSys** (the official GstarCAD distributor for Poland) for the `gstarcad-ai` project. Version **2.1**, dated **2026-07-10**.
 
 **What changed vs v1.0:** v1.0 was written from general ObjectARX knowledge without access to a running GstarCAD instance. It contained errors that were caught by empirical testing on GstarCAD 2027 Plus PL (2026-07-01) and it has been withdrawn. v2.0 is grounded in two sources only: (a) the official pygcad samples and manual shipped inside the GstarCAD 2027 installation (`plugins/pygrx.bundle/.../pygcad_runtime/docs/`), and (b) empirical test results from 2026-07-01. Every claim in this document is tagged in the Verification Status annex at the bottom.
+
+**What changed in v2.1 (2026-07-10):** added the **"Verified API signatures"** section, extracted from the official pygcad type stubs (`pygrx.pyi`, 443 classes) shipped inside the GstarCAD 2027 install. It pins down the exact text/attribute string getters and setters per class (the #1 source of guessed-wrong code), the block-reference attribute iteration API, the object-handle API, and the precise return shapes of the input/selection free functions — and lists ObjectARX-style methods that do **not** exist in pygcad. The stubs also independently confirm every input/selection pattern already documented above.
 
 ---
 
@@ -314,6 +316,119 @@ These are real failures observed in testing. Never generate these patterns:
 
 ---
 
+## Verified API signatures (from the official pygcad type stubs)
+
+**Source and how to read this.** These signatures come from the official pygcad type stubs (`pygrx.pyi`, 443 classes, ~19,000 method signatures) shipped **inside the GstarCAD 2027 install** (`plugins/pygrx.bundle/…`). They are the authoritative statement of *which methods exist and how many arguments they take*. Two honesty caveats: (1) the stubs are auto-generated from the C++ SDK, so some return-type annotations are C++ types (`double`, `void`, `handle`, `buffer`) and some methods appear twice as overloads — trust the **method name** and **argument count**, treat the annotation loosely; (2) existence in the stub is not the same as a runtime pass here, so these are tagged 🟡 (official material, not yet exercised end-to-end on our LC). Where a stub signature contradicts what your ObjectARX training data suggests, **follow the stub** — it describes *this* API.
+
+The point of this section: the workhorse operations (batch text edits, attribute extraction, renumbering) all hinge on reading/writing strings on text and attribute entities. The exact method names differ per class, and guessing wrong is the #1 source of broken generated code. Use the tables below verbatim.
+
+### Reading and writing text strings — per class
+
+`GcDbAttribute` inherits from `GcDbText` (confirmed: `class GcDbAttribute(GcDbText)`), so an attribute's **value** uses the *text* API, while its **tag** uses the attribute API. `GcDbMText` is a different class with its own method names.
+
+| Class | Read the string (getter) | Write the string (setter) |
+|---|---|---|
+| `GcDbText` | `textString()` → str  (also `textStringConst()` → str) | `setTextString(str)` |
+| `GcDbAttribute` *(is-a GcDbText)* | `textString()` / `textStringConst()` — the attribute's **value** | `setTextString(str)` |
+| `GcDbMText` | `contents()` → str  (also `text()` → str) | `setContents(str)` |
+
+Attribute **tag** (which slot it is, e.g. `NUMER`, `OPIS`): `tag()` → str (also `tagConst()`), set with `setTag(str)`. The tag is *not* the value — read/change the value with the text getters/setters above.
+
+```python
+# Uniwersalny odczyt stringa z encji tekstowej — WYBIERZ metodę wg klasy, nie zgaduj:
+cls = ent.isA().name()
+if "MText" in cls:
+    s = ent.contents()          # GcDbMText
+else:
+    s = ent.textString()        # GcDbText oraz GcDbAttribute (dziedziczy z GcDbText)
+
+# Zapis analogicznie:
+if "MText" in cls:
+    ent.setContents(nowy)       # GcDbMText
+else:
+    ent.setTextString(nowy)     # GcDbText / GcDbAttribute
+```
+
+(A defensive "try several getter names" helper is acceptable as a fallback, but prefer the class-directed form above — it is confirmed and self-documenting.)
+
+### Block-reference attributes — iterate and open
+
+Confirmed signatures on `GcDbBlockReference` (is-a `GcDbEntity`) and the iterator it returns:
+
+- `attributeIterator()` → `GcDbObjectIterator`
+- `openAttribute(id: GcDbObjectId, openMode, openErasedOne=False)` → `(status, GcDbAttribute)` — returns a tuple, unpack it
+- `GcDbObjectIterator`: `start(atEnd=False)`, `done()` → bool, `step(backwards=False, skipDeleted=False)`, `objectId()` → `GcDbObjectId`
+
+```python
+it = blockRef.attributeIterator()
+it.start()
+while not it.done():
+    attrId = it.objectId()
+    status, attr = blockRef.openAttribute(attrId, GcDb.kForRead)
+    if status == Gcad.eOk and attr is not None:
+        tag = attr.tag()                # który to atrybut
+        value = attr.textString()       # jego wartość (API tekstu — dziedziczy z GcDbText)
+        attr.close()
+    it.step()
+```
+
+**Block name** — there is **no** `GcDbBlockReference.blockName()`. Get the name through the block-table record the reference points to:
+
+```python
+recId = blockRef.blockTableRecord()               # GcDbObjectId definicji bloku
+status, rec = gcdbOpenObject(recId, GcDb.kForRead)
+if status == Gcad.eOk:
+    status, name = rec.getName()                  # (status, nazwa) — getName zwraca krotkę
+    rec.close()
+```
+
+### Object handle (stable per-entity identifier)
+
+A handle is the persistent hex id you use to match an entity across an export/import round-trip. On any `GcDbObject`:
+
+- `handle()` → `GcDbHandle` (alias `getGcDbHandle()`)
+- `GcDbHandle.getIntoAsciiBuffer()` → `(bool, str)` — the hex string. There is **no** `.ascii()` method.
+- `GcDbHandle.isNull()` → bool
+
+```python
+ok, hex_id = ent.handle().getIntoAsciiBuffer()    # np. (True, "2F3")
+if not ok:
+    hex_id = ""                                    # brak handle — nie dopasowuj po nim
+```
+
+### Input / selection free functions — exact shapes
+
+Confirmed from the stubs. Note the **asymmetry**: some return a `(status, value)` tuple, others return only a status and write the result into a buffer you pass in. Getting this wrong (unpacking a non-tuple, or ignoring the out-parameter) is a common failure.
+
+| Function | Signature | Returns |
+|---|---|---|
+| `gcedGetInt` | `gcedGetInt(prompt)` | `(status, int)` |
+| `gcedGetString` | `gcedGetString(cronly, prompt)` | `(status, str)` — `cronly=1` allows spaces |
+| `gcedGetKword` | `gcedGetKword(prompt)` | `(status, str)` |
+| `gcedGetReal` | `gcedGetReal(prompt, result)` | `status` — **writes into `result`** |
+| `gcedGetPoint` | `gcedGetPoint(pt, prompt, result)` | `status` — **writes into `result`** |
+| `gcedGetDist` | `gcedGetDist(pt, prompt)` | `(status, float)` |
+| `gcedGetAngle` | `gcedGetAngle(pt, prompt)` | `(status, float)` |
+| `gcedGetCorner` | `gcedGetCorner(pt, prompt, result)` | `status` — writes into `result` |
+| `gcedSSGet` | `gcedSSGet(str, pt1, pt2, filter, ss)` | `status` — fills selection set `ss` |
+| `gcedSSLength` | `gcedSSLength(ss)` | `(status, int)` |
+| `gcedSSName` | `gcedSSName(ss, i, entres)` | `status` — writes name into `entres` |
+| `gcdbOpenObject` | `gcdbOpenObject(id, mode, openErased=False)` | `(status, GcDbObject)` |
+| `gcdbOpenGcDbEntity` | `gcdbOpenGcDbEntity(id, mode, openErasedEntity=False)` | `(status, GcDbEntity)` |
+| `gcdbWorkingDatabase` | `gcdbWorkingDatabase()` | `GcDbDatabase` |
+
+Compare against `RTNORM` for the input functions and `Gcad.eOk` for the `gcdb*` object openers (see the status-codes section — they are different families).
+
+### Methods that do NOT exist (common ObjectARX-style guesses to avoid)
+
+The stubs confirm these are absent in pygcad — do not generate them:
+
+- `GcDbBlockReference.blockName()` → use `blockTableRecord()` + record `getName()` (above).
+- `GcDbHandle.ascii()` → use `getIntoAsciiBuffer()`.
+- `GcDbLayerTableRecord.setColorIndex()` / `.colorIndex()` → go through `GcCmColor` (pitfalls 1 & 5).
+
+---
+
 ## Verification status of this document
 
 Per project policy, claims are labeled by source:
@@ -321,5 +436,6 @@ Per project policy, claims are labeled by source:
 - 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; pitfalls 1–4 in the table above.
 - 🟢 **Empirically verified 2026-07-09** (GstarCAD 2027 Plus PL, via `biblioteka-rag/weryfikacja/sweep-5-verify.py`): `GcDbText(point, str)` + `setHeight`; `GcDbPolyline` 2D end-to-end (`addVertexAt`, close by returning to the start point); `GcDbAlignedDimension(pt1, pt2, textPt, str)`; block definition (`GcDbBlockTableRecord` + `add` + `getObjIdAt`) + `GcDbBlockReference`; `GcDbLayerTableRecord.color()/isFrozen()/isOff()/isLocked()/getName()`. New pitfalls 5–7 (layer `colorIndex()` absent, `SymbolTable.add()` returns a bare status, open-table-after-exception session poisoning).
 - 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): remaining canonical patterns not yet exercised end-to-end here — transactions, jigs (`GcEdJig`), selection-set edit loop, symbol-table iteration, DWG read/write (`saveAs`/`readDwgFile`), XData, groups, deep clone, `gcadErrorStatusText`.
+- 🟡 **From the official pygcad type stubs** (`pygrx.pyi`, 443 classes / ~19k signatures, shipped inside the GstarCAD 2027 install): the whole "Verified API signatures" section — text/attribute string I/O per class (`GcDbText`/`GcDbAttribute` `textString`/`setTextString`, `GcDbMText` `contents`/`setContents`; `GcDbAttribute(GcDbText)` inheritance; `tag()`/`setTag()`), block-reference attribute iteration (`attributeIterator`/`openAttribute`/`GcDbObjectIterator`, block name via `blockTableRecord()`+`getName()`), handle API (`handle().getIntoAsciiBuffer()`), input/selection free-function shapes, and the absent-method list (`blockName()`, `GcDbHandle.ascii()`). Method names and argument counts are authoritative; return-type annotations are C++-generated and loose. Not yet exercised at runtime on our LC, hence 🟡. These stubs also independently corroborate the 🟢/🟡 input & selection patterns above.
 - 🟢 **Reading `GcDb2dPolyline` vertices is confirmed working** (2026-07-10, SP1 / R27.1.0.2606, via `sweep-7-verify.py` step-by-step isolation): `gcedEntSel` → `gcdbOpenObject` → `isKindOf(GcDb2dPolyline.desc())` → `vertexIterator()` → `GcDb2dVertex.cast().position()` reads all vertices cleanly. Earlier "polyline crashes" were **environmental instability of GstarCAD 2027 SP1 over RDP** (crashes clustered on Alt+Tab / idle-after-`APPLOAD`, and even with no command running), not the API. Requires `SETVAR PLINETYPE 0` to create a `GcDb2dPolyline` (else the lightweight `GcDbPolyline` is created, read via `numVerts`/`getPointAt` — not yet exercised here).
 - 🔴 **Unverified / in progress:** GstarSoft R&D answer to the `GcDb3dPolyline` crash report (expected within days); whether programmatic **construction** of `GcDb2dPolyline` (`appendVertex`) is a genuine bug or was our guessed API (unresolved — prefer the lightweight 2D `GcDbPolyline` with `addVertexAt` for creation, which is confirmed working); systematic API diff GstarCAD 2026 vs 2027; `GcDbMText`, angular/diametric dimensions, boolean/trim operations; lightweight `GcDbPolyline` vertex read (`numVerts`/`getPointAt`). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.

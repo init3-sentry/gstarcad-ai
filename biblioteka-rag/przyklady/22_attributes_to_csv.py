@@ -6,6 +6,8 @@
 # (c) reguły opisane po ludzku (LLM). To fundament „title block fill" i zestawień.
 #
 # STATUS: 🟡 DRAFT do walidacji na LC (razem ze sweep-10-text.py — API atrybutów/tekstu).
+#         2026-07-10: API handle/nazwy-bloku/tekstu sprawdzone ze stubami pygrx.pyi
+#         (getIntoAsciiBuffer, blockTableRecord+getName, textString) — runtime dalej pending LC.
 #
 # Sposób użycia: APPLOAD, następnie:
 #   EKSPORT_ATRYBUTOW — zapisuje wszystkie atrybuty bloków bieżącego rysunku do
@@ -75,8 +77,11 @@ def _iter_block_refs(mode):
     for oid in ids:
         s, ref = gcdbOpenObject(oid, mode)
         if s == Gcad.eOk and ref is not None:
+            h = "?"
             try:
-                h = ref.handle().ascii()  # 🟡 forma handle do potwierdzenia; fallback niżej
+                # handle = trwały identyfikator hex; w stubach: getIntoAsciiBuffer()->(bool,str).
+                ok, hex_id = ref.handle().getIntoAsciiBuffer()
+                h = hex_id if ok else str(ref.objectId())
             except Exception:
                 try:
                     h = str(ref.objectId())
@@ -91,8 +96,16 @@ def exportAttributes():
     try:
         rows = []
         for ref, h in _iter_block_refs(GcDb.kForRead):
+            # Nazwa bloku: GcDbBlockReference NIE ma blockName() (potwierdzone w stubach).
+            # Idziemy przez rekord definicji: blockTableRecord() -> getName()->(status,nazwa).
+            bname = "?"
             try:
-                bname = ref.blockName() if hasattr(ref, "blockName") else "?"
+                srec, rec = gcdbOpenObject(ref.blockTableRecord(), GcDb.kForRead)
+                if srec == Gcad.eOk and rec is not None:
+                    sn, nm = rec.getName()
+                    if sn == Gcad.eOk:
+                        bname = nm
+                    rec.close()
             except Exception:
                 bname = "?"
             try:
