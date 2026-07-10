@@ -45,9 +45,9 @@ Testowaliśmy plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i Gst
 
 ## Krok 1b — włącz obsługę Pythona w GstarCAD (menedżer aplikacji)
 
-Po zainstalowaniu GstarCAD-a Python **nadal nie zadziała**, dopóki nie włączysz modułu w samym programie. To jest udokumentowane w oficjalnym podręczniku pygcad (sekcja rozwiązywania problemów):
+Po zainstalowaniu GstarCAD-a Python **nadal nie zadziała**, dopóki nie włączysz modułu w samym programie:
 
-1. W GstarCAD wejdź w menu: **Aplikacje → Menedżer aplikacji** (chińskie oryginały z podręcznika: `应用软件 → 应用管理器`; w wersji PL nazwy będą polskie — **zanotuj dokładne etykiety, które widzisz**).
+1. W linii poleceń GstarCAD wpisz komendę **`APPMANAGER`** i Enter — otworzy się **Menedżer aplikacji** (okno z przełącznikami modułów). (Alternatywnie z menu: Aplikacje → Menedżer aplikacji; oryg. chiński z podręcznika: `应用软件 → 应用管理器`.)
 2. Znajdź pozycję **„Interfejs programistyczny Python"** (oryg. `python二次开发接口`) — to jest ten suwak/przełącznik.
 3. **Kliknij „Włącz" / przestaw przełącznik na ON.**
 4. Jeśli trzeba — zrestartuj GstarCAD.
