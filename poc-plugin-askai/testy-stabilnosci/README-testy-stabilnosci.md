@@ -12,9 +12,28 @@ Testowaliśmy plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i Gst
 
 **Testy rób siedząc PRZY komputerze** (klawiatura i mysz tego komputera), **NIE przez pulpit zdalny / RDP / AnyDesk / TeamViewer.** To jest cały sens tych testów. Jeśli ktoś testuje przez zdalny pulpit — zapisz to wyraźnie w raporcie, bo wynik znaczy wtedy co innego.
 
+## ⚠️ Krok 0 — Python 3.11.8 + PATH (BEZ TEGO NIC NIE ZADZIAŁA)
+
+**Wbrew pozorom pygcad NIE działa od razu po instalacji GstarCAD-a.** Na świeżej maszynie polecenie `APPLOAD` nie zarejestruje żadnej komendy z pliku `.py`, dopóki w systemie nie ma **Pythona 3.11.8 (64-bit) zainstalowanego i dodanego do zmiennej PATH** (potwierdzone empirycznie na maszynie testowej: `C:\Program Files\Python311\` w PATH, `python --version` → `Python 3.11.8`).
+
+**Zrób to PRZED testami:**
+
+1. Zainstaluj **Python 3.11.8 (Windows 64-bit)** — dokładnie ta wersja. Zabezpieczona kopia instalatora (z opisem i sumą kontrolną):
+   `tools/python-runtime/python-3.11.8-amd64.exe` w repo, albo raw:
+   `https://raw.githubusercontent.com/init3-sentry/gstarcad-ai/main/tools/python-runtime/python-3.11.8-amd64.exe`
+2. W instalatorze **zaznacz „Add python.exe to PATH"**. Zalecane: „Install for all users" (jako administrator) → trafi do `C:\Program Files\Python311\`.
+3. **Weryfikacja PATH** — otwórz nowy wiersz poleceń (cmd) i wpisz:
+   ```
+   python --version
+   ```
+   Musi wypisać `Python 3.11.8`. Jeśli „nie jest rozpoznawane jako polecenie" — Python NIE jest w PATH; dodaj ręcznie `C:\Program Files\Python311\` i `C:\Program Files\Python311\Scripts\` do zmiennej środowiskowej PATH (Ustawienia → Zmienne środowiskowe), zrestartuj GstarCAD.
+4. **Zapisz w raporcie**, czy Python był już w PATH, czy trzeba było dodać ręcznie — to ważna informacja o realnym procesie wdrożenia u klienta.
+
+> Uwaga: to jest odkrycie z 2026-07-10 — wcześniej zakładaliśmy błędnie, że GstarCAD ma Pythona „wbudowanego, bez konfiguracji". Realnie pygcad korzysta z **systemowego** Pythona 3.11.8 na PATH. Jeśli u kogoś działa BEZ osobnej instalacji Pythona — też to zanotuj (może zależeć od wariantu instalatora GstarCAD-a).
+
 ## Krok 1 — właściwa wersja GstarCAD
 
-**Pythona NIE instalujemy.** GstarCAD ma wbudowany własny Python (3.11.8) — nic nie trzeba dokładać. „Właściwa wersja" oznacza samą aplikację GstarCAD:
+„Właściwa wersja" oznacza samą aplikację GstarCAD:
 
 1. **GstarCAD 2027 PL** zainstalowany (standardowy instalator TMSys — ten, którego używamy u klientów).
 2. **Nałożony patch SP1:** `GstarCAD2027PL_Patch_SP1_x64.exe`

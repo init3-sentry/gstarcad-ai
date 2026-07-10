@@ -79,7 +79,12 @@ def diagInfo():
             _log(f"System:              {platform.platform()}")
         except Exception as e:
             _log(f"platform: NIE ({e})")
-        _log(f"Python (embedded):   {sys.version.replace(chr(10), ' ')}")
+        _log(f"Python wersja:       {sys.version.replace(chr(10), ' ')}")
+        try:
+            _log(f"Python executable:   {sys.executable}")
+            _log(f"Python prefix:       {sys.prefix}")
+        except Exception as e:
+            _log(f"Python executable:   NIE ({e})")
         _log(f"GstarCAD ACADVER:    {_sysvar_str('ACADVER')}")
         _log(f"GstarCAD LOGINNAME:  {_sysvar_str('LOGINNAME')}")
         _log("UWAGA: wersję produktu (np. R27.1.0.2606) i edycję (Premium/Standard/Pro)")

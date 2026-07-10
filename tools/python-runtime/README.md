@@ -1,15 +1,18 @@
-# Python 3.11.8 — zabezpieczona wersja runtime dla GstarCAD 2027
+# Python 3.11.8 — WYMAGANY runtime dla pygcad w GstarCAD 2027
 
-Ten folder przechowuje **niezmienną kopię oficjalnego instalatora Python 3.11.8 (Windows x64)** — tej samej wersji, którą GstarCAD 2027 ma **wbudowaną** we własnej instalacji jako środowisko uruchomieniowe dla pygcad.
+Ten folder przechowuje **niezmienną kopię oficjalnego instalatora Python 3.11.8 (Windows x64)** — dokładnie tej wersji, której GstarCAD 2027 potrzebuje w systemie, żeby pygcad (Python w GstarCAD) w ogóle działał.
 
-## ⚠️ Najważniejsze — przeczytaj zanim komuś każesz to instalować
+## ⚠️ Najważniejsze — to jest WYMAGANE, nie opcjonalne
 
-**GstarCAD ma tego Pythona wbudowanego.** Klient GstarCAD-a **niczego nie instaluje** — interpreter 3.11.8 jest częścią instalacji GstarCAD-a (wewnątrz `plugins/pygrx.bundle/…`), a polecenie `APPLOAD` używa właśnie jego. **Zainstalowanie tego pliku NIE zmienia interpretera, którego używa pygcad** i **NIE jest potrzebne do działania wtyczek ani generowanego kodu.**
+**Wbrew wcześniejszemu założeniu, GstarCAD NIE działa z Pythonem „od razu po instalacji".** Empirycznie (2026-07-10, maszyna testowa): pygcad korzysta z **systemowego** Pythona 3.11.8 (64-bit) zainstalowanego i dodanego do **PATH** (`C:\Program Files\Python311\` w PATH, `python --version` → `Python 3.11.8`). Na świeżej maszynie **bez** tego, polecenie `APPLOAD` nie zarejestruje żadnej komendy z pliku `.py` — brakuje `python311.dll` na ścieżce.
 
-Po co więc trzymamy tę kopię — dwa realne powody:
+Dlatego ta kopia ma trzy role:
 
-1. **Zabezpieczenie wersji (preservation).** Chcemy mieć niezmienną, zahashowaną kopię dokładnie tej wersji, gdyby python.org kiedyś ją usunął albo podmienił. Dzięki temu zawsze wiemy i mamy „to samo 3.11.8", z którym testowaliśmy.
-2. **Środowisko deweloperskie.** Gdy ktoś z zespołu chce lokalnie sprawdzić składnię generowanych skryptów, uruchomić backend albo zrobić `venv` **zgodny z wersją GstarCAD-a**, instaluje dokładnie tę wersję — żeby dev-środowisko odpowiadało temu, co realnie wykonuje GstarCAD.
+1. **Wymóg wdrożeniowy (runtime).** To jest instalator, który trzeba postawić + dodać do PATH, żeby pygcad ruszył. Bez niego wtyczka ASKAI ani generowany kod nie zadziałają.
+2. **Zabezpieczenie wersji (preservation).** Niezmienna, zahashowana kopia dokładnie tej wersji — gdyby python.org ją usunął/podmienił, zawsze mamy „to samo 3.11.8", z którym testowaliśmy.
+3. **Środowisko deweloperskie.** `venv`/lint/backend zgodny z wersją, którą realnie wykonuje GstarCAD.
+
+> **Otwarte pytanie (do Williama Wanga / GstarSoft R&D):** czy wymóg osobnej instalacji Pythona + PATH dotyczy **każdej** instalacji GstarCAD 2027, czy nasza instalacja testowa była niestandardowa? To ma wagę strategiczną — jeśli każdy klient musi instalować Pythona i grzebać w PATH, to uderza w obietnicę „load and run bez konfiguracji".
 
 ## Fakty o pliku
 

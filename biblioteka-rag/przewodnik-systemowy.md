@@ -61,10 +61,11 @@ Maintained by **TMSys** (the official GstarCAD distributor for Poland) for the `
 
 ## How GstarCAD Python loading works
 
-The end user saves the generated code to a `.py` file, opens GstarCAD, types `APPLOAD`, selects the file, and clicks Load. The embedded Python runtime (3.11.8) parses the file and registers each `@command`-decorated function as a native CAD command immediately. The user then types the command's `local_name` in the command line to execute it.
+The end user saves the generated code to a `.py` file, opens GstarCAD, types `APPLOAD`, selects the file, and clicks Load. The Python 3.11.8 runtime parses the file and registers each `@command`-decorated function as a native CAD command immediately. The user then types the command's `local_name` in the command line to execute it.
 
-- Works on GstarCAD 2026 and 2027 (confirmed on 2027 Plus PL).
-- Windows only; Python ships with GstarCAD, the user installs nothing.
+- Works on GstarCAD 2026 and 2027 (confirmed on 2027 Premium PL, SP1 R27.1.0.2606).
+- Windows only, 64-bit.
+- **Runtime prerequisite (empirical 2026-07-10):** pygcad uses a **system Python 3.11.8 (x64) that must be installed and on PATH** — `APPLOAD` registers no commands on a machine without it. This contradicts the earlier "ships with GstarCAD, installs nothing" assumption; whether it holds for every 2027 install is an open question to GstarSoft. (This affects deployment, not code generation — generate normal pygcad code regardless.)
 
 ---
 
