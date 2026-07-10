@@ -29,7 +29,7 @@ Testowaliśmy plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i Gst
    Musi wypisać `Python 3.11.8`. Jeśli „nie jest rozpoznawane jako polecenie" — Python NIE jest w PATH; dodaj ręcznie `C:\Program Files\Python311\` i `C:\Program Files\Python311\Scripts\` do zmiennej środowiskowej PATH (Ustawienia → Zmienne środowiskowe), zrestartuj GstarCAD.
 4. **Zapisz w raporcie**, czy Python był już w PATH, czy trzeba było dodać ręcznie — to ważna informacja o realnym procesie wdrożenia u klienta.
 
-> Uwaga: to jest odkrycie z 2026-07-10 — wcześniej zakładaliśmy błędnie, że GstarCAD ma Pythona „wbudowanego, bez konfiguracji". Realnie pygcad korzysta z **systemowego** Pythona 3.11.8 na PATH. Jeśli u kogoś działa BEZ osobnej instalacji Pythona — też to zanotuj (może zależeć od wariantu instalatora GstarCAD-a).
+> Uwaga: **to jest oficjalny, udokumentowany wymóg** — potwierdzone w podręczniku pygcad GstarSoftu (`biblioteka-rag/oficjalne-materialy-gstarcad-2027/man.pdf`): „zainstaluj `python-3.11.x-amd64.exe`" + „dodaj ścieżkę python3.11.x do zmiennej PATH, zrestartuj GstarCAD". Wcześniej zakładaliśmy błędnie, że GstarCAD ma Pythona „wbudowanego, bez konfiguracji" — to nieprawda. pygcad korzysta z **systemowego** Pythona 3.11.x na PATH.
 
 ## Krok 1 — właściwa wersja GstarCAD
 
@@ -42,6 +42,19 @@ Testowaliśmy plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i Gst
 3. **Weryfikacja wersji:** GstarCAD → menu **Pomoc → O programie**. Powinno być **R27.1.0.2606** (SP1) i edycja (Premium / Standard / Professional). **Zapisz dokładnie co widzisz** — to idzie do raportu.
 
 > Jeśli masz maszynę bez SP1 (samo 2027) — też przetestuj i **wyraźnie zaznacz „bez SP1"**. Porównanie SP1 vs bez SP1 jest cenne.
+
+## Krok 1b — włącz obsługę Pythona w GstarCAD (menedżer aplikacji)
+
+Po zainstalowaniu GstarCAD-a Python **nadal nie zadziała**, dopóki nie włączysz modułu w samym programie. To jest udokumentowane w oficjalnym podręczniku pygcad (sekcja rozwiązywania problemów):
+
+1. W GstarCAD wejdź w menu: **Aplikacje → Menedżer aplikacji** (chińskie oryginały z podręcznika: `应用软件 → 应用管理器`; w wersji PL nazwy będą polskie — **zanotuj dokładne etykiety, które widzisz**).
+2. Znajdź pozycję **„Interfejs programistyczny Python"** (oryg. `python二次开发接口`) — to jest ten suwak/przełącznik.
+3. **Kliknij „Włącz" / przestaw przełącznik na ON.**
+4. Jeśli trzeba — zrestartuj GstarCAD.
+
+> **Zanotuj w raporcie:** dokładną nazwę menu i przełącznika w polskiej wersji (weryfikujemy oficjalne nazewnictwo), oraz czy moduł był domyślnie włączony czy trzeba było go włączyć ręcznie.
+>
+> Objaw braku tego kroku: `APPLOAD` ładuje plik „z sukcesem", ale komendy (np. `DIAG_INFO`) zgłaszają „nieznane polecenie", albo pojawia się „python接口模块初始化失败 / Python interface module initialization failed".
 
 ## Krok 2 — plik testowy
 
