@@ -5,9 +5,11 @@
 # edycji w Excelu i re-import z powrotem (round-trip), (b) batch przez wiele plików,
 # (c) reguły opisane po ludzku (LLM). To fundament „title block fill" i zestawień.
 #
-# STATUS: 🟡 DRAFT do walidacji na LC (razem ze sweep-10-text.py — API atrybutów/tekstu).
-#         2026-07-10: API handle/nazwy-bloku/tekstu sprawdzone ze stubami pygrx.pyi
-#         (getIntoAsciiBuffer, blockTableRecord+getName, textString) — runtime dalej pending LC.
+# STATUS: ✅ ZWALIDOWANY end-to-end na LC 2026-07-10 (GstarCAD 2027 SP1, R27.1.0.2606)
+#         przez weryfikacja/waliduj-petla.py — 10/10 iteracji PASS (eksport=1 za każdym razem).
+#         Handle: GcDbBlockReference NIE ma handle() — użyto getGcDbHandle().getIntoAsciiBuffer()
+#         (empirycznie -> (True,'2A7')). Nazwa bloku: blockTableRecord()+getName(). Wartości
+#         przez textString()/setTextString() (GcDbAttribute dziedziczy z GcDbText).
 #
 # Sposób użycia: APPLOAD, następnie:
 #   EKSPORT_ATRYBUTOW — zapisuje wszystkie atrybuty bloków bieżącego rysunku do
@@ -72,6 +74,7 @@ def _iter_block_refs(mode):
                     ids.append(ent.objectId())
             except Exception:
                 pass
+            ent.close()
         it.step()
     ms.close()
     for oid in ids:
@@ -79,8 +82,10 @@ def _iter_block_refs(mode):
         if s == Gcad.eOk and ref is not None:
             h = "?"
             try:
-                # handle = trwały identyfikator hex; w stubach: getIntoAsciiBuffer()->(bool,str).
-                ok, hex_id = ref.handle().getIntoAsciiBuffer()
+                # handle = trwały hex id. UWAGA (empiria 2026-07-10): GcDbBlockReference
+                # NIE ma metody handle() — jest getGcDbHandle()->GcDbHandle, a z niej
+                # getIntoAsciiBuffer()->(bool, hex). Potwierdzone na LC: (True, '2A7').
+                ok, hex_id = ref.getGcDbHandle().getIntoAsciiBuffer()
                 h = hex_id if ok else str(ref.objectId())
             except Exception:
                 try:

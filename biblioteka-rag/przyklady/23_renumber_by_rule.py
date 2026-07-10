@@ -5,7 +5,8 @@
 # (prefiks + start + krok + format), np. pozycje „P-001, P-002...", rewizje, RFI.
 # LLM w ASKAI generuje regułę z opisu klienta; ten wzorzec to referencyjny szkielet.
 #
-# STATUS: 🟡 DRAFT do walidacji na LC (razem ze sweep-10-text.py — API atrybutów).
+# STATUS: ✅ ZWALIDOWANY end-to-end na LC 2026-07-10 (GstarCAD 2027 SP1, R27.1.0.2606)
+#         przez weryfikacja/waliduj-petla.py — 10/10 iteracji PASS (renumeracja=1 -> P-001).
 #
 # Sposób użycia: APPLOAD, następnie RENUMERUJ. Komenda pyta o: tag atrybutu do
 # renumeracji (np. NUMER), prefiks (np. „P-"), numer startowy, krok. Następnie
@@ -49,6 +50,7 @@ def _block_ref_ids():
                     ids.append(ent.objectId())
             except Exception:
                 pass
+            ent.close()
         it.step()
     ms.close()
     return ids
@@ -104,7 +106,7 @@ def renumberByRule():
                 pass
             ref.close()
 
-        gcutPrintf(f"\nZrenumerowano {count} atrybutów „{tag}" (od {prefix}{str(start).zfill(pad)}, krok {step}).")
+        gcutPrintf(f"\nZrenumerowano {count} atrybutow '{tag}' (od {prefix}{str(start).zfill(pad)}, krok {step}).")
 
     except Exception as err:
         gcutPrintf(f"\n[BŁĄD] przy renumeracji: {err}")

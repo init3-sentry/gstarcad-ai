@@ -2,7 +2,7 @@
 
 > ✅ **Wersja 3 (2026-07-09):** kolekcja rozszerzona o pięć kolejnych wzorców (06-10) pokrywających wymiarowanie, tekst etykiet, wstawianie bloku, interakcyjne rysowanie z podglądem (jig) i eksport migawki DWG. Wszystkie napisane wg **v2 przewodnika-systemowego** (`../przewodnik-systemowy.md`) + oficjalne samples GstarSoft z GstarCAD 2027 (`../oficjalne-materialy-gstarcad-2027/`).
 >
-> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **✅ 20/20 zwalidowanych empirycznie na SP1 (01-20)** — cel osiągnięty 2026-07-10, 3 tygodnie przed deadline'em.
+> **Cel etapu 1 (per `PLAN.md`):** 20+ działających wzorców do 31 lipca 2026. Stan: **✅ 23 zwalidowane empirycznie na SP1** — 01-20 (fundament) + **21-23 workhorse Fazy A** (batch tekst/atrybuty, zwalidowane pętlowo 10/10 na LC 2026-07-10). Cel osiągnięty 3 tygodnie przed deadline'em.
 >
 > **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL:**
 > - **2026-07-01:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`.
@@ -48,7 +48,7 @@ Zwalidowane empirycznie na **GstarCAD 2027 Premium PL, SP1 (R27.1.0.2606)** 2026
 | `13_list_polyline_vertices.py` | `WYPISZ_WIERZCHOLKI` | Odczyt wierzchołków polilinii 2D — `gcedEntSel` + `vertexIterator` + `GcDb2dVertex.position()` (per `pliniter.py`). Wymaga `SETVAR PLINETYPE 0` przed narysowaniem polilinii (tworzy `GcDb2dPolyline`) 🟢 |
 | `14_group_selected.py` | `POGRUPUJ` | Słownik grup + `GcDbGroup` + `setAt` + `append` na zaznaczeniu (per `groups.py`) 🟢 |
 
-> ℹ️ **Wzorzec 13 — historia walidacji.** Pierwsze próby crashowały GstarCAD-a do pulpitu, co wyglądało na bug polilinii. Izolacja krok-po-kroku (`sweep-7-verify.py`, log do pliku przeżywający crash) wykazała, że **każde wywołanie pygcad wzorca działa** (`gcedEntSel` → `gcdbOpenObject` → `isKindOf` → `vertexIterator` → `position` — komplet odczytany bez crashu), a crashe korelowały z **przełączaniem okna (Alt+Tab) / bezczynnością nad sesją RDP**, nie z kodem. **Winowajcą jest niestabilność środowiska GstarCAD 2027 SP1 na tym LC/RDP, nie wzorzec.** Kod zwalidowany 2026-07-10. Odczyt lekkiej `GcDbPolyline` (bez `PLINETYPE 0`) używa innego API (`numVerts`/`getPointAt`) — osobny, jeszcze nie napisany wariant.
+> ℹ️ **Wzorzec 13 — historia walidacji (skorygowana 2026-07-10).** Wzorzec 13 tylko **czyta** wierzchołki istniejącej polilinii i to działa: izolacja krok-po-kroku (`sweep-7-verify.py`, log przeżywający crash) potwierdziła komplet (`gcedEntSel` → `gcdbOpenObject` → `isKindOf` → `vertexIterator` → `position`) bez crashu. **Korekta wcześniejszego wniosku:** crashe, które temu towarzyszyły, przypisano początkowo „niestabilności RDP" — to była nadinterpretacja. Testy krzyżowe na 3 niezależnych maszynach (2027 **bez SP1**, lokalnie, nie RDP, 2026-07-10) dowiodły, że **programowa KONSTRUKCJA** `GcDb2dPolyline` (`appendVertex`) crashuje na regenie na każdej maszynie — to **realny bug GstarSoft**, nie środowisko (patrz przewodnik-systemowy pitfall #8, zgłoszone producentowi). **Odczyt** natywnej polilinii (wzorzec 13) jest tym niedotknięty. Do tworzenia polilinii używaj lekkiej `GcDbPolyline` + `addVertexAt` (działa wszędzie). Odczyt lekkiej `GcDbPolyline` (`numVerts`/`getPointAt`) — osobny, jeszcze nie napisany wariant.
 
 ### Grupa D: opcje, zmienne, offset, klonowanie, metadane, I/O (15-20)
 
@@ -64,6 +64,22 @@ Zwalidowane empirycznie na **GstarCAD 2027 Premium PL, SP1 (R27.1.0.2606)** 2026
 | `20_attach_xdata.py` | `OZNACZ_OBIEKT` | Metadane XData — `gcdbRegApp` + `resbuf` (`gcutNewRb`) + `setXData`/`xData` (per `xdata.py`) 🟢 |
 
 **🎯 20/20 — cel etapu 1 osiągnięty.** Podzbiór stabilny (01-20) pokrywa: rysowanie (linia/okrąg/łuk/elipsa/prostokąt), interakcję (liczba/punkt/słowo kluczowe/zaznaczenie), warstwy (tworzenie/kolor RGB/audyt), bloki (definicja+referencja), grupy, wymiary, tekst, XData, deep clone, offset, iterację tabel i model space, oraz I/O plików DWG. Wszystko zwalidowane empirycznie na SP1, nieinteraktywnie, bez crashu — to jest fundament produktu niezależny od ewentualnych poprawek producenta.
+
+### Grupa E: workhorse Fazy A — batch tekst/atrybuty (21-23)
+
+Rdzeń wartości wg researchu popytu (`gstarcad-ai-wewnetrzne/research/`): operacje wsadowe na tekście i atrybutach = to, za co klienci realnie płacą. **Zwalidowane end-to-end na GstarCAD 2027 SP1 (R27.1.0.2606) 2026-07-10** przez pętlowy stress-test `../weryfikacja/waliduj-petla.py` — **10/10 iteracji PASS** (reset → zamiana=2 → eksport=1 → renumeracja=1 → read-back, bez `eNotOpenForWrite`).
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `21_batch_find_replace.py` | `ZAMIEN_TEKST` | Znajdź-i-zamień we wszystkich tekstach/mtekstach/atrybutach bieżącego rysunku (`GcDbText`/`GcDbMText`/`GcDbAttribute`). Wariant folder-batch (wiele plików) na dole pliku 🟡 |
+| `22_attributes_to_csv.py` | `EKSPORT_ATRYBUTOW` / `IMPORT_ATRYBUTOW` | Eksport atrybutów bloków do CSV (handle+blok+tag+wartość) i re-import po edycji w Excelu |
+| `23_renumber_by_rule.py` | `RENUMERUJ` | Renumeracja atrybutów wg reguły (prefiks + start + krok), np. `P-001, P-002...` |
+
+> ℹ️ **Lekcje empiryczne (2026-07-10), warte zapamiętania dla każdej komendy piszącej do bazy:**
+> 1. **Zapis wymaga otwarcia do zapisu.** Iterator model space (`newIterator().getEntity()`) zwraca encje otwarte do ODCZYTU — próba `setTextString`/`setContents` na nich to `Internal Error: eNotOpenForWrite`. Wzorzec: zbierz `ObjectId` przy odczycie, zamknij kontener, potem `gcdbOpenObject(oid, kForWrite)` na każdej encji osobno.
+> 2. **Handle:** `GcDbBlockReference` NIE ma `handle()` — jest `getGcDbHandle().getIntoAsciiBuffer()` → `(True, 'hex')`.
+> 3. **Nazwa bloku z referencji:** `blockTableRecord()` → otwórz rekord → `getName()` (nie ma `blockName()`).
+> 4. **Cudzysłowy w stringach:** nie mieszaj typograficznych `„ "` z ASCII `"` jako ogranicznikiem — łamie f-string przy ładowaniu. Komunikaty trzymaj w ASCII (`'...'`, `->`).
 
 ## Jak ich używać
 
@@ -123,4 +139,4 @@ Pierwsza dziesiątka wzorców pokrywa najczęstsze potrzeby. Do 20 (cel etapu 1 
 
 ---
 
-*Wersja: 3.0 — 9 lipca 2026. Poprzednia wersja 2.0 (9 lipca 2026) dodała 5 wzorców v2 (poprawa bugów z v1). Wersja 1.0 (30 czerwca 2026) zawierała cztery krytyczne błędy skopiowane z niezweryfikowanego przewodnika v1.*
+*Wersja: 4.0 — 10 lipca 2026: dodano Grupę E (workhorse Fazy A: 21-23 batch tekst/atrybuty), zwalidowaną pętlowo na LC (10/10 PASS); skorygowano notkę o wzorcu 13 (crash 2dPolyline = realny bug konstrukcji, nie „środowisko RDP"). Wersja 3.0 (9 lipca 2026) dodała wzorce 06-10. Wersja 2.0 dodała 5 wzorców v2 (poprawa bugów z v1). Wersja 1.0 (30 czerwca 2026) zawierała cztery krytyczne błędy skopiowane z niezweryfikowanego przewodnika v1.*
