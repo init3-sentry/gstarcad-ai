@@ -9,7 +9,7 @@ Ten folder przechowuje **niezmienną kopię oficjalnego instalatora Python 3.11.
 Dlatego ta kopia ma trzy role:
 
 1. **Wymóg wdrożeniowy (runtime).** To jest instalator, który trzeba postawić + dodać do PATH, żeby pygcad ruszył. Bez niego wtyczka ASKAI ani generowany kod nie zadziałają.
-2. **Zabezpieczenie wersji (preservation).** Niezmienna, zahashowana kopia dokładnie tej wersji — gdyby python.org ją usunął/podmienił, zawsze mamy „to samo 3.11.8", z którym testowaliśmy.
+2. **Zabezpieczenie wersji (preservation).** Niezmienna, zahashowana kopia dokładnie tej wersji — gdyby python.org ją usunął/podmienił, zawsze mam „to samo 3.11.8", z którym testowałem.
 3. **Środowisko deweloperskie.** `venv`/lint/backend zgodny z wersją, którą realnie wykonuje GstarCAD.
 
 > **Otwarte pytanie (do Williama Wanga / GstarSoft R&D):** czy wymóg osobnej instalacji Pythona + PATH dotyczy **każdej** instalacji GstarCAD 2027, czy nasza instalacja testowa była niestandardowa? To ma wagę strategiczną — jeśli każdy klient musi instalować Pythona i grzebać w PATH, to uderza w obietnicę „load and run bez konfiguracji".

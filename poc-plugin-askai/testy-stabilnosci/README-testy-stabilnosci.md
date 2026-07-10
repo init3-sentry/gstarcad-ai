@@ -6,7 +6,7 @@
 
 ## Po co to robimy (w dwóch zdaniach)
 
-Testowaliśmy plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i GstarCAD 2027 SP1 wielokrotnie się zawieszał („zamknięcie awaryjne"). Musimy ustalić **czy to wina GstarCAD-a, czy tylko pulpitu zdalnego** — dlatego powtarzamy dokładnie te same testy **lokalnie, przy maszynie**, na kilku komputerach. Wynik decyduje o dalszych krokach projektu.
+Testowałem plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i GstarCAD 2027 SP1 wielokrotnie się zawieszał („zamknięcie awaryjne"). Trzeba ustalić **czy to wina GstarCAD-a, czy tylko pulpitu zdalnego** — dlatego te same testy powtarzamy **lokalnie, przy maszynie**, na kilku komputerach. Wynik decyduje o dalszych krokach projektu.
 
 ## Najważniejsza zmienna: LOKALNIE, nie przez RDP
 
@@ -29,7 +29,7 @@ Testowaliśmy plugin AI dla GstarCAD-a zdalnie (przez pulpit zdalny / RDP) i Gst
    Musi wypisać `Python 3.11.8`. Jeśli „nie jest rozpoznawane jako polecenie" — Python NIE jest w PATH; dodaj ręcznie `C:\Program Files\Python311\` i `C:\Program Files\Python311\Scripts\` do zmiennej środowiskowej PATH (Ustawienia → Zmienne środowiskowe), zrestartuj GstarCAD.
 4. **Zapisz w raporcie**, czy Python był już w PATH, czy trzeba było dodać ręcznie — to ważna informacja o realnym procesie wdrożenia u klienta.
 
-> Uwaga: **to jest oficjalny, udokumentowany wymóg** — potwierdzone w podręczniku pygcad GstarSoftu (`biblioteka-rag/oficjalne-materialy-gstarcad-2027/man.pdf`): „zainstaluj `python-3.11.x-amd64.exe`" + „dodaj ścieżkę python3.11.x do zmiennej PATH, zrestartuj GstarCAD". Wcześniej zakładaliśmy błędnie, że GstarCAD ma Pythona „wbudowanego, bez konfiguracji" — to nieprawda. pygcad korzysta z **systemowego** Pythona 3.11.x na PATH.
+> Uwaga: **to jest oficjalny, udokumentowany wymóg** — potwierdzone w podręczniku pygcad GstarSoftu (`biblioteka-rag/oficjalne-materialy-gstarcad-2027/man.pdf`): „zainstaluj `python-3.11.x-amd64.exe`" + „dodaj ścieżkę python3.11.x do zmiennej PATH, zrestartuj GstarCAD". Wcześniej zakładałem błędnie, że GstarCAD ma Pythona „wbudowanego, bez konfiguracji" — to nieprawda. pygcad korzysta z **systemowego** Pythona 3.11.x na PATH.
 
 ## Krok 1 — właściwa wersja GstarCAD
 
