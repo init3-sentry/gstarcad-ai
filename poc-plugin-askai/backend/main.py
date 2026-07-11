@@ -35,7 +35,7 @@ log = logging.getLogger("gs-ai")
 
 APP_VERSION = "0.2"
 ANTHROPIC_MODEL = "claude-sonnet-5"
-ANTHROPIC_MAX_TOKENS = 2048
+ANTHROPIC_MAX_TOKENS = 4096  # z thinking OFF cały budżet idzie na kod; zapas na większe generacje
 SYSTEM_PROMPT_PATH = Path(__file__).parent / "system-prompt.md"
 
 # Wczytaj system prompt raz przy starcie
@@ -233,6 +233,11 @@ async def generate(request: Request):
                 model=ANTHROPIC_MODEL,
                 max_tokens=ANTHROPIC_MAX_TOKENS,
                 system=system_prompt,
+                # Wyłączamy extended thinking: dla generacji kodu nie jest potrzebne,
+                # a POWODOWAŁO dwie awarie — (1) model przemyśliwał cały budżet tokenów
+                # i nie dochodził do kodu (stop=max_tokens, kod=0), (2) cisza na streamie
+                # podczas myślenia = Cloudflare ubijał bezczynne połączenie (0 bajtów).
+                thinking={"type": "disabled"},
                 messages=[{"role": "user", "content": user_prompt}],
             ) as stream:
                 for text in stream.text_stream:
