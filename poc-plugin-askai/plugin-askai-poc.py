@@ -1,5 +1,7 @@
 # Plugin ASKAI dla GstarCAD 2026 — Proof of Concept
-# Wersja 0.1 — 1 lipca 2026
+# Wersja 0.2 — 11 lipca 2026 (dodano uwierzytelnianie przez Cloudflare Access
+#              service token: nagłówki CF-Access-Client-Id/Secret, konfig w
+#              askai-access.json obok pluginu lub w env — patrz README)
 #
 # Etap zerowy projektu gstarcad-ai. Realizuje dni 1-4 planu PoC opisanego
 # w poc-plugin-askai/README.md:
@@ -22,6 +24,7 @@
 #   7. Wciśnij "Wykonaj tutaj" — kod uruchamia się w bieżącym rysunku
 
 import json
+import os
 import queue
 import threading
 import tkinter as tk
@@ -37,6 +40,39 @@ BACKEND_URL = "https://gs-ai.init3.pro/api/generate"
 BACKEND_TIMEOUT_SECS = 30
 STREAM_CHUNK_BYTES = 64
 UI_POLL_MS = 50
+
+
+# --- Cloudflare Access (service token) ---------------------------------------
+# Backend gs-ai.init3.pro stoi za Cloudflare Access. Żeby plugin dobił się z
+# DOWOLNEJ sieci (także u klienta, nie tylko z biura po bypassie IP), wysyła
+# parę nagłówków service tokenu: CF-Access-Client-Id + CF-Access-Client-Secret.
+#
+# Wartości NIE trzymamy w kodzie ani w gicie. Kolejność źródeł:
+#   1) zmienne środowiskowe CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET
+#   2) plik askai-access.json obok tego pluginu (wzór: askai-access.json.example)
+# Bez konfiguracji plugin działa dalej — o ile backend jest osiągalny inaczej
+# (np. bypass IP w sieci biura). Wtedy po prostu nie dokłada nagłówków.
+try:
+    _PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    _PLUGIN_DIR = os.path.expanduser("~")
+_ACCESS_CONFIG = os.path.join(_PLUGIN_DIR, "askai-access.json")
+
+
+def _load_access_headers():
+    cid = os.environ.get("CF_ACCESS_CLIENT_ID", "").strip()
+    csec = os.environ.get("CF_ACCESS_CLIENT_SECRET", "").strip()
+    if not (cid and csec) and os.path.exists(_ACCESS_CONFIG):
+        try:
+            with open(_ACCESS_CONFIG, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+            cid = cid or str(cfg.get("CF-Access-Client-Id") or cfg.get("client_id") or "").strip()
+            csec = csec or str(cfg.get("CF-Access-Client-Secret") or cfg.get("client_secret") or "").strip()
+        except Exception:
+            pass
+    if cid and csec:
+        return {"CF-Access-Client-Id": cid, "CF-Access-Client-Secret": csec}
+    return {}
 
 
 class AskaiDialog:
@@ -122,14 +158,16 @@ class AskaiDialog:
         # i wrzuca chunki do kolejki dla wątku tkinter.
         try:
             body = json.dumps({"prompt": prompt}).encode("utf-8")
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "gs-ai-plugin/0.2 (GstarCAD 2026)",
+                "Accept": "text/plain",
+            }
+            headers.update(_load_access_headers())  # CF Access service token, jeśli skonfigurowany
             req = urlrequest.Request(
                 BACKEND_URL,
                 data=body,
-                headers={
-                    "Content-Type": "application/json",
-                    "User-Agent": "gs-ai-plugin/0.1 (GstarCAD 2026)",
-                    "Accept": "text/plain",
-                },
+                headers=headers,
                 method="POST",
             )
             with urlrequest.urlopen(req, timeout=BACKEND_TIMEOUT_SECS) as response:

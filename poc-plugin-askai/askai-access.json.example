@@ -1,0 +1,5 @@
+{
+  "_komentarz": "Skopiuj ten plik do askai-access.json (bez .example) OBOK plugin-askai-poc.py i wklej swoją parę service tokenu Cloudflare Access. Plik askai-access.json jest w .gitignore — NIE trafia do repo. Alternatywnie ustaw zmienne srodowiskowe CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET (maja pierwszenstwo).",
+  "CF-Access-Client-Id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.access",
+  "CF-Access-Client-Secret": "wklej-tutaj-client-secret"
+}

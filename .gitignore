@@ -75,3 +75,7 @@ api_keys.txt
 # Build artifacts
 *.tgz
 *.zip
+
+# Sekret service tokenu pluginu ASKAI — NIE commitować
+poc-plugin-askai/askai-access.json
+askai-access.json
