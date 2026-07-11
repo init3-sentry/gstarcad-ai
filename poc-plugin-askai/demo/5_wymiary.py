@@ -38,6 +38,7 @@ def rysujProstokatZWymiarami():
             tekstPunktDol,
             ""
         )
+        wymiarPoziomy.setDimscale(40)   # skala wymiaru: tekst/strzalki widoczne na obiekcie ~1000 j.
         status, wymPoziomyId = modelSpace.appendGcDbEntity(wymiarPoziomy)
         wymiarPoziomy.close()
 
@@ -50,6 +51,7 @@ def rysujProstokatZWymiarami():
             tekstPunktLewo,
             ""
         )
+        wymiarPionowy.setDimscale(40)   # skala wymiaru: tekst/strzalki widoczne na obiekcie ~1000 j.
         status, wymPionowyId = modelSpace.appendGcDbEntity(wymiarPionowy)
         wymiarPionowy.close()
 
