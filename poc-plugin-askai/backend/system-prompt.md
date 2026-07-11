@@ -279,6 +279,23 @@ pline.addVertexAt(pline.numVerts(), GcGePoint2d(0, 0), 0, 0, 0)   # zamknięcie 
 
 Aligned dimension: `GcDbAlignedDimension(pt1, pt2, textPt, "tekst")` (same sample).
 
+### Text / label (`GcDbText`) — verified constructor + methods
+
+`GcDbText` **requires a point and a string in the constructor**. **NEVER** call `GcDbText()` with no arguments — it raises `TypeError`. Verified signatures (from official pygrx stubs): `GcDbText(GcGePoint3d, str)` (simplest), also `(point, str, style)`, `(point, str, style, height)`, `(position, text, style, height, rotation)`. Canonical centered label (e.g. axis mark inside a circle):
+
+```python
+# Etykieta wyśrodkowana w punkcie (np. opis osi w kółku)
+txt = GcDbText(GcGePoint3d(x, y, 0), "A")            # KONSTRUKTOR z argumentami (punkt, tekst) — nie GcDbText()!
+txt.setHeight(50)
+txt.setHorizontalMode(GcDb.TextHorzMode.kTextCenter)
+txt.setVerticalMode(GcDb.TextVertMode.kTextVertMid)
+txt.setAlignmentPoint(GcGePoint3d(x, y, 0))         # przy wyśrodkowaniu podaj punkt wyrównania
+status, oid = modelSpace.appendGcDbEntity(txt)
+txt.close()
+```
+
+Simple left-aligned text: `GcDbText(GcGePoint3d(x, y, 0), "tekst")` + `setHeight(h)` is enough (skip the mode/alignment lines).
+
 ### Write/read a DWG file (only on explicit user request — see safety rules)
 
 Official `testdb.py`:
@@ -301,7 +318,7 @@ These are real failures observed in testing. Never generate these patterns:
 |---|---|---|---|
 | 1 | `GcDbLayerTableRecord.setColorIndex(n)` | `AttributeError` | `GcCmColor()` + `color.setColorIndex(n)` + `record.setColor(color)` |
 | 2 | `if status != 5100:` after DB calls | wrong branch even on success (`Gcad.eOk == 0`) | compare with `Gcad.eOk` / `RTNORM` symbolically |
-| 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | pass required arguments (verification of exact signature in progress — prefer other entity types until confirmed) |
+| 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | `GcDbText(GcGePoint3d(x,y,0), "tekst")` then `setHeight(...)` — see **Text / label** pattern above |
 | 4 | `GcDb3dPolyline` + `setClosed` + `setColorIndex` + `appendGcDbEntity` | **hard crash of GstarCAD to desktop** (reported to GstarSoft R&D) | avoid `GcDb3dPolyline` entirely; use 2D `GcDbPolyline` with `addVertexAt` |
 
 **Entity types empirically confirmed working:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Prefer these when the user's request allows a choice. `GcDbPolyline` (2D) and `GcDbAlignedDimension` follow official samples and are expected to work, but were not yet in the confirmed set.
@@ -316,4 +333,5 @@ Per project policy, claims are labeled by source:
 
 - 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; all four pitfalls in the table above.
 - 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): all canonical patterns in this document — model-space skeleton, transactions, layer creation with `GcCmColor`, selection sets, table iteration, jigs, `GcDbPolyline`/`GcDbAlignedDimension`, DWG read/write, `gcadErrorStatusText`.
-- 🔴 **Unverified / in progress:** exact `GcDbText` constructor signature (retest pending); `GcDbPolyline` 2D end-to-end in isolation (retest pending); GstarSoft R&D answers to the crash report (expected within days). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
+- 🟡 **`GcDbText` API confirmed from official pygrx stubs (2026-07-11):** constructor `GcDbText(GcGePoint3d, str[, style[, height[, rotation]]])`, methods `setHeight`/`setHorizontalMode`/`setVerticalMode`/`setAlignmentPoint`/`setTextString`/`setPosition`, enums `GcDb.TextHorzMode.*` / `GcDb.TextVertMode.*`. On-screen render on GstarCAD 2027 pending final LC test — but the constructor bug (empty `GcDbText()`) is resolved.
+- 🔴 **Unverified / in progress:** `GcDbPolyline` 2D end-to-end in isolation (retest pending); GstarSoft R&D answers to the crash report (expected within days). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
