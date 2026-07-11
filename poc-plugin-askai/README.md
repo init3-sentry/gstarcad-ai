@@ -80,6 +80,19 @@ Na koniec tygodnia (do 8 lipca 2026) w tym folderze pojawia się plik `raport-ko
 - `plugin-askai-poc.py` — końcowy kod pluginu z PoC
 - `backend/` — minimalny backend napisany na potrzeby PoC (odrębna aplikacja)
 - `dziennik/` — dzienne notatki z testów Dawida (co się udało, co nie, obserwacje)
+- `askai-access.json.example` — wzór konfiguracji dostępu przez Cloudflare Access (patrz niżej)
+
+## Konfiguracja dostępu — Cloudflare Access (od v0.2)
+
+Backend `gs-ai.init3.pro` stoi za Cloudflare Access, więc plugin musi się uwierzytelnić. Od wersji 0.2 (`plugin-askai-poc.py`) plugin wysyła parę nagłówków **service tokenu**: `CF-Access-Client-Id` + `CF-Access-Client-Secret`. Dzięki temu dobija się do backendu **z dowolnej sieci** (także u klienta), a nie tylko z whitelistowanych IP biura.
+
+**Skąd plugin bierze wartości** (kolejność):
+1. Zmienne środowiskowe `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET`.
+2. Plik `askai-access.json` **obok** `plugin-askai-poc.py` (wzór: `askai-access.json.example`).
+
+Bez konfiguracji plugin działa dalej (graceful), ale tylko z sieci objętej bypassem IP (biuro / maszyna testowa).
+
+**Wdrożenie:** skopiuj `askai-access.json.example` → `askai-access.json`, wklej parę service tokenu z Cloudflare Zero Trust → Access → Service credentials. Plik `askai-access.json` jest w `.gitignore` — sekret nie trafia do repo. Po stronie Cloudflare aplikacja `gs-ai PoC` ma politykę `non_identity` (dowolny ważny service token) — patrz `gstarcad-ai-wewnetrzne/infrastruktura/gs-ai-access-bypass.sh` i mapa infry.
 
 ---
 
