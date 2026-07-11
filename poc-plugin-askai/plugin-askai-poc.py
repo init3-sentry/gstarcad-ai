@@ -1,7 +1,8 @@
 # Plugin ASKAI dla GstarCAD 2026 — Proof of Concept
-# Wersja 0.2 — 11 lipca 2026 (dodano uwierzytelnianie przez Cloudflare Access
-#              service token: nagłówki CF-Access-Client-Id/Secret, konfig w
-#              askai-access.json obok pluginu lub w env — patrz README)
+# Wersja 0.3 — 11 lipca 2026 (tryb wykonania bezpośredniego: żąda od backendu
+#              kodu natychmiastowego (mode=execute) i wycina czysty Python z
+#              ewentualnych bloków markdown przed exec — „Wykonaj tutaj" rysuje
+#              od jednego kliknięcia. + v0.2: Cloudflare Access service token)
 #
 # Etap zerowy projektu gstarcad-ai. Realizuje dni 1-4 planu PoC opisanego
 # w poc-plugin-askai/README.md:
@@ -26,6 +27,7 @@
 import json
 import os
 import queue
+import re
 import threading
 import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
@@ -157,7 +159,7 @@ class AskaiDialog:
         # Uruchamiane w osobnym wątku — pobiera strumień odpowiedzi z backendu
         # i wrzuca chunki do kolejki dla wątku tkinter.
         try:
-            body = json.dumps({"prompt": prompt}).encode("utf-8")
+            body = json.dumps({"prompt": prompt, "mode": "execute"}).encode("utf-8")
             headers = {
                 "Content-Type": "application/json",
                 "User-Agent": "gs-ai-plugin/0.2 (GstarCAD 2026)",
@@ -209,8 +211,20 @@ class AskaiDialog:
         # Zaplanuj kolejny odczyt kolejki
         self.root.after(UI_POLL_MS, self._poll_queue)
 
+    @staticmethod
+    def _extract_code(raw):
+        # Wytnij czysty Python z ewentualnych bloków markdown (```python ... ```)
+        # i odetnij prozę przed/po kodzie. Backend w trybie execute zwraca surowy
+        # kod, ale to zabezpieczenie, gdyby model mimo wszystko dodał fence/opis.
+        text = (raw or "").strip()
+        m = re.search(r"```(?:[Pp]ython)?\s*\n?(.*?)```", text, re.DOTALL)
+        if m:
+            return m.group(1).strip()
+        lines = [ln for ln in text.splitlines() if not ln.strip().startswith("```")]
+        return "\n".join(lines).strip()
+
     def on_execute(self):
-        code = self.code_text.get("1.0", tk.END).strip()
+        code = self._extract_code(self.code_text.get("1.0", tk.END))
         if not code:
             self.status_var.set("Brak kodu do wykonania.")
             return

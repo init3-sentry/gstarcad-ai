@@ -49,6 +49,17 @@ if SYSTEM_PROMPT_PATH.exists():
 else:
     log.warning(f"System prompt file not found at {SYSTEM_PROMPT_PATH}")
 
+# Instrukcja doklejana do system promptu w trybie mode=execute (plugin "Wykonaj
+# tutaj"). Kod jest wykonywany natychmiast przez exec() w bieżącym rysunku —
+# musi rysować od razu, bez @command i bez markdown.
+EXECUTE_INSTRUCTION = """--- TRYB WYKONANIA BEZPOŚREDNIEGO (mode=execute) — NADRZĘDNY ---
+Twój kod zostanie wykonany NATYCHMIAST przez exec() w bieżącym rysunku (nie przez APPLOAD). Bezwzględnie:
+1. Zwróć WYŁĄCZNIE surowy kod Python. ZERO bloków markdown (żadnych ```), zero tekstu przed i po kodzie, zero sekcji "Jak uruchomić". Pierwszy znak odpowiedzi = pierwszy znak kodu (np. "from").
+2. NIE używaj dekoratora @command. Kod ma rysować OD RAZU: zdefiniuj funkcję i WYWOŁAJ ją w ostatniej linii pliku (albo pisz logikę na najwyższym poziomie modułu).
+3. Rysuj w bieżącym rysunku: gcdbWorkingDatabase() + przestrzeń modelu (GCDB_MODEL_SPACE otwarta na kForWrite).
+4. Zamykaj otwarte obiekty; na końcu wywołaj gcedPrompt z krótkim potwierdzeniem po polsku.
+Te reguły mają pierwszeństwo przed wcześniejszymi przykładami w stylu @command."""
+
 # Zdecyduj o trybie na podstawie obecności klucza i SDK
 API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 if API_KEY and ANTHROPIC_SDK_AVAILABLE and SYSTEM_PROMPT:
@@ -192,15 +203,23 @@ async def generate(request: Request):
     try:
         body = await request.json()
         user_prompt = str(body.get("prompt", "")).strip()
+        mode = str(body.get("mode", "")).strip().lower()
     except Exception:
         user_prompt = ""
+        mode = ""
 
     if not user_prompt:
         async def empty_stream():
             yield "# Błąd: brak pola 'prompt' w body żądania.\n"
         return StreamingResponse(empty_stream(), media_type="text/plain; charset=utf-8")
 
-    log.info(f"prompt (len={len(user_prompt)}): {user_prompt[:120]}")
+    log.info(f"prompt (len={len(user_prompt)}, mode={mode or 'default'}): {user_prompt[:120]}")
+
+    # W trybie execute doklejamy nadrzędną instrukcję: surowy kod, bez @command,
+    # rysuje od razu (dla przycisku "Wykonaj tutaj" w pluginie).
+    system_prompt = SYSTEM_PROMPT
+    if mode == "execute":
+        system_prompt = SYSTEM_PROMPT + "\n\n" + EXECUTE_INSTRUCTION
 
     if APP_STAGE == "stub":
         async def stub_stream():
@@ -213,7 +232,7 @@ async def generate(request: Request):
             with anthropic_client.messages.stream(
                 model=ANTHROPIC_MODEL,
                 max_tokens=ANTHROPIC_MAX_TOKENS,
-                system=SYSTEM_PROMPT,
+                system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
             ) as stream:
                 for text in stream.text_stream:
