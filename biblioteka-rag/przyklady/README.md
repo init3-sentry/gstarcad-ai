@@ -7,7 +7,8 @@
 > **Empirycznie potwierdzone jako działające na GstarCAD 2027 Plus PL:**
 > - **2026-07-01:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`.
 > - **2026-07-09** (przez `../weryfikacja/sweep-5-verify.py`, testy `SWEEP5_*`): `GcDbText(punkt, str)` + `setHeight`, `GcDbPolyline` 2D + `addVertexAt`, `GcCmColor + setColor`, `GcDbAlignedDimension`, definicja bloku + `GcDbBlockReference`, `GcDbLayerTableRecord.color()/isFrozen()/isOff()/isLocked()/getName()`. Przy okazji poprawiono empirycznie wzorce 03/04/06/07/08 (pułapki: `colorIndex()` na warstwie nie istnieje → `color().colorIndex()`; `SymbolTable.add()` zwraca goły status, nie tuple).
-> - Wciąż 🟡 (kanoniczne z samples, jeszcze nie odpalone end-to-end): `GcEdJig` (wzorzec 09), `GcDbDatabase.saveAs` (wzorzec 10).
+> - Wciąż 🟡 (kanoniczne z samples, jeszcze nie odpalone end-to-end): `GcEdJig` (wzorzec 09).
+> - 🔴 **Wzorzec 10 (`ZAPISZ_MIGAWKE_DWG`) — POTWIERDZONY BUG pygcada (2026-07-11):** `GcDbDatabase(...)`+append+`saveAs` zwraca `eOk`, ale **zapisuje PUSTY plik** (encje nie są utrwalane; transakcja tego nie naprawia — `weryfikacja/savetest-py.py`). To defekt wiązania pygcad, nie silnika — ta sama operacja przez **.NET utrwala poprawnie**. **Zapis/generowanie plików DWG „bez otwierania" NIE działa w czystym pygcadzie — idzie przez bramę .NET** (patrz `gstarcad-ai-wewnetrzne/sdk-grx-net-gate/`). Wzorzec 10 zostaje jako referencja API, ale oznaczony jako niedziałający end-to-end w pygcadzie.
 
 Ten folder zawiera wzorcowe komendy dla GstarCAD 2026/2027, przygotowane jako wzór do naśladowania dla zespołu pomocy technicznej TMSys.
 
