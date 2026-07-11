@@ -1,4 +1,8 @@
 # Plugin ASKAI dla GstarCAD 2026 — Proof of Concept
+# Wersja 0.4 — 11 lipca 2026 (iteracja modeless A: po "Wykonaj tutaj" wymusza
+#              odświeżenie widoku (gcedRedraw/gcedGraphScr), żeby rysunek pojawił
+#              się przy OTWARTYM oknie; loguje który wariant API zadziałał)
+# --- historia ---
 # Wersja 0.3 — 11 lipca 2026 (tryb wykonania bezpośredniego: żąda od backendu
 #              kodu natychmiastowego (mode=execute) i wycina czysty Python z
 #              ewentualnych bloków markdown przed exec — „Wykonaj tutaj" rysuje
@@ -223,6 +227,20 @@ class AskaiDialog:
         lines = [ln for ln in text.splitlines() if not ln.strip().startswith("```")]
         return "\n".join(lines).strip()
 
+    @staticmethod
+    def _refresh_view():
+        # A/modeless: po dodaniu geometrii wymuś synchroniczny redraw, żeby rysunek
+        # pojawił się PRZY otwartym oknie (bez zamykania dialogu). Zweryfikowane na
+        # GstarCAD 2027: gcedGraphScr() działa; gcedRedraw z null-argumentem rzuca
+        # TypeError w tym bindingu. (Komunikaty tekstowe i tak czekają na zamknięcie
+        # okna — modal blokuje command-line pump; grafika odświeża się od razu.)
+        try:
+            gcedGraphScr()
+            return True
+        except Exception as e:
+            gcedPrompt("\n[ASKAI] odswiezenie nieudane: %s" % type(e).__name__)
+            return False
+
     def on_execute(self):
         code = self._extract_code(self.code_text.get("1.0", tk.END))
         if not code:
@@ -239,6 +257,7 @@ class AskaiDialog:
             exec(code, exec_namespace)
             self.status_var.set("Kod wykonany pomyślnie w bieżącym rysunku.")
             gcedPrompt("[ASKAI] Kod wykonany pomyślnie.")
+            self._refresh_view()
         except Exception as e:
             error_msg = f"Błąd wykonania: {type(e).__name__}: {e}"
             self.status_var.set(error_msg)
