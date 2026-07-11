@@ -215,11 +215,19 @@ async def generate(request: Request):
 
     log.info(f"prompt (len={len(user_prompt)}, mode={mode or 'default'}): {user_prompt[:120]}")
 
-    # W trybie execute doklejamy nadrzędną instrukcję: surowy kod, bez @command,
-    # rysuje od razu (dla przycisku "Wykonaj tutaj" w pluginie).
-    system_prompt = SYSTEM_PROMPT
+    # System prompt jako bloki treści z cache_control (prompt caching Anthropic).
+    # Duży, STAŁY przewodnik (SYSTEM_PROMPT ~16k znaków ≈ 4-5k tokenów) jest
+    # cache'owany (ephemeral, TTL 5 min) => input na powtórkach spada o ~90%.
+    # EXECUTE_INSTRUCTION to mały, OSOBNY blok doklejany tylko w trybie execute —
+    # dzięki temu cache'owany prefiks (blok 1) jest identyczny w OBU trybach
+    # (default i execute) i trafia w cache niezależnie od trybu żądania.
+    system_blocks = [{
+        "type": "text",
+        "text": SYSTEM_PROMPT,
+        "cache_control": {"type": "ephemeral"},
+    }]
     if mode == "execute":
-        system_prompt = SYSTEM_PROMPT + "\n\n" + EXECUTE_INSTRUCTION
+        system_blocks.append({"type": "text", "text": EXECUTE_INSTRUCTION})
 
     if APP_STAGE == "stub":
         async def stub_stream():
@@ -232,7 +240,7 @@ async def generate(request: Request):
             with anthropic_client.messages.stream(
                 model=ANTHROPIC_MODEL,
                 max_tokens=ANTHROPIC_MAX_TOKENS,
-                system=system_prompt,
+                system=system_blocks,
                 # Wyłączamy extended thinking: dla generacji kodu nie jest potrzebne,
                 # a POWODOWAŁO dwie awarie — (1) model przemyśliwał cały budżet tokenów
                 # i nie dochodził do kodu (stop=max_tokens, kod=0), (2) cisza na streamie
@@ -242,6 +250,20 @@ async def generate(request: Request):
             ) as stream:
                 for text in stream.text_stream:
                     yield text
+                # Log zużycia tokenów po zakończeniu strumienia — weryfikuje że
+                # prompt caching trafia (cache_read > 0 na powtórkach) i daje
+                # bieżący wgląd w koszt per żądanie przez `docker logs`.
+                try:
+                    u = stream.get_final_message().usage
+                    log.info(
+                        "usage: input=%s cache_create=%s cache_read=%s output=%s",
+                        u.input_tokens,
+                        getattr(u, "cache_creation_input_tokens", 0),
+                        getattr(u, "cache_read_input_tokens", 0),
+                        u.output_tokens,
+                    )
+                except Exception as ue:
+                    log.warning("usage log failed: %s", ue)
         except Exception as e:
             log.error(f"Anthropic error: {type(e).__name__}: {e}")
             yield f"\n# Błąd Anthropic: {type(e).__name__}: {e}\n"
