@@ -1,8 +1,12 @@
 # Plugin ASKAI dla GstarCAD 2026 — Proof of Concept
+# Wersja 0.5 — 12 lipca 2026 (status wykonania nie kłamie: exec bez wyjątku ≠
+#              rysunek powstał — komunikat mówi tylko tyle, ile plugin realnie wie;
+#              pełne wykrywanie błędów wewn. wymaga monkey-patcha pygcad na LC —
+#              projekt w ZNANE-PROBLEMY.md)
+# --- historia ---
 # Wersja 0.4 — 11 lipca 2026 (iteracja modeless A: po "Wykonaj tutaj" wymusza
 #              odświeżenie widoku (gcedRedraw/gcedGraphScr), żeby rysunek pojawił
 #              się przy OTWARTYM oknie; loguje który wariant API zadziałał)
-# --- historia ---
 # Wersja 0.3 — 11 lipca 2026 (tryb wykonania bezpośredniego: żąda od backendu
 #              kodu natychmiastowego (mode=execute) i wycina czysty Python z
 #              ewentualnych bloków markdown przed exec — „Wykonaj tutaj" rysuje
@@ -166,7 +170,7 @@ class AskaiDialog:
             body = json.dumps({"prompt": prompt, "mode": "execute"}).encode("utf-8")
             headers = {
                 "Content-Type": "application/json",
-                "User-Agent": "gs-ai-plugin/0.2 (GstarCAD 2026)",
+                "User-Agent": "gs-ai-plugin/0.5 (GstarCAD 2026)",
                 "Accept": "text/plain",
             }
             headers.update(_load_access_headers())  # CF Access service token, jeśli skonfigurowany
@@ -255,8 +259,18 @@ class AskaiDialog:
 
         try:
             exec(code, exec_namespace)
-            self.status_var.set("Kod wykonany pomyślnie w bieżącym rysunku.")
-            gcedPrompt("[ASKAI] Kod wykonany pomyślnie.")
+            # exec() zakończył się bez wyjątku — to NIE dowód, że rysunek powstał.
+            # Wygenerowany kod zwykle łapie własne błędy w try/except i zgłasza je
+            # przez gcedPrompt (którego z tego wątku nie widać — a jego own `import *`
+            # nadpisałby ewentualny przechwytujący shim). Dlatego status mówi tylko
+            # tyle, ile plugin realnie wie. Pełne wykrywanie błędów wewnętrznych =
+            # monkey-patch modułu pygcad, do zrobienia i weryfikacji na LC
+            # (patrz poc-plugin-askai/ZNANE-PROBLEMY.md).
+            self.status_var.set(
+                "Kod wykonany (bez wyjątku Pythona). Sprawdź rysunek — jeśli nic "
+                "nie przybyło, zobacz komunikaty w konsoli GstarCAD."
+            )
+            gcedPrompt("[ASKAI] Kod wykonany (bez wyjatku Pythona).")
             self._refresh_view()
         except Exception as e:
             error_msg = f"Błąd wykonania: {type(e).__name__}: {e}"

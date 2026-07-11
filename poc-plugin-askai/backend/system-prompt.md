@@ -308,6 +308,20 @@ if status != Gcad.eOk:
     gcedPrompt("\nZapis nie powiódł się.")
 ```
 
+### Hatch / kreskowanie — NOT verified in the pygcad binding
+
+Do **not** generate a programmatic hatch fill for now. Two problems were found on 2026-07-11 from the official pygrx stubs:
+- `GcDbHatch` has **no `appendLoop`** method — you cannot attach a boundary loop by object-id the ObjectARX way (`appendLoopFromBoundary` / `appendMPolygonLoop` exist only on other classes).
+- The hatch enums are nested under **`GcDbHatch.*`** (`GcDbHatch.HatchPatternType`, `GcDbHatch.HatchStyle`, `GcDbHatch.HatchLoopType`), **not** `GcDb.*` — so `GcDb.HatchStyle` raises `AttributeError`.
+
+If the user asks for a hatch: **never call `hatch.appendLoop(...)` (it does not exist) and do not construct `GcDbHatch` at all.** Output only the closed boundary geometry (a closed `GcDbPolyline`) plus a one-line Polish comment that the fill itself awaits verification on GstarCAD (LC) — e.g. do it manually with the `BHATCH`/`H` command for now. Emitting any `GcDbHatch` call will fail at runtime.
+
+**Enum namespaces are not uniform.** Most enums live under `GcDb.*` (`GcDb.OpenMode`, `GcDb.TextHorzMode`, `GcDb.TextVertMode`, `GcDb.Planarity`), but some are nested under their entity class (e.g. `GcDbHatch.*`). When unsure, reuse a pattern already shown in this document rather than guessing the namespace.
+
+### Default placement and scale
+
+When the user gives no coordinates or size, place geometry at or near the origin and pick a size on the order of a few hundred to a few thousand drawing units — the default GstarCAD 2027 view is very wide (~11 000 units), so a radius of 5 is invisible. Prefer round, visible numbers (e.g. r=200, side=1000) so the result is centered and clearly visible without the user having to zoom.
+
 ---
 
 ## Known pitfalls — empirically confirmed (2026-07-01, GstarCAD 2027 Plus PL)
@@ -320,6 +334,7 @@ These are real failures observed in testing. Never generate these patterns:
 | 2 | `if status != 5100:` after DB calls | wrong branch even on success (`Gcad.eOk == 0`) | compare with `Gcad.eOk` / `RTNORM` symbolically |
 | 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | `GcDbText(GcGePoint3d(x,y,0), "tekst")` then `setHeight(...)` — see **Text / label** pattern above |
 | 4 | `GcDb3dPolyline` + `setClosed` + `setColorIndex` + `appendGcDbEntity` | **hard crash of GstarCAD to desktop** (reported to GstarSoft R&D) | avoid `GcDb3dPolyline` entirely; use 2D `GcDbPolyline` with `addVertexAt` |
+| 5 | `hatch.appendLoop(...)` / `GcDb.HatchStyle` | `appendLoop` is absent from `GcDbHatch`; hatch enums live under `GcDbHatch.*`, so `GcDb.HatchStyle` → `AttributeError` | don't generate programmatic hatch fills — see the **Hatch** note above |
 
 **Entity types empirically confirmed working:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Prefer these when the user's request allows a choice. `GcDbPolyline` (2D) and `GcDbAlignedDimension` follow official samples and are expected to work, but were not yet in the confirmed set.
 
@@ -334,4 +349,4 @@ Per project policy, claims are labeled by source:
 - 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; all four pitfalls in the table above.
 - 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): all canonical patterns in this document — model-space skeleton, transactions, layer creation with `GcCmColor`, selection sets, table iteration, jigs, `GcDbPolyline`/`GcDbAlignedDimension`, DWG read/write, `gcadErrorStatusText`.
 - 🟡 **`GcDbText` API confirmed from official pygrx stubs (2026-07-11):** constructor `GcDbText(GcGePoint3d, str[, style[, height[, rotation]]])`, methods `setHeight`/`setHorizontalMode`/`setVerticalMode`/`setAlignmentPoint`/`setTextString`/`setPosition`, enums `GcDb.TextHorzMode.*` / `GcDb.TextVertMode.*`. On-screen render on GstarCAD 2027 pending final LC test — but the constructor bug (empty `GcDbText()`) is resolved.
-- 🔴 **Unverified / in progress:** `GcDbPolyline` 2D end-to-end in isolation (retest pending); GstarSoft R&D answers to the crash report (expected within days). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
+- 🔴 **Unverified / in progress:** `GcDbPolyline` 2D end-to-end in isolation (retest pending); **programmatic hatch fill** — `GcDbHatch.appendLoop` is absent from the binding and the hatch enums sit under `GcDbHatch.*` (found 2026-07-11 from the stubs; likely a binding gap in the same family as the 2D-polyline and `saveAs` cases, and a candidate for the .NET gate); GstarSoft R&D answers to the crash report (expected within days). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
