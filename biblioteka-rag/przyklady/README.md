@@ -98,6 +98,14 @@ Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brak
 |---|---|---|
 | `25_import_coordinates.py` | `IMPORTXYZ` | Wczytuje plik ze współrzędnymi (format wybierany słowem kluczowym: `XY`/`XYZ`/`NrXY`/`NrXYZ`) i stawia punkty + opisy. Separator auto (średnik/tab Excela PL albo białe znaki Notatnika), przecinek dziesiętny PL → kropka. Wysokość opisu skalowana z rozpiętości (2% przekątnej — działa i dla PUWG2000 rzędu milionów). Best-effort `PDMODE=35`/`PDSIZE=-2`, żeby punkty były widoczne 🟢 |
 
+### Wzorzec 26: audyt osi Z (2026-07-12)
+
+Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są niewidoczne w rzucie 2D, ale kursor je „łapie" → błędne pomiary. Komenda skanuje cały model i **podświetla** uciekłe obiekty. **Walidator stubów: 0 błędów. Runtime na LC: pending** (na Desktopie LC + generator sceny `test_audytz_scene.py`).
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `26_audit_z_axis.py` | `AUDYTZ` / `AUDYTZ_OFF` | Iteruje model (`newIterator`), dla każdej encji liczy zakres Z z `getGeomExtents` (uniwersalne — bez per-klasa `elevation()`), podświetla te poza Z=0 i raportuje typ + Z. `AUDYTZ_OFF` zdejmuje podświetlenie (ObjectId zapamiętane globalnie). Detektor niezależny od typu encji 🟢 |
+
 ## Jak ich używać
 
 Krok pierwszy — otwórz GstarCAD 2026 lub 2027.
