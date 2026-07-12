@@ -90,6 +90,14 @@ Praca na niepustym rysunku — użytkownik wskazuje istniejący obiekt, my go kr
 |---|---|---|
 | `24_hatch_selected_object.py` | `ZAKRESKUJ` | Kreskuje WSKAZANĄ zamkniętą polilinię przez `GcDbMPolygon`. Wygląd sterowany `setPatternAngle` (RADIANY), `setPatternDouble` (krzyż), `setPatternScale` (gęstość) — nazwanych wzorów ANSI nie ma (index ignorowany). Granica = pojedyncza krzywa (polilinia/okrąg/2D-polilinia); luźne linie+łuki lub splajn wymagałyby wykrywania obrysu 🟢 |
 
+### Wzorzec 25: import współrzędnych z pliku → punkty (2026-07-12)
+
+Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brakuje importu"). Klasyka geodezyjna: plik z numerami i XYZ (tachimetr / Excel / Notatnik) → punkty `GcDbPoint` (łapią osnap WĘZeł) + opisy numerów. **Walidator stubów: 0 błędów. Logika parsowania przetestowana off-CAD** na realiach PL (Excel `;`+przecinek dziesiętny, Notatnik spacja+kropka, nagłówek/komentarz pomijany, auto-numeracja). **Runtime na LC: pending** (pliki na Desktopie LC + `demo/wspolrzedne_*`).
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `25_import_coordinates.py` | `IMPORTXYZ` | Wczytuje plik ze współrzędnymi (format wybierany słowem kluczowym: `XY`/`XYZ`/`NrXY`/`NrXYZ`) i stawia punkty + opisy. Separator auto (średnik/tab Excela PL albo białe znaki Notatnika), przecinek dziesiętny PL → kropka. Wysokość opisu skalowana z rozpiętości (2% przekątnej — działa i dla PUWG2000 rzędu milionów). Best-effort `PDMODE=35`/`PDSIZE=-2`, żeby punkty były widoczne 🟢 |
+
 ## Jak ich używać
 
 Krok pierwszy — otwórz GstarCAD 2026 lub 2027.
