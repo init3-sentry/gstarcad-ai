@@ -16,6 +16,19 @@ Ten folder zawiera wzorcowe komendy dla GstarCAD 2026/2027, przygotowane jako wz
 
 Każda komenda pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią referencyjną podstawę dla każdej kolejnej komendy pisanej przez zespół — od typowego rysowania, przez interakcję z użytkownikiem, po automatyzację raportowania i eksportu plików.
 
+## ZANIM cokolwiek zbudujesz — REGUŁA #0: native-first
+
+> **Nie buduj żadnego narzędzia, dopóki nie udowodnisz, że GstarCAD nie robi tego natywnie.** Zdublowanie natywnej komendy to kompromitacja projektu — klient powie „po co wasz plugin, skoro to jest w Express Tools". To nie może zależeć od tego, czy ktoś przypadkiem zna daną funkcję.
+
+Kolejność, ZAWSZE:
+
+1. **Native-check** — czy GstarCAD już to ma? Sprawdź: wbudowane komendy, **Express Tools**, dokumentację ([gstarcad.net/support](https://www.gstarcad.net/support/), [kb.gstarcad.com.my](https://kb.gstarcad.com.my/), [blog.gstarcad.net](https://blog.gstarcad.net/)). **Najtaniej i najpewniej: wpisz kandydacką nazwę komendy w wierszu poleceń GstarCAD** (np. `FLATTEN`, `OVERKILL`, `PURGE`) — od razu wiesz, czy istnieje.
+2. **Delta, nie duplikat** — jeśli natywne ISTNIEJE, buduj tylko to, czego natywne NIE umie. Przykład: natywny `FLATTEN` spłaszcza *zaznaczone* obiekty, ale nie ZNAJDZIE tych poza Z=0 (są niewidoczne w rzucie z góry) — nasz audyt je znajduje i zaznacza. TO jest wartość; samego spłaszczania nie reimplementujemy.
+3. **API-check** — czy pygcad wystawia potrzebne API (stuby `pygrx.pyi`)? Obecność sygnatury ≠ runtime, ale brak = ściana.
+4. **Walidator → test na LC.** „Działa" = zielono na LightCatcher, nie „stuby coś mówią".
+
+**Nauczka (2026-07-12):** zaczęliśmy budować własny „flatten Z→0" — a GstarCAD MA natywny `FLATTEN` (Express Tools). Uratował przypadek. Native-check jako #0 eliminuje tę klasę wpadek.
+
 ## Gdzie leżą pliki (reguła lokalizacji — jedno miejsce)
 
 > **Wzorzec i wszystko, czego potrzeba do jego przetestowania, trzymamy RAZEM tutaj, w `biblioteka-rag/przyklady/`.** Bez rozrzucania po `poc-plugin-askai/demo/`.
