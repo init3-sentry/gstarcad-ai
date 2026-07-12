@@ -82,6 +82,14 @@ Rdzeń wartości wg researchu popytu (`gstarcad-ai-wewnetrzne/research/`): opera
 > 3. **Nazwa bloku z referencji:** `blockTableRecord()` → otwórz rekord → `getName()` (nie ma `blockName()`).
 > 4. **Cudzysłowy w stringach:** nie mieszaj typograficznych `„ "` z ASCII `"` jako ogranicznikiem — łamie f-string przy ładowaniu. Komunikaty trzymaj w ASCII (`'...'`, `->`).
 
+### Wzorzec 24: kreskowanie WSKAZANEGO obiektu (2026-07-12)
+
+Praca na niepustym rysunku — użytkownik wskazuje istniejący obiekt, my go kreskujemy. **Zwalidowane na LC 2026-07-12** na celowo nietypowym, **samoprzecinającym się** kształcie (wypełnił całość, `appendLoopFromBoundary` = eOk na encji już zapisanej w bazie).
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `24_hatch_selected_object.py` | `ZAKRESKUJ` | Kreskuje WSKAZANĄ zamkniętą polilinię przez `GcDbMPolygon`. Wygląd sterowany `setPatternAngle` (RADIANY), `setPatternDouble` (krzyż), `setPatternScale` (gęstość) — nazwanych wzorów ANSI nie ma (index ignorowany). Granica = pojedyncza krzywa (polilinia/okrąg/2D-polilinia); luźne linie+łuki lub splajn wymagałyby wykrywania obrysu 🟢 |
+
 ## Jak ich używać
 
 Krok pierwszy — otwórz GstarCAD 2026 lub 2027.
