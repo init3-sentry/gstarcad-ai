@@ -131,13 +131,17 @@ Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brak
 |---|---|---|
 | `25_import_coordinates.py` | `IMPORTXYZ` | Wczytuje plik ze współrzędnymi (format wybierany słowem kluczowym: `XY`/`XYZ`/`NrXY`/`NrXYZ`) i stawia punkty + opisy. Separator auto (średnik/tab Excela PL albo białe znaki Notatnika), przecinek dziesiętny PL → kropka. Wysokość opisu skalowana z rozpiętości (2% przekątnej — działa i dla PUWG2000 rzędu milionów). Best-effort `PDMODE=35`/`PDSIZE=-2`, żeby punkty były widoczne 🟢 |
 
-### Wzorzec 26: audyt osi Z (2026-07-12)
+### Wzorzec 26: audyt osi Z — wykryj + zaznacz (2026-07-12)
 
-Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są niewidoczne w rzucie 2D, ale kursor je „łapie" → błędne pomiary. Komenda skanuje cały model i **podświetla** uciekłe obiekty. **Walidator stubów: 0 błędów. Runtime na LC: pending** (generator sceny: `dane-testowe/test_audytz_scene.py`).
+Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są niewidoczne w rzucie 2D, ale kursor je „łapie" → błędne pomiary; nie da się ich zwyczajnie znaleźć. Komenda skanuje model i **ZAZNACZA** (pickfirst, uchwyty) uciekłe obiekty — użytkownik od razu je widzi i ma w gotowej selekcji.
+
+**REGUŁA #0 (native-first) w akcji:** spłaszczanie robi **natywny `FLATTEN`** (Express Tools) — nie reimplementujemy go. Nasza wartość: FLATTEN każe *samemu* zaznaczyć obiekty, a użytkownik nie wie, które uciekły w Z. My je **znajdujemy i zaznaczamy** — tej połowy natywne narzędzie nie daje. Droga do tego wniosku (odrzucone: `highlight()` niewidoczny, przemalowanie/ramki = przegrywają z draw-order i dokładają śmieci, własny flatten = duplikat natywnego) opisana w nagłówku pliku.
+
+**Sprawdzone empirycznie na LC 2026-07-12.** Most selekcji z kodu (pierwszy raz w projekcie): `GcDbEntity → getGcDbHandle().getIntoAsciiBuffer() → gcdbHandEnt → gcedSSAdd → gcedSSSetFirst`.
 
 | Plik | Komenda | Co robi |
 |---|---|---|
-| `26_audit_z_axis.py` | `AUDYTZ` / `AUDYTZ_OFF` | Iteruje model (`newIterator`), dla każdej encji liczy zakres Z z `getGeomExtents` (uniwersalne — bez per-klasa `elevation()`), podświetla te poza Z=0 i raportuje typ + Z. `AUDYTZ_OFF` zdejmuje podświetlenie (ObjectId zapamiętane globalnie). Detektor niezależny od typu encji 🟢 |
+| `26_audit_z_axis.py` | `AUDYTZ` | Skanuje model (`newIterator` + `getGeomExtents`, uniwersalne bez per-klasa `elevation()`), **zaznacza** obiekty poza Z=0 (uchwyty) i raportuje typ + Z (`Z od..do` = obiekt prawdziwie 3D). Potem użytkownik: `FLATTEN` / obejrzyj / usuń. Detektor niezależny od typu encji 🟢 |
 
 ## Jak ich używać
 
