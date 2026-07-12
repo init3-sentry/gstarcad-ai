@@ -135,9 +135,9 @@ Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brak
 
 Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są niewidoczne w rzucie 2D, ale kursor je „łapie" → błędne pomiary; nie da się ich zwyczajnie znaleźć. Komenda skanuje model i **ZAZNACZA** (pickfirst, uchwyty) uciekłe obiekty — użytkownik od razu je widzi i ma w gotowej selekcji.
 
-**REGUŁA #0 (native-first) w akcji:** spłaszczanie robi **natywny `FLATTEN`** (Express Tools) — nie reimplementujemy go. Nasza wartość: FLATTEN każe *samemu* zaznaczyć obiekty, a użytkownik nie wie, które uciekły w Z. My je **znajdujemy i zaznaczamy** — tej połowy natywne narzędzie nie daje. Droga do tego wniosku (odrzucone: `highlight()` niewidoczny, przemalowanie/ramki = przegrywają z draw-order i dokładają śmieci, własny flatten = duplikat natywnego) opisana w nagłówku pliku.
+**REGUŁA #0 (native-first) w akcji:** spłaszczanie robi **natywny `FLATTEN`** (Express Tools) — nie reimplementujemy go. Nasza wartość: FLATTEN wymaga selekcji, a użytkownik nie wie, które obiekty uciekły w Z. My je **znajdujemy i zaznaczamy** — tej połowy natywne narzędzie nie daje. Droga do tego wniosku (odrzucone: `highlight()` niewidoczny, przemalowanie/ramki = przegrywają z draw-order i dokładają śmieci, własny flatten = duplikat natywnego) opisana w nagłówku pliku.
 
-**Sprawdzone empirycznie na LC 2026-07-12.** Most selekcji z kodu (pierwszy raz w projekcie): `GcDbEntity → getGcDbHandle().getIntoAsciiBuffer() → gcdbHandEnt → gcedSSAdd → gcedSSSetFirst`.
+**Zweryfikowane END-TO-END na LC 2026-07-12:** po `AUDYTZ` wystarczy wpisać `FLATTEN` — bierze naszą selekcję **od ręki** (bez pytania „wybierz obiekt") i spłaszcza; ponowny `AUDYTZ` = „Czysto". **Cały fix = dwie komendy: `AUDYTZ` → `FLATTEN`.** Most selekcji z kodu (pierwszy raz w projekcie): `GcDbEntity → getGcDbHandle().getIntoAsciiBuffer() → gcdbHandEnt → gcedSSAdd → gcedSSSetFirst`.
 
 | Plik | Komenda | Co robi |
 |---|---|---|

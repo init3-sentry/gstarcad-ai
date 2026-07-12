@@ -12,9 +12,11 @@
 #
 # Podział ról (WAŻNE — native-first, patrz README §REGUŁA #0):
 #   - SPŁASZCZANIE Z→0 robi NATYWNY `FLATTEN` (Express Tools) — NIE reimplementujemy go.
-#   - Nasza unikalna wartość: FLATTEN każe SAMEMU zaznaczyć obiekty, a użytkownik nie
-#     wie, które uciekły w Z (są niewidoczne). My je ZNAJDUJEMY i ZAZNACZAMY. To jest
-#     ta połowa, której natywne narzędzie nie daje.
+#   - Nasza unikalna wartość: FLATTEN wymaga SELEKCJI obiektów, a użytkownik NIE WIE,
+#     które uciekły w Z (są niewidoczne). My je ZNAJDUJEMY i ZAZNACZAMY (pickfirst).
+#   - ZWERYFIKOWANE END-TO-END na LC 2026-07-12: po AUDYTZ wystarczy wpisać `FLATTEN` —
+#     bierze naszą selekcję OD RĘKI (bez pytania „wybierz obiekt") i spłaszcza. Ponowny
+#     AUDYTZ pokazuje „Czysto". Cały fix to DWIE komendy: AUDYTZ → FLATTEN.
 #
 # Jak działa detekcja (uniwersalna): getGeomExtents(ext) daje bounding-box KAŻDEJ encji
 # bez znajomości typu; |Zmin|>tol lub |Zmax|>tol → obiekt poza 2D. Zmin≠Zmax = obiekt
@@ -27,8 +29,8 @@
 #   -> gcdbHandEnt(handle, ename)  -> gcedSSAdd(ename, sset, sset)  [pusty sset = utwórz]
 #   -> gcedSSSetFirst(sset, gds_name())  [2. arg MUSI być buforem, nie None] -> pickfirst.
 #
-# Sposób użycia: APPLOAD → AUDYTZ. Obiekty poza Z=0 zostają zaznaczone (uchwyty) +
-# raport w wierszu poleceń. Potem: obejrzyj / `FLATTEN` / usuń. (ESC zdejmuje uchwyty.)
+# Sposób użycia: APPLOAD → AUDYTZ (zaznacza obiekty poza Z=0 + raport). Aby je spłaszczyć:
+# wpisz `FLATTEN` — spłaszczy zaznaczone od ręki. (Albo obejrzyj / usuń; ESC = zdejmij uchwyty.)
 #
 # Konwencje domu: 3 importy, @command, try/except, Gcad.eOk dla bazy, RTNORM/status dla
 # edytora, iteracja modelu jak wzorzec 12, idiom selection setu jak wzorzec 05.
@@ -117,7 +119,7 @@ def audytz():
                 gcutPrintf("\n  - %-24s Z od %.4f do %.4f  (3D)" % (klasa, zmin, zmax))
         if poza > MAX_LIST:
             gcutPrintf("\n  ... oraz %d wiecej." % (poza - MAX_LIST))
-        gcutPrintf("\nZaznaczone mozesz teraz: SPLASZCZYC natywna komenda FLATTEN, obejrzec, albo usunac.")
+        gcutPrintf("\nAby SPLASZCZYC do Z=0: wpisz FLATTEN — splaszczy zaznaczone od reki. (Albo obejrzyj/usun.)")
         gcutPrintf("\n(ESC zdejmuje uchwyty. „Z od..do (3D)\" = obiekt celowo rozciagniety w Z — splaszczaj swiadomie.)")
 
     except Exception as err:
