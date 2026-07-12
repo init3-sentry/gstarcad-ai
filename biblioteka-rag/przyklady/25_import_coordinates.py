@@ -14,7 +14,8 @@
 #     odsunięcie liczone są DYNAMICZNIE z rozpiętości punktów (2% przekątnej), a nie
 #     stałą wartością — inaczej tekst byłby niewidoczny albo gigantyczny.
 #   - Punkty w CAD są domyślnie niewidoczne (PDMODE=0 = kropka 1px). Best-effort
-#     ustawiamy PDMODE=35 (kółko+X) i PDSIZE=-2 (2% ekranu), żeby było je widać.
+#     ustawiamy PDMODE=3 (krzyżyk X — klasyczny punkt geodezyjny, czysto) i
+#     PDSIZE=-2 (2% ekranu), żeby było je widać.
 #
 # Format pliku wybierany słowem kluczowym (komenda pyta):
 #   XY     : "X Y"            (bez numeru, bez Z; numer nadawany automatycznie 1,2,3…)
@@ -53,7 +54,7 @@ def _setPointDisplayVars():
     try:
         rb = resbuf()
         rb.restype = RTSHORT
-        rb.resval.rint = 35            # kółko + X — dobrze widoczny marker punktu
+        rb.resval.rint = 3             # krzyżyk X — klasyczny marker punktu geodezyjnego (czysto)
         gcedSetVar("PDMODE", rb)
         rb2 = resbuf()
         rb2.restype = RTREAL
