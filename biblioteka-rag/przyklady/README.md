@@ -112,7 +112,7 @@ Praca na niepustym rysunku — użytkownik wskazuje istniejący obiekt, my go kr
 
 ### Wzorzec 25: import współrzędnych z pliku → punkty (2026-07-12)
 
-Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brakuje importu"). Klasyka geodezyjna: plik z numerami i XYZ (tachimetr / Excel / Notatnik) → punkty `GcDbPoint` (łapią osnap WĘZeł) + opisy numerów. **Walidator stubów: 0 błędów. Logika parsowania przetestowana off-CAD** na realiach PL (Excel `;`+przecinek dziesiętny, Notatnik spacja+kropka, nagłówek/komentarz pomijany, auto-numeracja). **Runtime na LC: pending** (dane: `dane-testowe/wspolrzedne_*`).
+Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brakuje importu"). Klasyka geodezyjna: plik z numerami i XYZ (tachimetr / Excel / Notatnik) → punkty `GcDbPoint` (łapią osnap WĘZeł) + opisy numerów. **Zwalidowane na LC 2026-07-12** (GstarCAD 2027 Premium): import 4 pkt z pliku Excel PL, współrzędne PUWG2000 (~5,6 mln / 7,4 mln), nagłówek `Nr;X;Y` słusznie pominięty, czyste markery geodezyjne. Parsowanie realiów PL (Excel `;`+przecinek dziesiętny, Notatnik spacja+kropka, auto-numeracja) potwierdzone też off-CAD. **Poprawki w trakcie testu LC:** (1) `gcedInitGet` MUSI poprzedzać `gcedGetKword` — inaczej „Nieprawidłowe opcje słów kluczowych"; (2) ZOOM extents to `E` (Zakres), nie „G"; (3) `PDMODE=3` (krzyżyk X) czytelniejszy niż 35 (kółko+X) przy gęstych punktach.
 
 | Plik | Komenda | Co robi |
 |---|---|---|
