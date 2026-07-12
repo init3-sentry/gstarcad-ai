@@ -16,6 +16,19 @@ Ten folder zawiera wzorcowe komendy dla GstarCAD 2026/2027, przygotowane jako wz
 
 Każda komenda pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią referencyjną podstawę dla każdej kolejnej komendy pisanej przez zespół — od typowego rysowania, przez interakcję z użytkownikiem, po automatyzację raportowania i eksportu plików.
 
+## Gdzie leżą pliki (reguła lokalizacji — jedno miejsce)
+
+> **Wzorzec i wszystko, czego potrzeba do jego przetestowania, trzymamy RAZEM tutaj, w `biblioteka-rag/przyklady/`.** Bez rozrzucania po `poc-plugin-askai/demo/`.
+>
+> | Co | Gdzie |
+> |---|---|
+> | Wzorce (numerowane komendy `NN_*.py`) | `biblioteka-rag/przyklady/` |
+> | Dane testowe + generatory scen do wzorców (pliki CSV/TXT, `test_*_scene.py`) | `biblioteka-rag/przyklady/dane-testowe/` |
+> | Walidator kodu vs stuby | `poc-plugin-askai/testy-stabilnosci/validate_pygcad.py` |
+> | Dema pluginu ASKAI (zestaw 1-5) + proby API | `poc-plugin-askai/demo/` (osobny temat — plugin, nie biblioteka wzorców) |
+>
+> Na LightCatcher wszystko i tak trafia płasko na Desktop przez `scp` — ale w repo źródłem prawdy jest ten podział.
+
 ## Komendy
 
 ### Grupa A: podstawowe rysowanie i wprowadzanie danych (01-05)
@@ -92,7 +105,7 @@ Praca na niepustym rysunku — użytkownik wskazuje istniejący obiekt, my go kr
 
 ### Wzorzec 25: import współrzędnych z pliku → punkty (2026-07-12)
 
-Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brakuje importu"). Klasyka geodezyjna: plik z numerami i XYZ (tachimetr / Excel / Notatnik) → punkty `GcDbPoint` (łapią osnap WĘZeł) + opisy numerów. **Walidator stubów: 0 błędów. Logika parsowania przetestowana off-CAD** na realiach PL (Excel `;`+przecinek dziesiętny, Notatnik spacja+kropka, nagłówek/komentarz pomijany, auto-numeracja). **Runtime na LC: pending** (pliki na Desktopie LC + `demo/wspolrzedne_*`).
+Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brakuje importu"). Klasyka geodezyjna: plik z numerami i XYZ (tachimetr / Excel / Notatnik) → punkty `GcDbPoint` (łapią osnap WĘZeł) + opisy numerów. **Walidator stubów: 0 błędów. Logika parsowania przetestowana off-CAD** na realiach PL (Excel `;`+przecinek dziesiętny, Notatnik spacja+kropka, nagłówek/komentarz pomijany, auto-numeracja). **Runtime na LC: pending** (dane: `dane-testowe/wspolrzedne_*`).
 
 | Plik | Komenda | Co robi |
 |---|---|---|
@@ -100,7 +113,7 @@ Zamyka **pozycję #8 z raportu Roberta** („jest eksport współrzędnych, brak
 
 ### Wzorzec 26: audyt osi Z (2026-07-12)
 
-Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są niewidoczne w rzucie 2D, ale kursor je „łapie" → błędne pomiary. Komenda skanuje cały model i **podświetla** uciekłe obiekty. **Walidator stubów: 0 błędów. Runtime na LC: pending** (na Desktopie LC + generator sceny `test_audytz_scene.py`).
+Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są niewidoczne w rzucie 2D, ale kursor je „łapie" → błędne pomiary. Komenda skanuje cały model i **podświetla** uciekłe obiekty. **Walidator stubów: 0 błędów. Runtime na LC: pending** (generator sceny: `dane-testowe/test_audytz_scene.py`).
 
 | Plik | Komenda | Co robi |
 |---|---|---|
