@@ -23,9 +23,10 @@
 #   NrXY   : "Nr X Y"         (pierwsza kolumna = numer/nazwa punktu)  ← DOMYŚLNY
 #   NrXYZ  : "Nr X Y Z"
 #
-# Sposób użycia: APPLOAD tego pliku → komenda IMPORTXYZ → podaj ścieżkę pliku →
-# wybierz format → punkty i opisy pojawią się w rysunku → wpisz ZOOM, potem A
-# (Wszystko) albo E (Zakres), żeby je zobaczyć. UWAGA: opcji „Granice/G" ZOOM nie ma.
+# Sposób użycia: APPLOAD tego pliku → komenda IMPORTXYZ → wybierz plik w oknie
+# (przeglądasz katalogi, klikasz plik) → wybierz format → punkty i opisy pojawią się
+# w rysunku → wpisz ZOOM, potem A (Wszystko) albo E (Zakres), żeby je zobaczyć.
+# UWAGA: opcji „Granice/G" ZOOM nie ma.
 #
 # Konwencje domu: 3 importy, @command, całość w try/except, Gcad.eOk dla bazy /
 # RTNORM dla wejścia edytora, model space open→append→close, GcDbText(pt, str).
@@ -127,11 +128,33 @@ def _readRows(path, fmt):
 def importxyz():
     """Wczytaj plik ze współrzędnymi i wstaw punkty + opisy numerów."""
     try:
-        # 1) ścieżka pliku — cronly=1 pozwala na spacje w ścieżce
-        status, path = gcedGetString(1, "\nPodaj sciezke do pliku ze wspolrzednymi: ")
-        if status != RTNORM or not path or not path.strip():
-            gcutPrintf("\nAnulowano.")
-            return
+        # 1) wybór pliku — NATYWNE okno „przeglądaj katalogi i kliknij plik"
+        #    (gcedGetFileD) — intuicyjne, nie trzeba wpisywać całej ścieżki.
+        #    Fallback: gdyby okno nie zadziałało (wyjątek), pytamy o ścieżkę tekstem,
+        #    żeby nie zepsuć już zweryfikowanej drogi.
+        path = None
+        okno_ok = True
+        try:
+            rbf = resbuf()
+            # (tytul, domyslna nazwa, filtr rozszerzenia, flagi, wynik w resbuf)
+            rc = gcedGetFileD("Wybierz plik ze wspolrzednymi (CSV / TXT)", "", "csv", 0, rbf)
+        except Exception:
+            okno_ok = False
+            rc = None
+        if okno_ok:
+            if rc == RTNORM:
+                try:
+                    path = rbf.resval.rstring
+                except Exception:
+                    path = None
+            else:
+                gcutPrintf("\nAnulowano (nie wybrano pliku).")   # klik Anuluj w oknie
+                return
+        if not path:                                              # okno niedostępne → wpisanie ścieżki
+            status, path = gcedGetString(1, "\nPodaj sciezke do pliku ze wspolrzednymi: ")
+            if status != RTNORM or not path or not path.strip():
+                gcutPrintf("\nAnulowano.")
+                return
         path = path.strip().strip('"')
 
         # 2) format pliku (słowo kluczowe; Enter = domyślny NrXY)
