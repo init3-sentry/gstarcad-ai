@@ -28,7 +28,7 @@ Backend obecnie zwraca **sztywny kod Pythona** (stub — dzień 2 planu). Endpoi
 Docelowo `POST /api/generate` będzie:
 
 1. Odbierał `{"prompt": "..."}` w body
-2. Ładował system prompt z `biblioteka-rag/przewodnik-systemowy.md`
+2. Ładował system prompt z `system-prompt.md` (w tym folderze — SoT operacyjny)
 3. Wywoływał `anthropic.messages.stream()` z modelem Sonnet 5
 4. Strumieniował fragmenty Python kodu do klienta tak jak teraz
 

@@ -46,7 +46,7 @@ Zasada: **fail fast, fail cheap**. Jeśli okaże się, że jest jakieś technicz
 
 ### Dzień piąty — podpięcie prawdziwego backendu Anthropic
 
-- Zamiast sztywnego kodu w backendzie, podpięcie prawdziwego wywołania Anthropic Sonnet 5 z systemem promptem z folderu `biblioteka-rag/przewodnik-systemowy.md`.
+- Zamiast sztywnego kodu w backendzie, podpięcie prawdziwego wywołania Anthropic Sonnet 5 z systemem promptem `poc-plugin-askai/backend/system-prompt.md` (SoT operacyjny; przewodnik = pointer).
 - Pełen test end-to-end na trzech-pięciu różnych poleceniach.
 
 **Kryterium zaliczenia dnia:** klient wpisuje „narysuj okrąg o promieniu pięć", model generuje działający kod, kod wykonuje się w rysunku, okrąg pojawia się. Powtórzenie testu na pięciu innych poleceniach z Dawidowego doświadczenia klientowskiego.
