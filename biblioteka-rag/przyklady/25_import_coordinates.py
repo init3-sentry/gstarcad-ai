@@ -23,8 +23,8 @@
 #   NrXYZ  : "Nr X Y Z"
 #
 # Sposób użycia: APPLOAD tego pliku → komenda IMPORTXYZ → podaj ścieżkę pliku →
-# wybierz format → punkty i opisy pojawią się w rysunku → wpisz ZOOM, potem G
-# (Granice), żeby je zobaczyć.
+# wybierz format → punkty i opisy pojawią się w rysunku → wpisz ZOOM, potem A
+# (Wszystko) albo E (Zakres), żeby je zobaczyć. UWAGA: opcji „Granice/G" ZOOM nie ma.
 #
 # Konwencje domu: 3 importy, @command, całość w try/except, Gcad.eOk dla bazy /
 # RTNORM dla wejścia edytora, model space open→append→close, GcDbText(pt, str).
@@ -133,11 +133,18 @@ def importxyz():
             return
         path = path.strip().strip('"')
 
-        # 2) format pliku (słowo kluczowe; puste = domyślny NrXY)
+        # 2) format pliku (słowo kluczowe; Enter = domyślny NrXY)
+        #    gcedInitGet MUSI poprzedzać gcedGetKword — inaczej KAŻDE wpisane słowo
+        #    jest odrzucane jako „Nieprawidłowe opcje słów kluczowych" (wzorzec 15).
+        gcedInitGet(0, "XY XYZ NrXY NrXYZ")
         rc, kw = gcedGetKword("\nFormat pliku [XY/XYZ/NrXY/NrXYZ] <NrXY>: ")
-        fmt = kw if (rc == RTNORM and kw) else "NrXY"
-        if fmt not in ("XY", "XYZ", "NrXY", "NrXYZ"):
-            fmt = "NrXY"
+        if rc == RTNONE:
+            fmt = "NrXY"                                   # Enter bez wpisania = domyślny
+        elif rc == RTNORM and kw in ("XY", "XYZ", "NrXY", "NrXYZ"):
+            fmt = kw
+        else:
+            gcutPrintf("\nAnulowano.")
+            return
 
         rows, skipped = _readRows(path, fmt)
         if rows is None:
@@ -176,7 +183,7 @@ def importxyz():
         _setPointDisplayVars()
 
         gcutPrintf("\n[IMPORTXYZ] Wstawiono %d punktow (format %s, pominieto %d wierszy)." % (placed, fmt, skipped))
-        gcutPrintf("\n[IMPORTXYZ] Wpisz ZOOM, potem G (Granice), zeby zobaczyc wszystkie punkty.")
+        gcutPrintf("\n[IMPORTXYZ] Wpisz ZOOM, potem A (Wszystko), zeby zobaczyc wszystkie punkty.")
 
     except Exception as err:
         gcutPrintf("\n[IMPORTXYZ BLAD] %s: %s" % (type(err).__name__, str(err)))
