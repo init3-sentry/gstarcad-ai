@@ -27,7 +27,14 @@ Każda komenda pokazuje inny wzorzec pracy z biblioteką pygcad. Razem stanowią
 > | Walidator kodu vs stuby | `poc-plugin-askai/testy-stabilnosci/validate_pygcad.py` |
 > | Dema pluginu ASKAI (zestaw 1-5) + proby API | `poc-plugin-askai/demo/` (osobny temat — plugin, nie biblioteka wzorców) |
 >
-> Na LightCatcher wszystko i tak trafia płasko na Desktop przez `scp` — ale w repo źródłem prawdy jest ten podział.
+> **Na LightCatcher (maszyna testowa GstarCAD) — JEDNO miejsce, lustro repo:**
+> | Co | Gdzie na LC |
+> |---|---|
+> | Wzorce | `C:\Users\Public\gs-ai\wzorce\` |
+> | Dane testowe | `C:\Users\Public\gs-ai\wzorce\dane-testowe\` |
+> | Wyniki testów | `C:\Users\Public\gs-ai\wyniki\` |
+>
+> **NIE wrzucaj skryptów na Desktop LC** (miesza się z plikami osobistymi Dawida → miotanie się przy szukaniu). Synchronizacja repo→LC jedną komendą: `./skrypty/sync-wzorce-to-lc.sh`. Na LC: `APPLOAD` z `C:\Users\Public\gs-ai\wzorce\`.
 
 ## Komendy
 
