@@ -277,7 +277,7 @@ pline.addVertexAt(pline.numVerts(), GcGePoint2d(0, 0), 0, 0, 0)   # zamknięcie 
 # ... appendGcDbEntity jak zwykle, potem pline.close()
 ```
 
-Aligned dimension: `GcDbAlignedDimension(pt1, pt2, textPt, "tekst")` (same sample).
+Aligned dimension: `GcDbAlignedDimension(pt1, pt2, textPt, "tekst")` (same sample). **Set the dimension scale proportional to the geometry** — dimensions inherit `DIMSCALE = 1`, so on a 1000-unit object the text is ~2.5 units and effectively invisible. Call `dim.setDimscale(N)` before appending, with `N` ≈ 1–2 % of the object size (e.g. `setDimscale(12)` on a ~1000-unit rectangle). Verified on LC 2026-07-12.
 
 ### Text / label (`GcDbText`) — verified constructor + methods
 
@@ -308,13 +308,32 @@ if status != Gcad.eOk:
     gcedPrompt("\nZapis nie powiódł się.")
 ```
 
-### Hatch / kreskowanie — NOT verified in the pygcad binding
+### Hatch / wypełnienie wzorem — via `GcDbMPolygon` (NOT `GcDbHatch`)
 
-Do **not** generate a programmatic hatch fill for now. Two problems were found on 2026-07-11 from the official pygrx stubs:
-- `GcDbHatch` has **no `appendLoop`** method — you cannot attach a boundary loop by object-id the ObjectARX way (`appendLoopFromBoundary` / `appendMPolygonLoop` exist only on other classes).
-- The hatch enums are nested under **`GcDbHatch.*`** (`GcDbHatch.HatchPatternType`, `GcDbHatch.HatchStyle`, `GcDbHatch.HatchLoopType`), **not** `GcDb.*` — so `GcDb.HatchStyle` raises `AttributeError`.
+Do **not** use `GcDbHatch` — it has **no `appendLoop`** method, so you cannot attach a boundary to it. Use **`GcDbMPolygon`** instead: it fills a closed boundary with a pattern and was verified drawing on GstarCAD 2027 (LC, 2026-07-12).
 
-If the user asks for a hatch: **never call `hatch.appendLoop(...)` (it does not exist) and do not construct `GcDbHatch` at all.** Output only the closed boundary geometry (a closed `GcDbPolyline`) plus a one-line Polish comment that the fill itself awaits verification on GstarCAD (LC) — e.g. do it manually with the `BHATCH`/`H` command for now. Emitting any `GcDbHatch` call will fail at runtime.
+```python
+# Wypełnienie wzorem — GcDbMPolygon (GcDbHatch nie ma appendLoop, NIE używać)
+pline = GcDbPolyline()                       # zamknięta granica
+pline.addVertexAt(0, GcGePoint2d(0, 0), 0, 0, 0)
+pline.addVertexAt(1, GcGePoint2d(400, 0), 0, 0, 0)
+pline.addVertexAt(2, GcGePoint2d(400, 200), 0, 0, 0)
+pline.addVertexAt(3, GcGePoint2d(0, 200), 0, 0, 0)
+pline.setClosed(True)
+
+mpoly = GcDbMPolygon()
+mpoly.appendLoopFromBoundary(pline)                            # granica z polilinii (eOk)
+mpoly.setPattern(GcDbHatch.HatchPatternType.kPreDefined, 1)   # UWAGA: wzór przez INT index, NIE string
+mpoly.setPatternScale(3.0)                                    # gęstość: mniejsze = gęściej (~2-5 sensowne)
+mpoly.evaluateHatch()
+status, oid = modelSpace.appendGcDbEntity(mpoly)
+mpoly.close()
+pline.close()
+```
+
+Two things to respect (both confirmed on LC):
+- **`setPattern(patType, patName)` takes `patName` as an INT (pattern index), NOT a string.** `setPattern(..., "ANSI31")` raises `TypeError`. The index→name mapping is not yet established (index `1` gives a line pattern). If the user asks for a specific named pattern, use a basic index (`1`) and add a one-line Polish comment that the exact pattern name must be picked manually for now.
+- The pattern-type enum is `GcDbHatch.HatchPatternType.kPreDefined` — nested under `GcDbHatch`, **not** `GcDb`.
 
 **Enum namespaces are not uniform.** Most enums live under `GcDb.*` (`GcDb.OpenMode`, `GcDb.TextHorzMode`, `GcDb.TextVertMode`, `GcDb.Planarity`), but some are nested under their entity class (e.g. `GcDbHatch.*`). When unsure, reuse a pattern already shown in this document rather than guessing the namespace.
 
@@ -334,9 +353,9 @@ These are real failures observed in testing. Never generate these patterns:
 | 2 | `if status != 5100:` after DB calls | wrong branch even on success (`Gcad.eOk == 0`) | compare with `Gcad.eOk` / `RTNORM` symbolically |
 | 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | `GcDbText(GcGePoint3d(x,y,0), "tekst")` then `setHeight(...)` — see **Text / label** pattern above |
 | 4 | `GcDb3dPolyline` + `setClosed` + `setColorIndex` + `appendGcDbEntity` | **hard crash of GstarCAD to desktop** (reported to GstarSoft R&D) | avoid `GcDb3dPolyline` entirely; use 2D `GcDbPolyline` with `addVertexAt` |
-| 5 | `hatch.appendLoop(...)` / `GcDb.HatchStyle` | `appendLoop` is absent from `GcDbHatch`; hatch enums live under `GcDbHatch.*`, so `GcDb.HatchStyle` → `AttributeError` | don't generate programmatic hatch fills — see the **Hatch** note above |
+| 5 | `GcDbHatch` for a fill, or `setPattern(..., "ANSI31")` (string) | `GcDbHatch` has no `appendLoop` (can't add a boundary); `GcDbMPolygon.setPattern` takes an **int** pattern index, so a string name → `TypeError` | fill via `GcDbMPolygon` + `setPattern(GcDbHatch.HatchPatternType.kPreDefined, <int>)` — see the **Hatch** pattern above |
 
-**Entity types empirically confirmed working:** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`. Prefer these when the user's request allows a choice. `GcDbPolyline` (2D) and `GcDbAlignedDimension` follow official samples and are expected to work, but were not yet in the confirmed set.
+**Entity types empirically confirmed drawing on GstarCAD 2027 (LC, 2026-07-01 and 2026-07-12):** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`, `GcDbPolyline` (2D lightweight), `GcDbText`, `GcDbAlignedDimension`, and `GcDbMPolygon` (pattern fill). These all render correctly — prefer them. (The heavyweight `GcDb2dPolyline` is the one that crashes on construction — use `GcDbPolyline` instead.)
 
 `gcutPrintf` and `gcedPrompt` both work for command-line output (`gcutPrintf` is what official samples mostly use; note `gcutPrintf` does not auto-prepend a newline — start messages with `\n`).
 
@@ -348,5 +367,6 @@ Per project policy, claims are labeled by source:
 
 - 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; all four pitfalls in the table above.
 - 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): all canonical patterns in this document — model-space skeleton, transactions, layer creation with `GcCmColor`, selection sets, table iteration, jigs, `GcDbPolyline`/`GcDbAlignedDimension`, DWG read/write, `gcadErrorStatusText`.
-- 🟡 **`GcDbText` API confirmed from official pygrx stubs (2026-07-11):** constructor `GcDbText(GcGePoint3d, str[, style[, height[, rotation]]])`, methods `setHeight`/`setHorizontalMode`/`setVerticalMode`/`setAlignmentPoint`/`setTextString`/`setPosition`, enums `GcDb.TextHorzMode.*` / `GcDb.TextVertMode.*`. On-screen render on GstarCAD 2027 pending final LC test — but the constructor bug (empty `GcDbText()`) is resolved.
-- 🔴 **Unverified / in progress:** `GcDbPolyline` 2D end-to-end in isolation (retest pending); **programmatic hatch fill** — `GcDbHatch.appendLoop` is absent from the binding and the hatch enums sit under `GcDbHatch.*` (found 2026-07-11 from the stubs; likely a binding gap in the same family as the 2D-polyline and `saveAs` cases, and a candidate for the .NET gate); GstarSoft R&D answers to the crash report (expected within days). When the user's request depends on a 🔴 item, generate the closest 🟡/🟢 pattern and add a one-line Polish comment that the pattern awaits final verification.
+- 🟡 **`GcDbText` API confirmed from official pygrx stubs (2026-07-11):** constructor `GcDbText(GcGePoint3d, str[, style[, height[, rotation]]])`, methods `setHeight`/`setHorizontalMode`/`setVerticalMode`/`setAlignmentPoint`/`setTextString`/`setPosition`, enums `GcDb.TextHorzMode.*` / `GcDb.TextVertMode.*`.
+- 🟢 **Empirically verified on LC 2026-07-12 (GstarCAD 2027 Premium SP1):** `GcDbText` renders (axis-grid labels drew correctly — the empty-`GcDbText()` bug is resolved); `GcDbPolyline` (2D) and `GcDbAlignedDimension` render; **`GcDbMPolygon` pattern fill renders** (boundary via `appendLoopFromBoundary`, `setPattern` with an **int** index, `setPatternScale`, `evaluateHatch`); dimensions need `setDimscale` proportional to the geometry.
+- 🔴 **Still open:** the heavyweight `GcDb2dPolyline` **construction** crashes on regen (reported to GstarSoft R&D — use the lightweight `GcDbPolyline` instead); headless `saveAs` on a standalone database writes an empty file (route file output through the .NET gate); the hatch pattern **name→index mapping** is not yet known (`GcDbMPolygon.setPattern` needs an int; index `1` gives a line pattern). When a request depends on a 🔴 item, use the closest working pattern and add a one-line Polish comment that the exact detail awaits verification.

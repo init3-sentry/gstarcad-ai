@@ -16,10 +16,10 @@ Wszystkie potwierdzone przez to, że **te same operacje przechodzą przez bramę
 | `GcDb3dPolyline` + `setClosed`/`setColorIndex` + append | **twardy crash GstarCAD do pulpitu** | nie używać; 2D `GcDbPolyline` + `addVertexAt` |
 | `GcDb2dPolyline()` + `appendVertex` | crash na regenie (repro 4 maszyny) | lekka `GcDbPolyline` (2D) |
 | `saveAs` na standalone-bazie | zapisuje **pusty plik** mimo `eOk` (append+transakcja bez różnicy) | operacje plikowe „bez otwierania" → brama .NET |
-| **`GcDbHatch` kreskowanie** | `appendLoop` **nie istnieje** w wiązaniu (są tylko `appendLoopFromBoundary`/`appendMPolygonLoop` na innych klasach); enumy pod `GcDbHatch.*` nie `GcDb.*` | nie generować programowego wypełnienia — rysować obrys + `BHATCH`/`H` ręcznie, docelowo brama .NET (znalezione 2026-07-12 z audytu wzorców) |
+| **`GcDbHatch` kreskowanie** | `appendLoop` **nie istnieje** w `GcDbHatch` — nie da się dodać granicy; enumy pod `GcDbHatch.*` nie `GcDb.*` | **✅ obejście DZIAŁA — `GcDbMPolygon`:** `appendLoopFromBoundary(polilinia)` + `setPattern(GcDbHatch.HatchPatternType.kPreDefined, <int>)` + `setPatternScale` + `evaluateHatch`. Zweryfikowane na LC 2026-07-12 (realnie kreskuje). Haczyk: wzór przez **int** index, nie string; mapowanie nazwa→index TBD |
 
 **Zasada:** rdzeń produktu (user→AI→skrypt→„Wykonaj tutaj") stoi na zwalidowanym-stabilnym podzbiorze
-(20 wzorców + prymitywy). Rzeczy crashogenne są na obrzeżach (headless plik, hatch, 3D-poly) i albo
+(20 wzorców + prymitywy). Rzeczy problematyczne są na obrzeżach (headless plik saveAs, `GcDb2dPolyline` konstrukcja) i albo
 je omijamy, albo idą przez bramę .NET. Poprawka GstarSoftu = bonus, nie zależność.
 
 ## 2. Namespace enumów NIE jest jednolity
