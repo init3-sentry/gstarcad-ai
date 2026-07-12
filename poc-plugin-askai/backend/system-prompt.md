@@ -310,7 +310,7 @@ if status != Gcad.eOk:
 
 ### Hatch / wypełnienie wzorem — via `GcDbMPolygon` (NOT `GcDbHatch`)
 
-Do **not** use `GcDbHatch` — it has **no `appendLoop`** method, so you cannot attach a boundary to it. Use **`GcDbMPolygon`** instead: it fills a closed boundary with a pattern and was verified drawing on GstarCAD 2027 (LC, 2026-07-12).
+Do **not** use `GcDbHatch` — it has **no `appendLoop`** method, so you cannot attach a boundary to it. Use **`GcDbMPolygon`** instead. Verified drawing on GstarCAD 2027 (LC, 2026-07-12). **There are no named patterns** — the `setPattern` index is ignored (all indices give the same base line pattern). You control the *look* with three knobs: **angle** (`setPatternAngle`, in RADIANS), **cross-hatch** (`setPatternDouble`), **density** (`setPatternScale`).
 
 ```python
 # Wypełnienie wzorem — GcDbMPolygon (GcDbHatch nie ma appendLoop, NIE używać)
@@ -323,17 +323,22 @@ pline.setClosed(True)
 
 mpoly = GcDbMPolygon()
 mpoly.appendLoopFromBoundary(pline)                            # granica z polilinii (eOk)
-mpoly.setPattern(GcDbHatch.HatchPatternType.kPreDefined, 1)   # UWAGA: wzór przez INT index, NIE string
-mpoly.setPatternScale(3.0)                                    # gęstość: mniejsze = gęściej (~2-5 sensowne)
+mpoly.setPattern(GcDbHatch.HatchPatternType.kPreDefined, 1)   # wymagane; drugi arg = int (ignorowany, dawaj 1)
+mpoly.setPatternScale(3.0)                                    # gęstość: mniejsza wartość = gęściej; dobierz do rozmiaru
+mpoly.setPatternAngle(0.7853981634)                          # kąt w RADIANACH: 0=poziomo, pi/4≈0.785=45° "po skosie"
+mpoly.setPatternDouble(True)                                 # True = krzyżykowo (druga warstwa prostopadła); pomiń dla linii
 mpoly.evaluateHatch()
 status, oid = modelSpace.appendGcDbEntity(mpoly)
 mpoly.close()
 pline.close()
 ```
 
-Two things to respect (both confirmed on LC):
-- **`setPattern(patType, patName)` takes `patName` as an INT (pattern index), NOT a string.** `setPattern(..., "ANSI31")` raises `TypeError`. The index→name mapping is not yet established (index `1` gives a line pattern). If the user asks for a specific named pattern, use a basic index (`1`) and add a one-line Polish comment that the exact pattern name must be picked manually for now.
-- The pattern-type enum is `GcDbHatch.HatchPatternType.kPreDefined` — nested under `GcDbHatch`, **not** `GcDb`.
+Mapping user requests to the knobs (all confirmed on LC 2026-07-12):
+- **poziomo** → `setPatternAngle(0.0)` · **„po skosie" / ukośnie** → `setPatternAngle(0.7853981634)` (pi/4 = 45°, **radiany**) · dowolny kąt = `stopnie * pi / 180`.
+- **„krzyżykowo" / siatka** → dodaj `setPatternDouble(True)`; pojedyncze linie → pomiń lub `False`.
+- **gęściej/rzadziej** → `setPatternScale`: mniejsza wartość = gęściej. Dobierz proporcjonalnie do rozmiaru obiektu (np. obiekt ~400 j. → scale ~2–3; ~2000 j. → ~15).
+- `setPattern(..., "ANSI31")` ze **stringiem** rzuca `TypeError` — drugi argument to int (i tak ignorowany). Nazwanych wzorów ANSI nie ma; odwzoruj *wygląd* kątem/krzyżem.
+- Enum typu to `GcDbHatch.HatchPatternType.kPreDefined` — zagnieżdżony pod `GcDbHatch`, **nie** `GcDb`.
 
 **Enum namespaces are not uniform.** Most enums live under `GcDb.*` (`GcDb.OpenMode`, `GcDb.TextHorzMode`, `GcDb.TextVertMode`, `GcDb.Planarity`), but some are nested under their entity class (e.g. `GcDbHatch.*`). When unsure, reuse a pattern already shown in this document rather than guessing the namespace.
 
@@ -353,7 +358,7 @@ These are real failures observed in testing. Never generate these patterns:
 | 2 | `if status != 5100:` after DB calls | wrong branch even on success (`Gcad.eOk == 0`) | compare with `Gcad.eOk` / `RTNORM` symbolically |
 | 3 | `GcDbText()` with no arguments | `TypeError` — constructor needs `(point, string)` | `GcDbText(GcGePoint3d(x,y,0), "tekst")` then `setHeight(...)` — see **Text / label** pattern above |
 | 4 | `GcDb3dPolyline` + `setClosed` + `setColorIndex` + `appendGcDbEntity` | **hard crash of GstarCAD to desktop** (reported to GstarSoft R&D) | avoid `GcDb3dPolyline` entirely; use 2D `GcDbPolyline` with `addVertexAt` |
-| 5 | `GcDbHatch` for a fill, or `setPattern(..., "ANSI31")` (string) | `GcDbHatch` has no `appendLoop` (can't add a boundary); `GcDbMPolygon.setPattern` takes an **int** pattern index, so a string name → `TypeError` | fill via `GcDbMPolygon` + `setPattern(GcDbHatch.HatchPatternType.kPreDefined, <int>)` — see the **Hatch** pattern above |
+| 5 | `GcDbHatch` for a fill, or `setPattern(..., "ANSI31")` (string) | `GcDbHatch` has no `appendLoop`; `GcDbMPolygon.setPattern` needs an **int** (string → `TypeError`), and the int is **ignored** (no named patterns) | fill via `GcDbMPolygon`; vary the look with `setPatternAngle` (rad) / `setPatternDouble` / `setPatternScale` — see the **Hatch** pattern above |
 
 **Entity types empirically confirmed drawing on GstarCAD 2027 (LC, 2026-07-01 and 2026-07-12):** `GcDbCircle`, `GcDbLine`, `GcDbArc`, `GcDbEllipse`, `GcDbPolyline` (2D lightweight), `GcDbText`, `GcDbAlignedDimension`, and `GcDbMPolygon` (pattern fill). These all render correctly — prefer them. (The heavyweight `GcDb2dPolyline` is the one that crashes on construction — use `GcDbPolyline` instead.)
 
@@ -368,5 +373,5 @@ Per project policy, claims are labeled by source:
 - 🟢 **Empirically verified 2026-07-01** (GstarCAD 2027 Plus PL): `Gcad.eOk == 0`; `gcutPrintf` and `gcedPrompt` both available; `gcedGetReal` exists / `gcutGetReal` does not; `pygcad.core` and `pygcad.core.runtime` both importable; `@command(local_name=...)` registration; working entities `GcDbCircle`/`GcDbLine`/`GcDbArc`/`GcDbEllipse`; all four pitfalls in the table above.
 - 🟡 **From official GstarSoft materials** (samples + `man.pdf` shipped with GstarCAD 2027): all canonical patterns in this document — model-space skeleton, transactions, layer creation with `GcCmColor`, selection sets, table iteration, jigs, `GcDbPolyline`/`GcDbAlignedDimension`, DWG read/write, `gcadErrorStatusText`.
 - 🟡 **`GcDbText` API confirmed from official pygrx stubs (2026-07-11):** constructor `GcDbText(GcGePoint3d, str[, style[, height[, rotation]]])`, methods `setHeight`/`setHorizontalMode`/`setVerticalMode`/`setAlignmentPoint`/`setTextString`/`setPosition`, enums `GcDb.TextHorzMode.*` / `GcDb.TextVertMode.*`.
-- 🟢 **Empirically verified on LC 2026-07-12 (GstarCAD 2027 Premium SP1):** `GcDbText` renders (axis-grid labels drew correctly — the empty-`GcDbText()` bug is resolved); `GcDbPolyline` (2D) and `GcDbAlignedDimension` render; **`GcDbMPolygon` pattern fill renders** (boundary via `appendLoopFromBoundary`, `setPattern` with an **int** index, `setPatternScale`, `evaluateHatch`); dimensions need `setDimscale` proportional to the geometry.
-- 🔴 **Still open:** the heavyweight `GcDb2dPolyline` **construction** crashes on regen (reported to GstarSoft R&D — use the lightweight `GcDbPolyline` instead); headless `saveAs` on a standalone database writes an empty file (route file output through the .NET gate); the hatch pattern **name→index mapping** is not yet known (`GcDbMPolygon.setPattern` needs an int; index `1` gives a line pattern). When a request depends on a 🔴 item, use the closest working pattern and add a one-line Polish comment that the exact detail awaits verification.
+- 🟢 **Empirically verified on LC 2026-07-12 (GstarCAD 2027 Premium SP1):** `GcDbText` renders (axis-grid labels drew correctly — the empty-`GcDbText()` bug is resolved); `GcDbPolyline` (2D) and `GcDbAlignedDimension` render; **`GcDbMPolygon` pattern fill renders**, and its look is fully controllable — `setPatternAngle` (RADIANS: 0=poziomo, pi/4=45°), `setPatternDouble` (crosshatch), `setPatternScale` (density) all confirmed; the `setPattern` index is ignored (one base line pattern, no named ANSI patterns); dimensions need `setDimscale` proportional to the geometry.
+- 🔴 **Still open:** the heavyweight `GcDb2dPolyline` **construction** crashes on regen (reported to GstarSoft R&D — use the lightweight `GcDbPolyline` instead); headless `saveAs` on a standalone database writes an empty file (route file output through the .NET gate). When a request depends on a 🔴 item, use the closest working pattern and add a one-line Polish comment that the exact detail awaits verification.

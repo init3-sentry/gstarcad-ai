@@ -16,7 +16,7 @@ Wszystkie potwierdzone przez to, że **te same operacje przechodzą przez bramę
 | `GcDb3dPolyline` + `setClosed`/`setColorIndex` + append | **twardy crash GstarCAD do pulpitu** | nie używać; 2D `GcDbPolyline` + `addVertexAt` |
 | `GcDb2dPolyline()` + `appendVertex` | crash na regenie (repro 4 maszyny) | lekka `GcDbPolyline` (2D) |
 | `saveAs` na standalone-bazie | zapisuje **pusty plik** mimo `eOk` (append+transakcja bez różnicy) | operacje plikowe „bez otwierania" → brama .NET |
-| **`GcDbHatch` kreskowanie** | `appendLoop` **nie istnieje** w `GcDbHatch` — nie da się dodać granicy; enumy pod `GcDbHatch.*` nie `GcDb.*` | **✅ obejście DZIAŁA — `GcDbMPolygon`:** `appendLoopFromBoundary(polilinia)` + `setPattern(GcDbHatch.HatchPatternType.kPreDefined, <int>)` + `setPatternScale` + `evaluateHatch`. Zweryfikowane na LC 2026-07-12 (realnie kreskuje). Haczyk: wzór przez **int** index, nie string; mapowanie nazwa→index TBD |
+| **`GcDbHatch` kreskowanie** | `appendLoop` **nie istnieje** w `GcDbHatch` — nie da się dodać granicy; enumy pod `GcDbHatch.*` nie `GcDb.*` | **✅ obejście DZIAŁA — `GcDbMPolygon`:** `appendLoopFromBoundary(polilinia)` + `setPattern(GcDbHatch.HatchPatternType.kPreDefined, <int>)` + `setPatternScale` + `evaluateHatch`. Zweryfikowane na LC 2026-07-12 (realnie kreskuje). **Wzór:** `setPattern` index **ignorowany** (jeden bazowy wzór linii, brak nazwanych ANSI); wygląd sterowany `setPatternAngle` (RADIANY: 0=poziomo, pi/4=45°), `setPatternDouble` (krzyż), `setPatternScale` (gęstość) — wszystko potwierdzone |
 
 **Zasada:** rdzeń produktu (user→AI→skrypt→„Wykonaj tutaj") stoi na zwalidowanym-stabilnym podzbiorze
 (20 wzorców + prymitywy). Rzeczy problematyczne są na obrzeżach (headless plik saveAs, `GcDb2dPolyline` konstrukcja) i albo
