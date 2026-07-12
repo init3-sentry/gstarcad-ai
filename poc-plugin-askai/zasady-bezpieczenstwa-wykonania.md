@@ -8,7 +8,7 @@
 
 ## Warstwa 1 — reguły w system promptcie (już częściowo wdrożone)
 
-Przewodnik systemowy v2 (`biblioteka-rag/przewodnik-systemowy.md`, sekcja
+Przewodnik systemowy v2 (`poc-plugin-askai/backend/system-prompt.md`, sekcja
 „Safety rules") zawiera od 2026-07-03:
 
 - zakaz operacji na plikach poza bieżącym rysunkiem; wyjątek: eksport jawnie

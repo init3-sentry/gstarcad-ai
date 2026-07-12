@@ -33,7 +33,7 @@ def test_mpolygon_v2():
         except Exception as e1:
             note += "setPattern(int) padl:%s " % type(e1).__name__
         try:
-            mpoly.setPatternScale(10.0)
+            mpoly.setPatternScale(2.0)
         except Exception:
             pass
         try:

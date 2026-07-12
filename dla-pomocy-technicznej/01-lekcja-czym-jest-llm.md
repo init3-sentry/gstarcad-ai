@@ -88,7 +88,7 @@ W odpowiedzi z ćwiczenia pierwszego, wyróżnij wszystkie linie zaczynające si
 W odpowiedzi z ćwiczenia pierwszego, wyróżnij wszystkie nazwy funkcji (rzeczy zakończone nawiasami, jak `setStartPoint()`) i nazwy klas (rzeczy zaczynające się dużą literą, jak `GcDbLine`). Zapisz je na osobnej liście.
 
 **Ćwiczenie czwarte — porównanie z prawdziwą referencją.**
-Otwórz plik `biblioteka-rag/przewodnik-systemowy.md` (znajdziesz go w tym samym repozytorium). Przeszukaj go po nazwach, które wynotowałeś w ćwiczeniach drugim i trzecim. Ile z nich faktycznie tam występuje? Zapisz wynik w pliku `cwiczenie-01-04.txt` — coś w stylu „z dziewięciu zidentyfikowanych nazw, sześć występuje w przewodniku, trzy nie".
+Otwórz plik `poc-plugin-askai/backend/system-prompt.md` (znajdziesz go w tym samym repozytorium). Przeszukaj go po nazwach, które wynotowałeś w ćwiczeniach drugim i trzecim. Ile z nich faktycznie tam występuje? Zapisz wynik w pliku `cwiczenie-01-04.txt` — coś w stylu „z dziewięciu zidentyfikowanych nazw, sześć występuje w przewodniku, trzy nie".
 
 **Ćwiczenie piąte — powtarzalność halucynacji.**
 W tym samym koncie ChatGPT otwórz NOWY chat (kluczowe — musi być nowy, żeby model nie pamiętał poprzedniego). Wpisz dokładnie to samo polecenie co w ćwiczeniu pierwszym. Porównaj nową odpowiedź z poprzednią. Czy są identyczne? Czy w nowej odpowiedzi pojawiły się inne nazwy funkcji?

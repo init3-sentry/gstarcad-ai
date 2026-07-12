@@ -44,6 +44,6 @@ Robert wybiera ten, który najlepiej pasuje do jego najbliższych planów szkole
 
 ## Materiały odniesienia
 
-- [`biblioteka-rag/przewodnik-systemowy.md`](../biblioteka-rag/przewodnik-systemowy.md)
+- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md)
 - [`biblioteka-rag/przyklady/`](../biblioteka-rag/przyklady/) — pięć wzorcowych komend Dawida
 - [`PLAN.md`](../PLAN.md) — sekcja o etapie trzecim (galeria mistrzowska), w którą Robert najprawdopodobniej wchodzi naturalnie

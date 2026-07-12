@@ -48,7 +48,7 @@ Praca podzielona jest na cztery etapy. Każdy etap ma konkretną datę zakończe
 
 **Mierzalne kryteria zaliczenia etapu:**
 
-- Plik [`biblioteka-rag/przewodnik-systemowy.md`](biblioteka-rag/przewodnik-systemowy.md) zawiera kompletną referencję najczęściej używanych funkcji modułów `pygcad.core` i `pygcad.pygrx` (co najmniej sto pięćdziesiąt funkcji, czyli najpopularniejsza piątka procent z około siedmiuset dziewięćdziesięciu dostępnych w pełnej dokumentacji producenta).
+- Plik [`biblioteka-rag/api-signatures-reference.md`](biblioteka-rag/api-signatures-reference.md) zawiera kompletną referencję najczęściej używanych funkcji modułów `pygcad.core` i `pygcad.pygrx` (co najmniej sto pięćdziesiąt funkcji, czyli najpopularniejsza piątka procent z około siedmiuset dziewięćdziesięciu dostępnych w pełnej dokumentacji producenta).
 - Folder [`biblioteka-rag/przyklady/`](biblioteka-rag/przyklady/) zawiera co najmniej dwadzieścia działających skryptów `.py`, każdy z komentarzem opisującym co robi i każdy przetestowany empirycznie w GstarCAD 2026 przez Dawida albo przez zespół pomocy technicznej.
 - Przewodnik systemowy został opublikowany jako Niestandardowy GPT w sklepie OpenAI pod nazwą roboczą „GstarCAD Python Helper", widoczny publicznie.
 - Ten sam przewodnik został opublikowany jako projekt w aplikacji Claude pod tą samą nazwą, widoczny publicznie.

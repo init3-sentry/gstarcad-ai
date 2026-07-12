@@ -32,4 +32,4 @@ Weryfikacja jest krytyczna dla całego projektu, bo z tych pięciu wzorcowych ko
 
 - Wszystkie lekcje z folderu `dla-pomocy-technicznej/` (jak w T-001)
 - Pięć plików `.py` z folderu `biblioteka-rag/przyklady/`
-- [`biblioteka-rag/przewodnik-systemowy.md`](../biblioteka-rag/przewodnik-systemowy.md) jako referencja, gdyby coś było niejasne w kodzie
+- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md) jako referencja, gdyby coś było niejasne w kodzie

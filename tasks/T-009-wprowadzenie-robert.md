@@ -32,6 +32,6 @@ Robert jest naszym najcenniejszym testerem na tym etapie. Każda jego uwaga doty
 ## Materiały odniesienia
 
 - Wszystkie pliki w folderze [`dla-pomocy-technicznej/`](../dla-pomocy-technicznej/)
-- [`biblioteka-rag/przewodnik-systemowy.md`](../biblioteka-rag/przewodnik-systemowy.md)
+- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md)
 - [`biblioteka-rag/przyklady/`](../biblioteka-rag/przyklady/) — pięć wzorcowych komend
 - [`PLAN.md`](../PLAN.md) — mapa drogowa, żeby Robert zobaczył perspektywę półroczną i znalazł swoje miejsce

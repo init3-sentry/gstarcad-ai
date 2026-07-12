@@ -18,7 +18,7 @@ Wyobraź to sobie tak: kiedy używasz „nagiego" ChatGPT-a, rozmawiasz z osobą
 
 ## Co jest w naszej instrukcji systemowej
 
-Instrukcja systemowa pomocnika „GstarCAD Python Helper" zawiera następujące elementy. Pełen tekst znajdziecie w pliku [`biblioteka-rag/przewodnik-systemowy.md`](../biblioteka-rag/przewodnik-systemowy.md) — to jest też dokument do przeczytania i ewentualnej korekty.
+Instrukcja systemowa pomocnika „GstarCAD Python Helper" zawiera następujące elementy. Pełen tekst znajdziecie w pliku [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md) — to jest też dokument do przeczytania i ewentualnej korekty.
 
 **Po pierwsze — krótki opis kontekstu.** Model dowiaduje się, że pracuje z GstarCAD-em 2026, z natywnym wsparciem Pythona, że ma używać modułów `pygcad.core` i `pygcad.pygrx`, i że ma generować kod, który będzie ładowany przez polecenie `APPLOAD`.
 
@@ -46,7 +46,7 @@ Krok piąty — skopiuj kod do nowego pliku z rozszerzeniem `.py`. W GstarCAD-zi
 
 Czasem jesteś w sytuacji, w której nie masz dostępu do ChatGPT Team — na przykład pracujesz w domu, na prywatnym koncie, albo pomagasz znajomemu projektantowi. Wtedy musisz dostarczyć instrukcję systemową ręcznie.
 
-Postępuj tak. Otwórz nowy chat w dowolnym modelu. W pierwszym polu wpisu **wklej cały nasz przewodnik systemowy** (skopiowany z pliku [`biblioteka-rag/przewodnik-systemowy.md`](../biblioteka-rag/przewodnik-systemowy.md)). Na końcu wklejonego tekstu dodaj swoje pytanie. Naciśnij wyślij.
+Postępuj tak. Otwórz nowy chat w dowolnym modelu. W pierwszym polu wpisu **wklej cały nasz przewodnik systemowy** (skopiowany z pliku [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md)). Na końcu wklejonego tekstu dodaj swoje pytanie. Naciśnij wyślij.
 
 To zadziała w każdym modelu — ChatGPT, Claude, Gemini, dowolnym innym. Jakość odpowiedzi będzie podobna do tej z naszego skonfigurowanego pomocnika.
 
