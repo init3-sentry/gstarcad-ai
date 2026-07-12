@@ -137,7 +137,7 @@ def importxyz():
         try:
             rbf = resbuf()
             # (tytul, domyslna nazwa, filtr rozszerzenia, flagi, wynik w resbuf)
-            rc = gcedGetFileD("Wybierz plik ze wspolrzednymi (CSV / TXT)", "", "csv", 0, rbf)
+            rc = gcedGetFileD("Wybierz plik ze wspolrzednymi (CSV / TXT)", "", "csv;txt", 0, rbf)
         except Exception:
             okno_ok = False
             rc = None
