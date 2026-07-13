@@ -80,26 +80,35 @@ def _replace_in_current_db(database, find, repl):
         it.step()
     ms.close()
 
-    # 2) Otwórz każdą encję do ZAPISU i podmień.
+    # 2) Podmień. WAŻNE (fix crash 2026-07-13): NIE otwieramy hurtem wszystkiego do zapisu —
+    #    to kumulowało uchwyty write i wywalało GstarCAD. Zamiast tego:
+    #    - encję otwieramy najpierw do ODCZYTU (gcdbOpenObject zwraca bazowy GcDbObject → CAST),
+    #    - TEKST do zapisu otwieramy PONOWNIE tylko gdy realnie zawiera szukany ciąg,
+    #    - BLOK zostaje w odczycie, a do zapisu idzie tylko sam ATRYBUT.
     for oid in ids:
-        s, ent = gcdbOpenObject(oid, GcDb.kForWrite)
+        s, ent = gcdbOpenObject(oid, GcDb.kForRead)
         if s != Gcad.eOk or ent is None:
             continue
         try:
             cls = ent.isA().name()
         except Exception:
             cls = ""
-        # gcdbOpenObject zwraca bazowy GcDbObject — trzeba CAST do konkretnego typu,
-        # inaczej metody tekstu/bloku nie istnieją (bug 2026-07-13: 0 podmian).
-        # Teksty i mteksty — bezpośrednio (po castcie, ent otwarta do zapisu)
+
+        # TEKST / MTEKST — przeczytaj; jeśli trafiony, reopen do zapisu i podmień
         if "Text" in cls and "Attribute" not in cls:
             tent = GcDbMText.cast(ent) if "MText" in cls else GcDbText.cast(ent)
-            if tent is not None:
-                cur = _get_str(tent)
-                if cur is not None and find in cur:
-                    if _set_str(tent, cur.replace(find, repl)):
+            cur = _get_str(tent) if tent is not None else None
+            ent.close()
+            if cur is not None and find in cur:
+                sw, went = gcdbOpenObject(oid, GcDb.kForWrite)
+                if sw == Gcad.eOk and went is not None:
+                    wt = GcDbMText.cast(went) if "MText" in cls else GcDbText.cast(went)
+                    if wt is not None and _set_str(wt, cur.replace(find, repl)):
                         count += 1
-        # Referencje bloków — CAST do GcDbBlockReference, potem iteruj atrybuty
+                    went.close()
+            continue
+
+        # BLOK — zostaje w ODCZYCIE; tylko atrybuty otwieramy do zapisu
         elif "BlockReference" in cls:
             bref = GcDbBlockReference.cast(ent)
             if bref is not None:

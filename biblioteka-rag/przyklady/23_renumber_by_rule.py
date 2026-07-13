@@ -81,7 +81,9 @@ def renumberByRule():
         count = 0
 
         for oid in _block_ref_ids():
-            s, obj = gcdbOpenObject(oid, GcDb.kForWrite)
+            # BLOK do ODCZYTU (jak EKSPORT — nie wywala); tylko ATRYBUT do zapisu (nizej).
+            # Blok kForWrite kumulowal uchwyty -> crash przy wielu blokach (2026-07-13).
+            s, obj = gcdbOpenObject(oid, GcDb.kForRead)
             if s != Gcad.eOk or obj is None:
                 continue
             # gcdbOpenObject zwraca GcDbObject — CAST do GcDbBlockReference (inaczej

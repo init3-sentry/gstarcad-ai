@@ -162,7 +162,10 @@ def importAttributes():
                 wanted[(r.get("handle", ""), r.get("tag", ""))] = r.get("wartosc", "")
 
         updated = 0
-        for ref, h in _iter_block_refs(GcDb.kForWrite):
+        # BLOK otwieramy do ODCZYTU (jak EKSPORT, który nie wywala) — tylko sam ATRYBUT
+        # otwieramy do zapisu. Otwieranie bloku kForWrite kumulowalo uchwyty i wywalalo
+        # GstarCAD przy wielu blokach (empiria 2026-07-13, TESTZAPIS: 1 zapis OK, wiele = crash).
+        for ref, h in _iter_block_refs(GcDb.kForRead):
             try:
                 it = ref.attributeIterator()
                 while not it.done():
