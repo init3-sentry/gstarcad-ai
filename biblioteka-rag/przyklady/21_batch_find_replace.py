@@ -5,13 +5,13 @@
 # ale TYLKO w jednym rysunku i bez reguł/semantyki — nasza wartość to: (a) batch
 # przez wiele plików, (b) reguła/semantyka opisana po ludzku (LLM generuje z opisu).
 #
-# STATUS: 🟡 W NAPRAWIE. Pętla syntetyczna waliduj-petla.py = 10/10 PASS (1 blok), ALE
-# na realnych rysunkach klienta (30588/30993, raport 13.07) wychodziły błędy, których
-# syntetyk nie łapał: brak castu po gcdbOpenObject, zła metoda odczytu (_get_str bez
-# textString), kumulacja uchwytów write -> crash. Naprawione: cast + textString(). DO
-# DOMKNIĘCIA na LC: odczyt w kForRead (regres 3->0) + crash przy wielu zapisach
-# (patrz dane-testowe/test_read_diag.py, test_write_crash.py). „ZWALIDOWANY" dopiero
-# po realnym pliku — patrz memory feedback_validate_on_real_drawings.
+# STATUS: TEKST 🟡 / ATRYBUTY BLOKÓW 🔴 ZAPIS ZABLOKOWANY.
+# Ścieżka TEKST/MTEXT (encje top-level, nie sub-encje) — reopen kForWrite standalone jest OK
+#   (crash dotyczy tylko atrybutów-sub-encji). Empiria TESTREAD: MText ma contents(surowy)/
+#   text(czysty), brak textString; read-mode nie wpływa na odczyt. Do realnego testu.
+# Ścieżka ATRYBUTÓW BLOKÓW — setTextString na atrybucie wywala GstarCAD 2027 SP1 na regenie
+#   (empiria LC 13.07, 9 wariantów — memory feedback_gstarcad_attribute_write_bug). Do
+#   przepisania na DXF entMod. NIE wysyłać zamiany w atrybutach do chłopaków poki nie przejdzie DXF.
 #
 # Sposób użycia: APPLOAD, następnie ZAMIEN_TEKST. Komenda pyta o szukany tekst
 # i tekst docelowy, po czym podmienia we WSZYSTKICH tekstach/mtekstach/atrybutach
@@ -112,24 +112,36 @@ def _replace_in_current_db(database, find, repl):
                     went.close()
             continue
 
-        # BLOK — zostaje w ODCZYCIE; tylko atrybuty otwieramy do zapisu
+        # BLOK — modyfikuj atrybuty przez read-blok. Iterator SKONCZ przed modyfikacja,
+        # bloku NIE zamykaj (empiria LC v7 2026-07-13: close read-bloku po modyfikacji
+        # atrybutu = crash; blok kForWrite lub atrybut standalone tez = crash).
         elif "BlockReference" in cls:
             bref = GcDbBlockReference.cast(ent)
-            if bref is not None:
-                try:
-                    ait = bref.attributeIterator()
-                    while not ait.done():
-                        aid = ait.objectId()
-                        sa, attr = bref.openAttribute(aid, GcDb.kForWrite)
-                        if sa == Gcad.eOk and attr is not None:
-                            cur = _get_str(attr)
-                            if cur is not None and find in cur:
-                                if _set_str(attr, cur.replace(find, repl)):
-                                    count += 1
-                            attr.close()
-                        ait.step()
-                except Exception:
-                    pass
+            if bref is None:
+                ent.close()
+                continue
+            aids = []
+            try:
+                ait = bref.attributeIterator()
+                while not ait.done():
+                    aids.append(ait.objectId())
+                    ait.step()
+            except Exception:
+                pass
+            if not aids:
+                ent.close()   # blok bez atrybutow -> nietkniety -> zamknij
+                continue
+            for aid in aids:
+                sa, attr = bref.openAttribute(aid, GcDb.kForWrite)
+                if sa == Gcad.eOk and attr is not None:
+                    cur = _get_str(attr)
+                    if cur is not None and find in cur:
+                        if _set_str(attr, cur.replace(find, repl)):
+                            count += 1
+                    attr.close()
+            continue   # NIE ent.close() — read-blok ze zmodyfikowanymi atrybutami
+
+        # inne encje (nie tekst, nie blok) — tylko odczyt, zamknij
         ent.close()
     return count
 

@@ -1,19 +1,16 @@
-# SONDA v7 — v5 BEZ ref.close() na zmodyfikowanym bloku (crash byl DOKLADNIE tam).
+# SONDA v8 — blok kForWrite z POPRAWNYM zamknieciem (podrecznikowy commit atrybutow).
 # MODYFIKUJE atrybuty — URUCHOM i NIE ZAPISUJ (wpisuje smieci T1,T2...).
 #
 # Empiria 2026-07-13 (log -> C:\Users\Public\gs-ai\testcrash_log.txt):
-#  v5: blok kForRead + zapis przez blok = 3 zapisy OK, crash na ref.close() tego bloku.
-#  v6: atrybut standalone gcdbOpenObject(kForWrite) = crash na W#1 (martwe).
-#  v4: blok kForWrite = crash na W#1.
-#  => jedyna dzialajaca sciezka zapisu: blok kForRead + openAttribute(kForWrite) przez blok.
-#     Jedyny crash: zamykanie tego bloku. v7 pomija close (runtime sprzata na koncu komendy).
+#  v5 blok kForRead + close  -> crash NATYCHMIAST na ref.close().
+#  v7 blok kForRead BEZ close -> zapisy OK, ale crash ODROCZONY (idle po ~10 min).
+#  v4 blok kForWrite          -> crash na W#1, ALE mial zatrucie globalnym pre-collectem.
 #
-# Wynik do interpretacji:
-#  - "PETLA OK: 47" i BRAK crasha        -> FIX: modyfikuj przez read-blok, NIE zamykaj go.
-#  - "PETLA OK: 47" a crash PO nim       -> zapisy OK, tylko odroczone zamkniecie pada (inny commit).
-#  - crash w trakcie                     -> read-blok tez nie jest bezpieczny; zmieniam mechanizm (DXF).
+# v8 = czysto (bez pre-collectu): blok kForWrite, dokoncz iterator, modyfikuj atrybuty,
+#      zamknij atrybuty, ZAMKNIJ blok (kForWrite -> poprawny commit+regen). Jesli to
+#      wariant stabilny, nie bedzie ani crasha teraz, ani po REGEN.
 #
-# Uzycie: APPLOAD, 30993, TESTCRASH7.
+# Uzycie: APPLOAD, 30993, TESTW8. Po "PETLA OK" wpisz REGEN i poczekaj chwile.
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -56,22 +53,22 @@ def _block_ref_ids():
     return ids
 
 
-@command(local_name='TESTCRASH7')
-def testCrash7():
+@command(local_name='TESTW8')
+def testW8():
     fp = open(LOG, "w", encoding="utf-8")
     try:
-        _log(fp, "START v7 read-blok BEZ close")
+        _log(fp, "START v8 blok-kForWrite czysto")
         gcutPrintf(f"\nLoguje do: {LOG}")
         n = 0
         b = 0
         for roid in _block_ref_ids():
             b += 1
-            s, obj = gcdbOpenObject(roid, GcDb.kForRead)
+            s, obj = gcdbOpenObject(roid, GcDb.kForWrite)   # BLOK do ZAPISU
             if s != Gcad.eOk or obj is None:
                 continue
             ref = GcDbBlockReference.cast(obj)
             if ref is None:
-                obj.close(); continue   # blok bez atrybutow — mozna zamknac (nietkniety)
+                obj.close(); continue
             aids = []
             try:
                 ait = ref.attributeIterator()
@@ -81,9 +78,8 @@ def testCrash7():
             except Exception as e:
                 _log(fp, f"BLOK#{b} blad iteratora {e}")
             if not aids:
-                obj.close()             # brak atrybutow -> blok nietkniety -> zamknij
-                continue
-            _log(fp, f"BLOK#{b}: {len(aids)} atrybutow, modyfikuje (NIE zamykam)")
+                obj.close(); continue
+            _log(fp, f"BLOK#{b}: {len(aids)} atrybutow")
             for aid in aids:
                 n += 1
                 _log(fp, f"W#{n} PRZED")
@@ -97,12 +93,12 @@ def testCrash7():
                 else:
                     _log(fp, f"W#{n} openAttribute status={sa}")
                 _log(fp, f"W#{n} PO")
-            # UWAGA: celowo NIE wywolujemy ref.close() / obj.close() tutaj.
-            _log(fp, f"BLOK#{b} zmodyfikowany, pominieto close")
+            obj.close()   # ZAMKNIJ blok kForWrite -> poprawny commit
+            _log(fp, f"BLOK#{b} ZAMKNIETY")
         _log(fp, f"PETLA OK: {n} zapisow w {b} blokach")
-        gcutPrintf(f"\n=== PETLA OK: {n} zapisow BEZ crasha (fix dziala!) ===")
+        gcutPrintf(f"\n=== PETLA OK: {n} zapisow. Teraz wpisz REGEN i poczekaj. ===")
     except Exception as err:
         _log(fp, f"WYJATEK GLOWNY {err}")
-        gcutPrintf(f"\n[BLAD TESTCRASH7] {err}")
+        gcutPrintf(f"\n[BLAD TESTW8] {err}")
     finally:
         fp.close()

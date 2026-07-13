@@ -5,13 +5,14 @@
 # edycji w Excelu i re-import z powrotem (round-trip), (b) batch przez wiele plików,
 # (c) reguły opisane po ludzku (LLM). To fundament „title block fill" i zestawień.
 #
-# STATUS: 🟡 W NAPRAWIE. Pętla syntetyczna = 10/10 PASS (1 blok), ale na realnym 30993
-#         (raport 13.07): EKSPORT dawał 47 wierszy z PUSTĄ wartością (_get_str bez textString),
-#         IMPORT crashował GstarCAD przy wielu zapisach. Naprawione: cast GcDbBlockReference +
-#         _get_str z textString(). CRASH IMPORT do domknięcia na LC (test_write_crash.py).
-#         Fakty potwierdzone: handle = getGcDbHandle().getIntoAsciiBuffer() -> (True,'2A7');
-#         nazwa bloku = blockTableRecord()+getName(); odczyt/zapis = textString()/setTextString().
-#         „ZWALIDOWANY" dopiero po realnym pliku — memory feedback_validate_on_real_drawings.
+# STATUS: EKSPORT 🟢 (odczyt) / IMPORT 🔴 ZAPIS ZABLOKOWANY.
+#         EKSPORT: cast GcDbBlockReference + _get_str z textString() -> 47 atrybutow z wartosciami.
+#           Fakty: handle=getGcDbHandle().getIntoAsciiBuffer()->(True,'2A7'); nazwa bloku=
+#           blockTableRecord()+getName(); odczyt=textString()/contents. Do potwierdzenia wartosci
+#           na realnym pliku (memory feedback_validate_on_real_drawings).
+#         IMPORT: pisze setTextString na atrybucie -> wywala GstarCAD 2027 SP1 na regenie
+#           (empiria LC 13.07, 9 wariantow — memory feedback_gstarcad_attribute_write_bug).
+#           Do przepisania na DXF entMod. NIE wysylac IMPORT do chlopakow poki nie przejdzie DXF.
 #
 # Sposób użycia: APPLOAD, następnie:
 #   EKSPORT_ATRYBUTOW — zapisuje wszystkie atrybuty bloków bieżącego rysunku do
@@ -166,30 +167,36 @@ def importAttributes():
                 wanted[(r.get("handle", ""), r.get("tag", ""))] = r.get("wartosc", "")
 
         updated = 0
-        # BLOK otwieramy do ODCZYTU (jak EKSPORT, który nie wywala) — tylko sam ATRYBUT
-        # otwieramy do zapisu. Otwieranie bloku kForWrite kumulowalo uchwyty i wywalalo
-        # GstarCAD przy wielu blokach (empiria 2026-07-13, TESTZAPIS: 1 zapis OK, wiele = crash).
+        # WZORZEC ZAPISU ATRYBUTOW (empiria LC 2026-07-13, 7 wariantow TESTCRASH):
+        #  blok kForWrite -> crash; atrybut standalone -> crash. JEDYNA dobra sciezka:
+        #  blok kForRead + openAttribute(kForWrite) przez blok, iterator SKONCZONY przed
+        #  modyfikacja, a bloku NIE WOLNO zamykac (ref.close() po modyfikacji = crash;
+        #  runtime sprzata na koncu komendy).
         for ref, h in _iter_block_refs(GcDb.kForRead):
+            # 1) zbierz ID atrybutow (dokoncz iterator PRZED modyfikacja)
+            aids = []
             try:
                 it = ref.attributeIterator()
                 while not it.done():
-                    aid = it.objectId()
-                    sa, attr = ref.openAttribute(aid, GcDb.kForWrite)
-                    if sa == Gcad.eOk and attr is not None:
-                        tag = ""
-                        try:
-                            tag = attr.tag()
-                        except Exception:
-                            pass
-                        key = (h, tag)
-                        if key in wanted and _get_str(attr) != wanted[key]:
-                            if _set_str(attr, wanted[key]):
-                                updated += 1
-                        attr.close()
+                    aids.append(it.objectId())
                     it.step()
             except Exception:
                 pass
-            ref.close()
+            # 2) modyfikuj przez ten sam (read) blok; bloku NIE zamykamy
+            for aid in aids:
+                sa, attr = ref.openAttribute(aid, GcDb.kForWrite)
+                if sa == Gcad.eOk and attr is not None:
+                    tag = ""
+                    try:
+                        tag = attr.tag()
+                    except Exception:
+                        pass
+                    key = (h, tag)
+                    if key in wanted and _get_str(attr) != wanted[key]:
+                        if _set_str(attr, wanted[key]):
+                            updated += 1
+                    attr.close()
+            # NIE ref.close() — read-blok ze zmodyfikowanymi atrybutami = crash (empiria v7).
         gcutPrintf(f"\nZaktualizowano {updated} atrybutów z CSV.")
 
     except Exception as err:

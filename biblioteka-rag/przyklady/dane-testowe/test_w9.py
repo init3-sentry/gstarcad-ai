@@ -1,19 +1,15 @@
-# SONDA v7 — v5 BEZ ref.close() na zmodyfikowanym bloku (crash byl DOKLADNIE tam).
+# SONDA v9 — v5 + adjustAlignment(db) po setTextString (BRAKUJACY klocek ObjectARX).
 # MODYFIKUJE atrybuty — URUCHOM i NIE ZAPISUJ (wpisuje smieci T1,T2...).
 #
-# Empiria 2026-07-13 (log -> C:\Users\Public\gs-ai\testcrash_log.txt):
-#  v5: blok kForRead + zapis przez blok = 3 zapisy OK, crash na ref.close() tego bloku.
-#  v6: atrybut standalone gcdbOpenObject(kForWrite) = crash na W#1 (martwe).
-#  v4: blok kForWrite = crash na W#1.
-#  => jedyna dzialajaca sciezka zapisu: blok kForRead + openAttribute(kForWrite) przez blok.
-#     Jedyny crash: zamykanie tego bloku. v7 pomija close (runtime sprzata na koncu komendy).
+# Empiria 2026-07-13: zapis atrybutu ZAWSZE sie udaje, ale close bloku (v5 kForRead / v8
+# kForWrite) = crash natychmiast, brak close = crash odroczony (idle/REGEN). Wniosek:
+# crash w REGENIE grafiki atrybutu. GcDbText.adjustAlignment(pDb) przelicza geometrie
+# tekstu po zmianie stringa — bez tego grafika jest nieaktualna. NIE bylo wywolane.
 #
-# Wynik do interpretacji:
-#  - "PETLA OK: 47" i BRAK crasha        -> FIX: modyfikuj przez read-blok, NIE zamykaj go.
-#  - "PETLA OK: 47" a crash PO nim       -> zapisy OK, tylko odroczone zamkniecie pada (inny commit).
-#  - crash w trakcie                     -> read-blok tez nie jest bezpieczny; zmieniam mechanizm (DXF).
+# v9 = v5 (blok kForRead, zapis przez blok, potem ref.close()) + JEDNA linia
+#      attr.adjustAlignment(db) po setTextString. Sukces = PETLA OK + przezyty REGEN.
 #
-# Uzycie: APPLOAD, 30993, TESTCRASH7.
+# Uzycie: APPLOAD, 30993, TESTW9. Po "PETLA OK" wpisz REGEN i poczekaj ~20 s.
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -56,11 +52,12 @@ def _block_ref_ids():
     return ids
 
 
-@command(local_name='TESTCRASH7')
-def testCrash7():
+@command(local_name='TESTW9')
+def testW9():
     fp = open(LOG, "w", encoding="utf-8")
+    db = gcdbWorkingDatabase()
     try:
-        _log(fp, "START v7 read-blok BEZ close")
+        _log(fp, "START v9 kForRead + adjustAlignment")
         gcutPrintf(f"\nLoguje do: {LOG}")
         n = 0
         b = 0
@@ -71,7 +68,7 @@ def testCrash7():
                 continue
             ref = GcDbBlockReference.cast(obj)
             if ref is None:
-                obj.close(); continue   # blok bez atrybutow — mozna zamknac (nietkniety)
+                obj.close(); continue
             aids = []
             try:
                 ait = ref.attributeIterator()
@@ -81,9 +78,8 @@ def testCrash7():
             except Exception as e:
                 _log(fp, f"BLOK#{b} blad iteratora {e}")
             if not aids:
-                obj.close()             # brak atrybutow -> blok nietkniety -> zamknij
-                continue
-            _log(fp, f"BLOK#{b}: {len(aids)} atrybutow, modyfikuje (NIE zamykam)")
+                obj.close(); continue
+            _log(fp, f"BLOK#{b}: {len(aids)} atrybutow")
             for aid in aids:
                 n += 1
                 _log(fp, f"W#{n} PRZED")
@@ -93,16 +89,24 @@ def testCrash7():
                         attr.setTextString(f"T{n}")
                     except Exception as e:
                         _log(fp, f"W#{n} setTextString WYJATEK {e}")
+                    # KLUCZ: przelicz geometrie tekstu po zmianie stringa
+                    try:
+                        attr.adjustAlignment(db)
+                    except Exception as e:
+                        try:
+                            attr.adjustAlignment()
+                        except Exception as e2:
+                            _log(fp, f"W#{n} adjustAlignment WYJATEK {e2}")
                     attr.close()
                 else:
                     _log(fp, f"W#{n} openAttribute status={sa}")
                 _log(fp, f"W#{n} PO")
-            # UWAGA: celowo NIE wywolujemy ref.close() / obj.close() tutaj.
-            _log(fp, f"BLOK#{b} zmodyfikowany, pominieto close")
+            ref.close()   # zamykamy blok — z przeliczona grafika powinno przezyc
+            _log(fp, f"BLOK#{b} ZAMKNIETY")
         _log(fp, f"PETLA OK: {n} zapisow w {b} blokach")
-        gcutPrintf(f"\n=== PETLA OK: {n} zapisow BEZ crasha (fix dziala!) ===")
+        gcutPrintf(f"\n=== PETLA OK: {n} zapisow. Teraz wpisz REGEN i poczekaj. ===")
     except Exception as err:
         _log(fp, f"WYJATEK GLOWNY {err}")
-        gcutPrintf(f"\n[BLAD TESTCRASH7] {err}")
+        gcutPrintf(f"\n[BLAD TESTW9] {err}")
     finally:
         fp.close()

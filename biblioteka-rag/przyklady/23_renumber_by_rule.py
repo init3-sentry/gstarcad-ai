@@ -5,10 +5,11 @@
 # (prefiks + start + krok + format), np. pozycje „P-001, P-002...", rewizje, RFI.
 # LLM w ASKAI generuje regułę z opisu klienta; ten wzorzec to referencyjny szkielet.
 #
-# STATUS: 🟡 W NAPRAWIE. Pętla syntetyczna = 10/10 PASS (1 blok). Na realnym 30993
-#         (raport 13.07): 0 renumeracji, bo podano zły tag ("numer" vs faktyczne NR./POW./POK)
-#         — NIE bug, złe wejście; crasha NIE było (fix castu + odczyt bloku zadziałał).
-#         Do potwierdzenia z właściwym tagiem na LC. „ZWALIDOWANY" dopiero po realnym pliku.
+# STATUS: 🔴 ZAPIS ZABLOKOWANY. Renumeracja pisze setTextString na atrybucie, a to wywala
+#         GstarCAD 2027 SP1 na regenie (empiria LC 13.07, 9 wariantow — patrz memory
+#         feedback_gstarcad_attribute_write_bug). RENUMERUJ "Zrenumerowano 7" ale po ~10 min
+#         idle GstarCAD padl. Do przepisania na DXF entMod. Odczyt (tag/wartosc) = OK.
+#         NIE wysylac do chlopakow/Roberta poki nie przejdzie realnego testu na DXF.
 #
 # Sposób użycia: APPLOAD, następnie RENUMERUJ. Komenda pyta o: tag atrybutu do
 # renumeracji (np. NUMER), prefiks (np. „P-"), numer startowy, krok. Następnie
@@ -83,38 +84,46 @@ def renumberByRule():
         count = 0
 
         for oid in _block_ref_ids():
-            # BLOK do ODCZYTU (jak EKSPORT — nie wywala); tylko ATRYBUT do zapisu (nizej).
-            # Blok kForWrite kumulowal uchwyty -> crash przy wielu blokach (2026-07-13).
+            # WZORZEC ZAPISU ATRYBUTOW (empiria LC 2026-07-13, 7 wariantow TESTCRASH):
+            #  - blok kForWrite -> crash; atrybut standalone gcdbOpenObject -> crash;
+            #  - JEDYNA dobra sciezka: blok kForRead + openAttribute(kForWrite) przez blok,
+            #    ale iterator MUSI byc skonczony PRZED modyfikacja, a bloku NIE WOLNO zamykac
+            #    (ref.close() po modyfikacji = crash; runtime sprzata na koncu komendy).
             s, obj = gcdbOpenObject(oid, GcDb.kForRead)
             if s != Gcad.eOk or obj is None:
                 continue
-            # gcdbOpenObject zwraca GcDbObject — CAST do GcDbBlockReference (inaczej
-            # brak attributeIterator -> 0; bug 2026-07-13). Jak w wzorcu 24.
             ref = GcDbBlockReference.cast(obj)
             if ref is None:
                 obj.close()
                 continue
+            # 1) zbierz ID atrybutow (dokoncz iterator PRZED modyfikacja)
+            aids = []
             try:
                 it = ref.attributeIterator()
                 while not it.done():
-                    aid = it.objectId()
-                    sa, attr = ref.openAttribute(aid, GcDb.kForWrite)
-                    if sa == Gcad.eOk and attr is not None:
-                        atag = ""
-                        try:
-                            atag = attr.tag()
-                        except Exception:
-                            pass
-                        if atag == tag:
-                            newval = f"{prefix}{str(current).zfill(pad)}"
-                            if _set_str(attr, newval):
-                                current += step
-                                count += 1
-                        attr.close()
+                    aids.append(it.objectId())
                     it.step()
             except Exception:
                 pass
-            ref.close()
+            if not aids:
+                obj.close()   # blok bez atrybutow -> nietkniety -> mozna zamknac
+                continue
+            # 2) modyfikuj przez ten sam (read) blok; bloku NIE zamykamy
+            for aid in aids:
+                sa, attr = ref.openAttribute(aid, GcDb.kForWrite)
+                if sa == Gcad.eOk and attr is not None:
+                    atag = ""
+                    try:
+                        atag = attr.tag()
+                    except Exception:
+                        pass
+                    if atag == tag:
+                        newval = f"{prefix}{str(current).zfill(pad)}"
+                        if _set_str(attr, newval):
+                            current += step
+                            count += 1
+                    attr.close()
+            # NIE: ref.close() — read-blok ze zmodyfikowanymi atrybutami; close = crash.
 
         gcutPrintf(f"\nZrenumerowano {count} atrybutow '{tag}' (od {prefix}{str(start).zfill(pad)}, krok {step}).")
 
