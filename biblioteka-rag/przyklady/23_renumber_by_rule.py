@@ -5,8 +5,10 @@
 # (prefiks + start + krok + format), np. pozycje „P-001, P-002...", rewizje, RFI.
 # LLM w ASKAI generuje regułę z opisu klienta; ten wzorzec to referencyjny szkielet.
 #
-# STATUS: ✅ ZWALIDOWANY end-to-end na LC 2026-07-10 (GstarCAD 2027 SP1, R27.1.0.2606)
-#         przez weryfikacja/waliduj-petla.py — 10/10 iteracji PASS (renumeracja=1 -> P-001).
+# STATUS: 🟡 W NAPRAWIE. Pętla syntetyczna = 10/10 PASS (1 blok). Na realnym 30993
+#         (raport 13.07): 0 renumeracji, bo podano zły tag ("numer" vs faktyczne NR./POW./POK)
+#         — NIE bug, złe wejście; crasha NIE było (fix castu + odczyt bloku zadziałał).
+#         Do potwierdzenia z właściwym tagiem na LC. „ZWALIDOWANY" dopiero po realnym pliku.
 #
 # Sposób użycia: APPLOAD, następnie RENUMERUJ. Komenda pyta o: tag atrybutu do
 # renumeracji (np. NUMER), prefiks (np. „P-"), numer startowy, krok. Następnie

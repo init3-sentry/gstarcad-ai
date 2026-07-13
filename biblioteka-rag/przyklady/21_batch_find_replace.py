@@ -5,11 +5,13 @@
 # ale TYLKO w jednym rysunku i bez reguł/semantyki — nasza wartość to: (a) batch
 # przez wiele plików, (b) reguła/semantyka opisana po ludzku (LLM generuje z opisu).
 #
-# STATUS: ✅ ZWALIDOWANY end-to-end na LC 2026-07-10 (GstarCAD 2027 SP1, R27.1.0.2606)
-# przez weryfikacja/waliduj-petla.py — 10/10 iteracji PASS (zamiana=2 za każdym razem,
-# bez eNotOpenForWrite). Lekcja: iterator zwraca encje do ODCZYTU — zapis wymaga
-# zebrania ObjectId i ponownego otwarcia encji do ZAPISU (patrz _replace_in_current_db).
-# Wariant FOLDER-BATCH (na dole pliku) pozostaje 🟡 — nie odpalony end-to-end.
+# STATUS: 🟡 W NAPRAWIE. Pętla syntetyczna waliduj-petla.py = 10/10 PASS (1 blok), ALE
+# na realnych rysunkach klienta (30588/30993, raport 13.07) wychodziły błędy, których
+# syntetyk nie łapał: brak castu po gcdbOpenObject, zła metoda odczytu (_get_str bez
+# textString), kumulacja uchwytów write -> crash. Naprawione: cast + textString(). DO
+# DOMKNIĘCIA na LC: odczyt w kForRead (regres 3->0) + crash przy wielu zapisach
+# (patrz dane-testowe/test_read_diag.py, test_write_crash.py). „ZWALIDOWANY" dopiero
+# po realnym pliku — patrz memory feedback_validate_on_real_drawings.
 #
 # Sposób użycia: APPLOAD, następnie ZAMIEN_TEKST. Komenda pyta o szukany tekst
 # i tekst docelowy, po czym podmienia we WSZYSTKICH tekstach/mtekstach/atrybutach

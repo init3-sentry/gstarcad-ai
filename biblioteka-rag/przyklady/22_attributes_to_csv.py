@@ -5,11 +5,13 @@
 # edycji w Excelu i re-import z powrotem (round-trip), (b) batch przez wiele plików,
 # (c) reguły opisane po ludzku (LLM). To fundament „title block fill" i zestawień.
 #
-# STATUS: ✅ ZWALIDOWANY end-to-end na LC 2026-07-10 (GstarCAD 2027 SP1, R27.1.0.2606)
-#         przez weryfikacja/waliduj-petla.py — 10/10 iteracji PASS (eksport=1 za każdym razem).
-#         Handle: GcDbBlockReference NIE ma handle() — użyto getGcDbHandle().getIntoAsciiBuffer()
-#         (empirycznie -> (True,'2A7')). Nazwa bloku: blockTableRecord()+getName(). Wartości
-#         przez textString()/setTextString() (GcDbAttribute dziedziczy z GcDbText).
+# STATUS: 🟡 W NAPRAWIE. Pętla syntetyczna = 10/10 PASS (1 blok), ale na realnym 30993
+#         (raport 13.07): EKSPORT dawał 47 wierszy z PUSTĄ wartością (_get_str bez textString),
+#         IMPORT crashował GstarCAD przy wielu zapisach. Naprawione: cast GcDbBlockReference +
+#         _get_str z textString(). CRASH IMPORT do domknięcia na LC (test_write_crash.py).
+#         Fakty potwierdzone: handle = getGcDbHandle().getIntoAsciiBuffer() -> (True,'2A7');
+#         nazwa bloku = blockTableRecord()+getName(); odczyt/zapis = textString()/setTextString().
+#         „ZWALIDOWANY" dopiero po realnym pliku — memory feedback_validate_on_real_drawings.
 #
 # Sposób użycia: APPLOAD, następnie:
 #   EKSPORT_ATRYBUTOW — zapisuje wszystkie atrybuty bloków bieżącego rysunku do
