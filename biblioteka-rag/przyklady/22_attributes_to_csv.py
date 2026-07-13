@@ -26,7 +26,9 @@ CSV_PATH = os.path.join(os.path.expanduser("~"), "Desktop", "atrybuty_gstarcad.c
 
 
 def _get_str(ent):
-    for getter in ("textStringConst", "text", "contents"):
+    # textString() POTWIERDZONE empirycznie (TESTZAPIS 2026-07-13: attr.textString()->'POW ZABUD').
+    # textStringConst/text NIEpotwierdzone (sweep-10) -> jako fallback. contents = GcDbMText.
+    for getter in ("textString", "textStringConst", "contents"):
         try:
             fn = getattr(ent, getter, None)
             if fn is None:

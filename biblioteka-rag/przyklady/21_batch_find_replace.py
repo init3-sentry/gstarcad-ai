@@ -22,7 +22,9 @@ from pygcad.pygrx import *
 def _get_str(ent):
     """Odczyt stringa z encji tekstowej (GcDbText/GcDbMText/GcDbAttribute) — defensywnie.
     Zwraca str albo None. Formy do potwierdzenia sweep-10 (textStringConst / text / contents)."""
-    for getter in ("textStringConst", "text", "contents"):
+    # textString() POTWIERDZONE empirycznie (TESTZAPIS 2026-07-13: attr.textString()->'POW ZABUD').
+    # textStringConst/text NIEpotwierdzone (sweep-10) -> jako fallback. contents = GcDbMText.
+    for getter in ("textString", "textStringConst", "contents"):
         try:
             fn = getattr(ent, getter, None)
             if fn is None:
