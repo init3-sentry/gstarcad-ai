@@ -134,10 +134,10 @@ Klient wpisuje w wiersz poleceń GstarCAD-a nową komendę `ASKAI`. Otwiera się
 | Data | Wydarzenie | Status |
 |---|---|---|
 | 30 czerwca 2026 | Start projektu — repozytoria utworzone, struktura folderów, pierwsze dokumenty | wykonane |
-| 1 lipca 2026 | Światowa premiera GstarCAD 2027 (przez GstarSoft HQ, chiński producent) — początek etapu zerowego (PoC pluginu ASKAI) | ROZPOCZĘTE |
-| 8 lipca 2026 | Etap zerowy zakończony — techniczna weryfikacja pluginu ASKAI, decyzja o kontynuacji budowy narracji marketingowej | oczekuje |
-| 14 lipca 2026 | Pierwsze formalne włączenie zespołu pomocy technicznej (Jakub, Tomasz, Rafał, Robert) do projektu | oczekuje |
-| 31 lipca 2026 | Etap pierwszy zakończony | oczekuje |
+| 1 lipca 2026 | Światowa premiera GstarCAD 2027 (przez GstarSoft HQ, chiński producent) — początek etapu zerowego (PoC pluginu ASKAI) | wykonane |
+| 8 lipca 2026 | Etap zerowy zakończony — techniczna weryfikacja pluginu ASKAI, decyzja o kontynuacji budowy narracji marketingowej | ✅ ZALICZONE |
+| 14 lipca 2026 | Pierwsze formalne włączenie zespołu pomocy technicznej (Jakub, Tomasz, Rafał, Robert) do projektu | w toku |
+| 31 lipca 2026 | Etap pierwszy zakończony | w toku |
 | 31 sierpnia 2026 | Aplikacja `ai.gstarcad.pl` w zamkniętej becie — testy wewnętrzne z pięcioma-dziesięcioma wybranymi klientami TMSys | oczekuje |
 | **Druga połowa września 2026** | **Polska premiera GstarCAD 2027 zsynchronizowana z publiczną premierą aplikacji `ai.gstarcad.pl`** — jeden komunikat prasowy, pełna kampania marketingowa startuje | KLUCZOWA DATA |
 | 1 października 2026 | Pierwsza runda kampanii dla nowych klientów (spoza bazy TMSys) rozpoczyna się | oczekuje |
@@ -147,6 +147,13 @@ Klient wpisuje w wiersz poleceń GstarCAD-a nową komendę `ASKAI`. Otwiera się
 | 1 stycznia 2027 | Pierwsza wewnętrzna ocena dwunastomiesięczna projektu | oczekuje |
 | 1 marca 2027 | Uruchomienie wersji niemieckiej `ai.gstarcad.de` | oczekuje |
 | 30 czerwca 2027 | Projekt osiąga samofinansowanie | oczekuje |
+
+## Aktualizacja statusu — 13 lipca 2026
+
+- **Etap 0 (PoC ASKAI) — ZALICZONY.** Plugin PoC ładuje się i działa na GstarCAD 2026 Plus i 2027 Plus; backend PoC wdrożony (`gs-ai.init3.pro`, na razie stub, czeka klucz Anthropic). Decyzja: GO. Weryfikacja edycji Standard/Pro i modeless-dialog przesunięte jako polish (nie blokują wykonalności) — zadania #19–#21.
+- **Etap 1 (biblioteka wiedzy pygcad) — w toku, zaawansowany.** 26 wzorców (01–26), przewodnik v2/v3, walidacja na LightCatcher (GstarCAD 2027 SP1). Rdzeń „workhorse" (21 ZAMIEN, 22 EKSPORT/IMPORT, 23 RENUMERUJ) przepisany na zapis przez DXF (patrz niżej).
+- **Włączenie zespołu (14.07) — rozpoczęte.** Repo zespołu `gstarcad-ai-zespol` + szablon raportu + pętla nadzoru przez git z zatwierdzeniem Telegram; maile onboardingowe (konta GitHub) do chłopaków i Roberta wysłane. Czeka na założenie kont + dodanie jako collaborators.
+- **Kluczowe de-riskowanie techniczne.** Wykryto powtarzalny bug GstarCAD 2027 SP1 pygcad: obiektowy zapis wartości atrybutu (`setTextString`) wywala aplikację na regenie. Znaleziono i zwalidowano na realnych rysunkach obejście przez ADS/DXF (`entMod`/`entUpd`). Gdyby zapis atrybutów był niewykonalny, część narzędzi „workhorse" byłaby martwa — ryzyko zdjęte w lipcu, nie na premierze. Bug zgłaszany zbiorczo do GstarSoft (rejestr `sdk-bugs/pygcad-bug-ledger.md`).
 
 ## Co stoi obok planu
 
