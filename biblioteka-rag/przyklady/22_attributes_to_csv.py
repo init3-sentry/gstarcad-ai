@@ -1,24 +1,20 @@
 # Wzorzec 22 (★ RDZEŃ workhorse, Faza A) — Eksport/import atrybutów bloków ↔ CSV.
 #
-# Kierunek zatwierdzony (research/05-decyzje.md): rank #3 (23/25). GstarCAD ma
-# AutoXLSTable, ale nasza wartość to: (a) eksport WSZYSTKICH atrybutów do CSV do
-# edycji w Excelu i re-import z powrotem (round-trip), (b) batch przez wiele plików,
-# (c) reguły opisane po ludzku (LLM). To fundament „title block fill" i zestawień.
+# Kierunek (research/05-decyzje.md): rank #3 (23/25). Wartość: (a) eksport WSZYSTKICH
+# atrybutów do CSV do edycji w Excelu i re-import (round-trip), (b) batch, (c) reguły LLM.
 #
-# STATUS: EKSPORT 🟢 (odczyt) / IMPORT 🔴 ZAPIS ZABLOKOWANY.
-#         EKSPORT: cast GcDbBlockReference + _get_str z textString() -> 47 atrybutow z wartosciami.
-#           Fakty: handle=getGcDbHandle().getIntoAsciiBuffer()->(True,'2A7'); nazwa bloku=
-#           blockTableRecord()+getName(); odczyt=textString()/contents. Do potwierdzenia wartosci
-#           na realnym pliku (memory feedback_validate_on_real_drawings).
-#         IMPORT: pisze setTextString na atrybucie -> wywala GstarCAD 2027 SP1 na regenie
-#           (empiria LC 13.07, 9 wariantow — memory feedback_gstarcad_attribute_write_bug).
-#           Do przepisania na DXF entMod. NIE wysylac IMPORT do chlopakow poki nie przejdzie DXF.
+# STATUS: 🟢 CAŁOŚĆ PRZEZ DXF/ADS (obejście buga GS 2027 SP1). Obiektowe API atrybutów
+#         (attributeIterator/openAttribute/setTextString) wywala GstarCAD: zapis na regenie,
+#         a samo dotknięcie attributeIterator zatruwa późniejszy entGet -> crash (memory
+#         feedback_gstarcad_attribute_write_bug, 9 wariantów, LC 2026-07-13). Dlatego ZARÓWNO
+#         eksport (odczyt) JAK i import (zapis) idą wyłącznie przez DXF: handEnt(INSERT) ->
+#         entNext -> ATTRIB -> entGet (grupa 1=wartość, 2=tag) -> [entMod+entUpd przy zapisie].
+#         Handle bloku = getGcDbHandle (==DXF grupa 5 INSERT-a). Zwalidowane: RENUMERUJ na
+#         tym samym silniku DXF -> zapis + REGEN bez crasha na 30993.
 #
 # Sposób użycia: APPLOAD, następnie:
-#   EKSPORT_ATRYBUTOW — zapisuje wszystkie atrybuty bloków bieżącego rysunku do
-#                       CSV na Pulpicie (handle,blok,tag,wartość).
-#   IMPORT_ATRYBUTOW  — czyta ten CSV i aktualizuje wartości atrybutów wg kolumny
-#                       „wartość" (dopasowanie po handle+tag).
+#   EKSPORT_ATRYBUTOW — wszystkie atrybuty -> CSV na Pulpicie (handle,blok,tag,wartość).
+#   IMPORT_ATRYBUTOW  — czyta CSV i aktualizuje wartości (dopasowanie handle+tag).
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -28,128 +24,127 @@ import csv
 CSV_PATH = os.path.join(os.path.expanduser("~"), "Desktop", "atrybuty_gstarcad.csv")
 
 
-def _get_str(ent):
-    # textString() POTWIERDZONE empirycznie (TESTZAPIS 2026-07-13: attr.textString()->'POW ZABUD').
-    # textStringConst/text NIEpotwierdzone (sweep-10) -> jako fallback. contents = GcDbMText.
-    for getter in ("textString", "textStringConst", "contents"):
-        try:
-            fn = getattr(ent, getter, None)
-            if fn is None:
-                continue
-            val = fn()
-            if isinstance(val, str):
-                return val
-        except Exception:
-            continue
-    return None
+# ── DXF/ADS helpers (bez obiektowego API atrybutów — patrz STATUS) ──────────────────────
 
-
-def _set_str(ent, s):
-    for setter in ("setTextString", "setContents"):
-        try:
-            fn = getattr(ent, setter, None)
-            if fn is None:
-                continue
-            fn(s)
-            return True
-        except Exception:
-            continue
-    return False
-
-
-def _iter_block_refs(mode):
-    """Generator: (blockRef, handle_str) po referencjach bloków w model space.
-    Referencja otwarta w trybie 'mode' — wywołujący ZAMYKA."""
+def _insert_handles():
+    """Handle ref. bloków w model space. TYLKO getEntity+isA+handle (bez attributeIterator)."""
     db = gcdbWorkingDatabase()
+    out = []
     s, bt = db.getBlockTable(GcDb.kForRead)
     if s != Gcad.eOk:
-        return
+        return out
     s, ms = bt.getAt(GCDB_MODEL_SPACE, GcDb.kForRead)
     bt.close()
     if s != Gcad.eOk:
-        return
-    s, it = ms.newIterator()
-    it.start()
-    ids = []
+        return out
+    s, it = ms.newIterator(); it.start()
     while not it.done():
         s, ent = it.getEntity()
         if s == Gcad.eOk and ent is not None:
             try:
                 if "BlockReference" in ent.isA().name():
-                    ids.append(ent.objectId())
+                    ok, hx = ent.getGcDbHandle().getIntoAsciiBuffer()
+                    if ok:
+                        out.append(hx)
             except Exception:
                 pass
             ent.close()
         it.step()
     ms.close()
-    for oid in ids:
-        s, obj = gcdbOpenObject(oid, mode)
-        if s == Gcad.eOk and obj is not None:
-            # KLUCZ: gcdbOpenObject zwraca bazowy GcDbObject, NIE GcDbBlockReference.
-            # Bez castu brak metod attributeIterator/blockTableRecord -> 0 atrybutow
-            # (bug wykryty 2026-07-13 na realnym rysunku 30993). Cast jak w wzorcu 24.
-            ref = GcDbBlockReference.cast(obj)
-            if ref is None:
-                obj.close()
-                continue
-            h = "?"
-            try:
-                # handle = trwały hex id. UWAGA (empiria 2026-07-10): GcDbBlockReference
-                # NIE ma metody handle() — jest getGcDbHandle()->GcDbHandle, a z niej
-                # getIntoAsciiBuffer()->(bool, hex). Potwierdzone na LC: (True, '2A7').
-                ok, hex_id = ref.getGcDbHandle().getIntoAsciiBuffer()
-                h = hex_id if ok else str(ref.objectId())
-            except Exception:
-                try:
-                    h = str(ref.objectId())
-                except Exception:
-                    h = "?"
-            yield ref, h
+    return out
 
+
+def _grp(rb, code):
+    node = rb
+    while node is not None:
+        try:
+            if node.restype == code:
+                return node
+        except Exception:
+            pass
+        node = node.rbnext
+    return None
+
+
+def _rstr(node):
+    try:
+        return node.resval.rstring if node is not None else None
+    except Exception:
+        return None
+
+
+def _free(rb):
+    try:
+        gcutRelRb(rb)
+    except Exception:
+        pass
+
+
+def for_each_attribute(fn):
+    """Dla każdego atrybutu rysunku (przez DXF) woła fn(insert_handle, block_name, tag,
+    value, set_value). set_value(new) ustawia nową wartość (grupa 1) i zapisuje entMod+entUpd.
+    Zwraca liczbę zapisów."""
+    written = 0
+    for ih in _insert_handles():
+        en = gds_name()
+        if gcdbHandEnt(ih, en) != RTNORM:
+            continue
+        rb = gcdbEntGet(en)
+        has_attr = _grp(rb, 66) is not None
+        bname = _rstr(_grp(rb, 2)) or "?"   # INSERT grupa 2 = nazwa bloku
+        _free(rb)
+        if not has_attr:
+            continue
+        cur = en
+        for _ in range(500):
+            nxt = gds_name()
+            if gcdbEntNext(cur, nxt) != RTNORM:
+                break
+            rb = gcdbEntGet(nxt)
+            typ = _rstr(_grp(rb, 0))
+            if typ == "SEQEND":
+                _free(rb)
+                break
+            if typ == "ATTRIB":
+                tag = _rstr(_grp(rb, 2))
+                valn = _grp(rb, 1)
+                val = _rstr(valn)
+                box = {"new": None}
+
+                def set_value(new, _box=box):
+                    _box["new"] = new
+
+                fn(ih, bname, tag, val, set_value)
+                if box["new"] is not None and valn is not None:
+                    try:
+                        valn.resval.rstring = box["new"]
+                        if gcdbEntMod(rb) == RTNORM:
+                            gcdbEntUpd(nxt)
+                            written += 1
+                    except Exception:
+                        pass
+            _free(rb)
+            cur = nxt
+    return written
+
+
+# ── Komendy ─────────────────────────────────────────────────────────────────────────────
 
 @command(local_name='EKSPORT_ATRYBUTOW')
 def exportAttributes():
     """Zapisuje wszystkie atrybuty bloków bieżącego rysunku do CSV na Pulpicie."""
     try:
         rows = []
-        for ref, h in _iter_block_refs(GcDb.kForRead):
-            # Nazwa bloku: GcDbBlockReference NIE ma blockName() (potwierdzone w stubach).
-            # Idziemy przez rekord definicji: blockTableRecord() -> getName()->(status,nazwa).
-            bname = "?"
-            try:
-                srec, rec = gcdbOpenObject(ref.blockTableRecord(), GcDb.kForRead)
-                if srec == Gcad.eOk and rec is not None:
-                    sn, nm = rec.getName()
-                    if sn == Gcad.eOk:
-                        bname = nm
-                    rec.close()
-            except Exception:
-                bname = "?"
-            try:
-                it = ref.attributeIterator()
-                while not it.done():
-                    aid = it.objectId()
-                    sa, attr = ref.openAttribute(aid, GcDb.kForRead)
-                    if sa == Gcad.eOk and attr is not None:
-                        tag = ""
-                        try:
-                            tag = attr.tag()
-                        except Exception:
-                            pass
-                        val = _get_str(attr) or ""
-                        rows.append([h, bname, tag, val])
-                        attr.close()
-                    it.step()
-            except Exception:
-                pass
-            ref.close()
 
+        def collect(ih, bname, tag, val, set_value):
+            rows.append([ih, bname, tag or "", val or ""])
+
+        for_each_attribute(collect)
         with open(CSV_PATH, "w", newline="", encoding="utf-8") as fp:
             w = csv.writer(fp)
             w.writerow(["handle", "blok", "tag", "wartosc"])
             w.writerows(rows)
         gcutPrintf(f"\nWyeksportowano {len(rows)} atrybutów do: {CSV_PATH}")
-
     except Exception as err:
         gcutPrintf(f"\n[BŁĄD] przy eksporcie atrybutów: {err}")
 
@@ -166,38 +161,12 @@ def importAttributes():
             for r in csv.DictReader(fp):
                 wanted[(r.get("handle", ""), r.get("tag", ""))] = r.get("wartosc", "")
 
-        updated = 0
-        # WZORZEC ZAPISU ATRYBUTOW (empiria LC 2026-07-13, 7 wariantow TESTCRASH):
-        #  blok kForWrite -> crash; atrybut standalone -> crash. JEDYNA dobra sciezka:
-        #  blok kForRead + openAttribute(kForWrite) przez blok, iterator SKONCZONY przed
-        #  modyfikacja, a bloku NIE WOLNO zamykac (ref.close() po modyfikacji = crash;
-        #  runtime sprzata na koncu komendy).
-        for ref, h in _iter_block_refs(GcDb.kForRead):
-            # 1) zbierz ID atrybutow (dokoncz iterator PRZED modyfikacja)
-            aids = []
-            try:
-                it = ref.attributeIterator()
-                while not it.done():
-                    aids.append(it.objectId())
-                    it.step()
-            except Exception:
-                pass
-            # 2) modyfikuj przez ten sam (read) blok; bloku NIE zamykamy
-            for aid in aids:
-                sa, attr = ref.openAttribute(aid, GcDb.kForWrite)
-                if sa == Gcad.eOk and attr is not None:
-                    tag = ""
-                    try:
-                        tag = attr.tag()
-                    except Exception:
-                        pass
-                    key = (h, tag)
-                    if key in wanted and _get_str(attr) != wanted[key]:
-                        if _set_str(attr, wanted[key]):
-                            updated += 1
-                    attr.close()
-            # NIE ref.close() — read-blok ze zmodyfikowanymi atrybutami = crash (empiria v7).
-        gcutPrintf(f"\nZaktualizowano {updated} atrybutów z CSV.")
+        def apply(ih, bname, tag, val, set_value):
+            key = (ih, tag or "")
+            if key in wanted and (val or "") != wanted[key]:
+                set_value(wanted[key])
 
+        updated = for_each_attribute(apply)
+        gcutPrintf(f"\nZaktualizowano {updated} atrybutów z CSV.")
     except Exception as err:
         gcutPrintf(f"\n[BŁĄD] przy imporcie atrybutów: {err}")
