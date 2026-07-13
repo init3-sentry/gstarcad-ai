@@ -78,8 +78,15 @@ def _iter_block_refs(mode):
         it.step()
     ms.close()
     for oid in ids:
-        s, ref = gcdbOpenObject(oid, mode)
-        if s == Gcad.eOk and ref is not None:
+        s, obj = gcdbOpenObject(oid, mode)
+        if s == Gcad.eOk and obj is not None:
+            # KLUCZ: gcdbOpenObject zwraca bazowy GcDbObject, NIE GcDbBlockReference.
+            # Bez castu brak metod attributeIterator/blockTableRecord -> 0 atrybutow
+            # (bug wykryty 2026-07-13 na realnym rysunku 30993). Cast jak w wzorcu 24.
+            ref = GcDbBlockReference.cast(obj)
+            if ref is None:
+                obj.close()
+                continue
             h = "?"
             try:
                 # handle = trwały hex id. UWAGA (empiria 2026-07-10): GcDbBlockReference

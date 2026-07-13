@@ -89,28 +89,34 @@ def _replace_in_current_db(database, find, repl):
             cls = ent.isA().name()
         except Exception:
             cls = ""
-        # Teksty i mteksty — bezpośrednio (ent otwarta do zapisu)
+        # gcdbOpenObject zwraca bazowy GcDbObject — trzeba CAST do konkretnego typu,
+        # inaczej metody tekstu/bloku nie istnieją (bug 2026-07-13: 0 podmian).
+        # Teksty i mteksty — bezpośrednio (po castcie, ent otwarta do zapisu)
         if "Text" in cls and "Attribute" not in cls:
-            cur = _get_str(ent)
-            if cur is not None and find in cur:
-                if _set_str(ent, cur.replace(find, repl)):
-                    count += 1
-        # Referencje bloków — iteruj ich atrybuty (ref już otwarta do zapisu)
+            tent = GcDbMText.cast(ent) if "MText" in cls else GcDbText.cast(ent)
+            if tent is not None:
+                cur = _get_str(tent)
+                if cur is not None and find in cur:
+                    if _set_str(tent, cur.replace(find, repl)):
+                        count += 1
+        # Referencje bloków — CAST do GcDbBlockReference, potem iteruj atrybuty
         elif "BlockReference" in cls:
-            try:
-                ait = ent.attributeIterator()
-                while not ait.done():
-                    aid = ait.objectId()
-                    sa, attr = ent.openAttribute(aid, GcDb.kForWrite)
-                    if sa == Gcad.eOk and attr is not None:
-                        cur = _get_str(attr)
-                        if cur is not None and find in cur:
-                            if _set_str(attr, cur.replace(find, repl)):
-                                count += 1
-                        attr.close()
-                    ait.step()
-            except Exception:
-                pass
+            bref = GcDbBlockReference.cast(ent)
+            if bref is not None:
+                try:
+                    ait = bref.attributeIterator()
+                    while not ait.done():
+                        aid = ait.objectId()
+                        sa, attr = bref.openAttribute(aid, GcDb.kForWrite)
+                        if sa == Gcad.eOk and attr is not None:
+                            cur = _get_str(attr)
+                            if cur is not None and find in cur:
+                                if _set_str(attr, cur.replace(find, repl)):
+                                    count += 1
+                            attr.close()
+                        ait.step()
+                except Exception:
+                    pass
         ent.close()
     return count
 

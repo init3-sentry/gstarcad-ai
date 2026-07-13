@@ -81,8 +81,14 @@ def renumberByRule():
         count = 0
 
         for oid in _block_ref_ids():
-            s, ref = gcdbOpenObject(oid, GcDb.kForWrite)
-            if s != Gcad.eOk or ref is None:
+            s, obj = gcdbOpenObject(oid, GcDb.kForWrite)
+            if s != Gcad.eOk or obj is None:
+                continue
+            # gcdbOpenObject zwraca GcDbObject — CAST do GcDbBlockReference (inaczej
+            # brak attributeIterator -> 0; bug 2026-07-13). Jak w wzorcu 24.
+            ref = GcDbBlockReference.cast(obj)
+            if ref is None:
+                obj.close()
                 continue
             try:
                 it = ref.attributeIterator()
