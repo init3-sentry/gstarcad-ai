@@ -18,7 +18,7 @@ Skrypt `przeglad-tygodniowy.sh` jest sercem mechanizmu nadzoru projektu. Urucham
 3. **Czyta zatwierdzenia z ostatnich siedmiu dni** z `git log` — żeby zobaczyć, kto co robił przez tydzień.
 4. **Generuje raport** w folderze `przeglady/` o nazwie `RRRR-MM-DD-przeglad.md`. Raport zawiera trzy akapity: co się stało, ocena tempa, rekomendacja działania.
 5. **Wypycha raport** z powrotem do publicznego repozytorium, dla zachowania jawności.
-6. **Wysyła powiadomienie push** do Dawida przez `ntfy.init3.pro` z jednolinijkowym werdyktem — żeby Dawid wiedział, czy musi otworzyć raport, czy może odłożyć na pożniejszą porę.
+6. **Wysyła powiadomienie push** z jednolinijkowym werdyktem — żeby Dawid wiedział, czy musi otworzyć raport, czy może odłożyć na pożniejszą porę.
 
 Werdykt może być jedną z trzech kategorii:
 
@@ -93,7 +93,7 @@ Jeśli wszystkie cztery odpowiedzi to „tak" — mechanizm jest gotowy. Może b
 
 Najczęstsze problemy:
 
-**Brak NTFY_TOKEN.** Skrypt szuka pliku `~/.config/init3/load-env.sh`. Jeśli go nie ma — pominie powiadomienie push i wpisze do dziennika informację. Wszystko inne (raport, zatwierdzenie, wypchnięcie) działa.
+**Brak konfiguracji push.** Jeśli go nie ma — pominie powiadomienie push i wpisze do dziennika informację. Wszystko inne (raport, zatwierdzenie, wypchnięcie) działa.
 
 **Brak uprawnień do `git push`.** Sprawdź, czy `gh auth status` pokazuje login. Skrypt zakłada, że jesteś zalogowany jako `init3-sentry` z prawem do zapisu.
 
