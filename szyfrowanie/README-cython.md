@@ -58,6 +58,17 @@ nazwy sa wstrzykiwane tylko do pliku APPLOAD-owanego). Dlatego:
   Wzorzec: `secret_demo.run(gcdbWorkingDatabase, gcutPrintf)`.
 Ten sam wzorzec stosujemy potem do realnych narzedzi (logika w `.pyd`, API z loadera).
 
+### Realne narzedzie (wiele nazw API) — ZWALIDOWANE na AUDYTZ (LC 2026-07-14)
+Dla narzedzia z kilkunastoma nazwami API nie przekazujemy ich pojedynczo. Loader podaje
+CALE swoje `globals()`, a modul wstrzykuje je do siebie:
+- **Loader** (`*_loader.py`, otwarty, APPLOAD): `@command` -> `logika.run(globals())`.
+- **Logika** (`*_logic.py`, kompilowana): `def run(api): globals().update(api); _praca()`.
+- **KRYTYCZNE dla Cythona:** wszystkie uzyte nazwy API MUSZA byc **zadeklarowane** na
+  poziomie modulu (`gcdbWorkingDatabase = GcDb = ... = None`), inaczej blad kompilacji
+  `undeclared name not builtin`. `globals().update(api)` podmienia None na realne funkcje
+  przed uzyciem. Miss w liscie deklaracji = Cython wskaze ktora nazwe dodac.
+Pilot: `szyfrowanie/pilot-audytz/` (audytz_logic.py + audytz_loader.py + setup_audytz.py).
+
 ## Po sukcesie
 - Docelowo: logika narzedzi (21/22/23/... + konwersje Lee Mac) jako `.pyd`, cienkie `.py` wrappery @command,
   spiete instalatorem (patrz gstarcad-ai-wewnetrzne/dodatek-gstarcad/00-plan-research.md).
