@@ -15,13 +15,6 @@
 # Sposób użycia: APPLOAD, komenda GSAI_ZAMIEN_TEKST (globalnie: GSAI_REPLACETEXT). Pyta o szukany tekst i tekst docelowy; podmienia
 # we WSZYSTKICH tekstach/mtekstach/atrybutach bieżącego rysunku.
 
-# @KATALOG
-# nazwa: Zamiana tekstów hurtem
-# komenda: GSAI_ZAMIEN_TEKST
-# komenda_en: GSAI_REPLACETEXT
-# branza: ogólne
-# opis: Znajdź-i-zamień naraz we wszystkich tekstach, mtekstach i atrybutach bloków całego rysunku. Zamiast poprawiać setki opisów ręcznie, zmieniasz np. nazwę inwestycji jednym poleceniem.
-# przyklad: Zmiana numeru działki w 200 opisach na rzucie jednym ruchem.
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *

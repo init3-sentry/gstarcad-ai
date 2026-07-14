@@ -12,13 +12,6 @@
 #
 # Sposób użycia: APPLOAD, komenda GSAI_RENUMERUJ (globalnie: GSAI_RENUMBER). Pyta o tag, prefiks, numer startowy, krok.
 
-# @KATALOG
-# nazwa: Renumeracja elementów
-# komenda: GSAI_RENUMERUJ
-# komenda_en: GSAI_RENUMBER
-# branza: ogólne
-# opis: Automatyczne przenumerowanie atrybutów wg reguły (prefiks + numer startowy + krok, np. P-001, P-002, P-003…). Zamiast poprawiać numery ręcznie, nadajesz je wszystkim naraz.
-# przyklad: Ponumerowanie 200 pomieszczeń na rzucie w kilka sekund.
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *

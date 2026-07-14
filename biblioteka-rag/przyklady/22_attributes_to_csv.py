@@ -16,20 +16,6 @@
 #   GSAI_EKSPORT_ATRYBUTOW (EN: GSAI_EXPORTATTR) — wszystkie atrybuty -> CSV na Pulpicie (handle,blok,tag,wartość).
 #   GSAI_IMPORT_ATRYBUTOW  (EN: GSAI_IMPORTATTR) — czyta CSV i aktualizuje wartości (dopasowanie handle+tag).
 
-# @KATALOG
-# nazwa: Eksport atrybutów do tabeli
-# komenda: GSAI_EKSPORT_ATRYBUTOW
-# komenda_en: GSAI_EXPORTATTR
-# branza: ogólne
-# opis: Wyciąga wszystkie atrybuty bloków rysunku (z tabelek, stempli, metryk) do pliku CSV do edycji w Excelu. Fundament pod zestawienia i masową edycję danych.
-# przyklad: Wyeksportowanie metryk wszystkich pomieszczeń do arkusza.
-# @KATALOG
-# nazwa: Import atrybutów z tabeli
-# komenda: GSAI_IMPORT_ATRYBUTOW
-# komenda_en: GSAI_IMPORTATTR
-# branza: ogólne
-# opis: Wczytuje z powrotem do rysunku wartości atrybutów po edycji w Excelu (dopasowanie po handle i tagu). Domyka round-trip: eksport, poprawki hurtem, import.
-# przyklad: Aktualizacja powierzchni w 50 metrykach po przeliczeniu w arkuszu.
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
