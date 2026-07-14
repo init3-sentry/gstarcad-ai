@@ -21,7 +21,7 @@ import os
 import re
 import sys
 
-FIELDS = ("nazwa", "komenda", "branza", "opis", "przyklad")
+FIELDS = ("nazwa", "komenda", "komenda_en", "branza", "opis", "przyklad")
 
 
 def parse_katalog_blocks(path):
@@ -46,7 +46,7 @@ def parse_katalog_blocks(path):
                     blocks.append(cur)
                 cur = None
                 continue
-            m = re.match(r"#\s*([a-ząćęłńóśźż]+)\s*:\s*(.+)$", s, re.IGNORECASE)
+            m = re.match(r"#\s*([a-ząćęłńóśźż_]+)\s*:\s*(.+)$", s, re.IGNORECASE)
             if m and m.group(1).lower() in FIELDS:
                 cur[m.group(1).lower()] = m.group(2).strip()
     if cur and "komenda" in cur:
@@ -73,10 +73,12 @@ def build_markdown(entries):
     for branch in sorted(by_branch):
         items = sorted(by_branch[branch], key=lambda x: x["nazwa"].lower())
         out.append(f"\n## {branch.capitalize()}\n")
-        out.append("| Komenda | Narzędzie | Co robi | Przykład |")
+        out.append("| Komenda (PL / EN) | Narzędzie | Co robi | Przykład |")
         out.append("|---|---|---|---|")
         for e in items:
-            kom = f"`{e['komenda']}`"
+            pl = e["komenda"]
+            en = e.get("komenda_en", "")
+            kom = f"`{pl}`" + (f" / `{en}`" if en and en != pl else "")
             opis = e["opis"].replace("|", "\\|")
             przyk = e["przyklad"].replace("|", "\\|")
             out.append(f"| {kom} | {e['nazwa']} | {opis} | {przyk} |")

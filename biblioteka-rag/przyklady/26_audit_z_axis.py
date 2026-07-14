@@ -29,7 +29,7 @@
 #   -> gcdbHandEnt(handle, ename)  -> gcedSSAdd(ename, sset, sset)  [pusty sset = utwórz]
 #   -> gcedSSSetFirst(sset, gds_name())  [2. arg MUSI być buforem, nie None] -> pickfirst.
 #
-# Sposób użycia: APPLOAD → AUDYTZ (zaznacza obiekty poza Z=0 + raport). Aby je spłaszczyć:
+# Sposób użycia: APPLOAD → GSAI_AUDYTZ (globalnie: GSAI_AUDITZ) — zaznacza obiekty poza Z=0 + raport. Aby je spłaszczyć:
 # wpisz `FLATTEN` — spłaszczy zaznaczone od ręki. (Albo obejrzyj / usuń; ESC = zdejmij uchwyty.)
 #
 # Konwencje domu: 3 importy, @command, try/except, Gcad.eOk dla bazy, RTNORM/status dla
@@ -37,7 +37,8 @@
 
 # @KATALOG
 # nazwa: Audyt osi Z
-# komenda: AUDYTZ
+# komenda: GSAI_AUDYTZ
+# komenda_en: GSAI_AUDITZ
 # branza: ogólne
 # opis: Znajduje i zaznacza obiekty, które „uciekły" w trzeci wymiar (Z≠0) i psują pomiary w płaskim rysunku — niewidoczne z góry, inaczej nie do znalezienia. Potem prostuje się je poleceniem FLATTEN.
 # przyklad: Wykrycie linii z niezerowym Z, które zawyżały pole powierzchni.
@@ -50,7 +51,7 @@ TOL_Z = 1e-6                 # poniżej tego traktujemy jako Z=0 (szum float)
 MAX_LIST = 15               # ile pozycji wypisać szczegółowo w raporcie
 
 
-@command(local_name='AUDYTZ')
+@command(local_name='GSAI_AUDYTZ', global_name='GSAI_AUDITZ', group_name='GSAI')
 def audytz():
     """Wykryj i zaznacz (uchwyty) obiekty poza płaszczyzną Z=0. Spłaszcza je natywny FLATTEN."""
     try:

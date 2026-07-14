@@ -13,18 +13,20 @@
 #         tym samym silniku DXF -> zapis + REGEN bez crasha na 30993.
 #
 # Sposób użycia: APPLOAD, następnie:
-#   EKSPORT_ATRYBUTOW — wszystkie atrybuty -> CSV na Pulpicie (handle,blok,tag,wartość).
-#   IMPORT_ATRYBUTOW  — czyta CSV i aktualizuje wartości (dopasowanie handle+tag).
+#   GSAI_EKSPORT_ATRYBUTOW (EN: GSAI_EXPORTATTR) — wszystkie atrybuty -> CSV na Pulpicie (handle,blok,tag,wartość).
+#   GSAI_IMPORT_ATRYBUTOW  (EN: GSAI_IMPORTATTR) — czyta CSV i aktualizuje wartości (dopasowanie handle+tag).
 
 # @KATALOG
 # nazwa: Eksport atrybutów do tabeli
-# komenda: EKSPORT_ATRYBUTOW
+# komenda: GSAI_EKSPORT_ATRYBUTOW
+# komenda_en: GSAI_EXPORTATTR
 # branza: ogólne
 # opis: Wyciąga wszystkie atrybuty bloków rysunku (z tabelek, stempli, metryk) do pliku CSV do edycji w Excelu. Fundament pod zestawienia i masową edycję danych.
 # przyklad: Wyeksportowanie metryk wszystkich pomieszczeń do arkusza.
 # @KATALOG
 # nazwa: Import atrybutów z tabeli
-# komenda: IMPORT_ATRYBUTOW
+# komenda: GSAI_IMPORT_ATRYBUTOW
+# komenda_en: GSAI_IMPORTATTR
 # branza: ogólne
 # opis: Wczytuje z powrotem do rysunku wartości atrybutów po edycji w Excelu (dopasowanie po handle i tagu). Domyka round-trip: eksport, poprawki hurtem, import.
 # przyklad: Aktualizacja powierzchni w 50 metrykach po przeliczeniu w arkuszu.
@@ -143,7 +145,7 @@ def for_each_attribute(fn):
 
 # ── Komendy ─────────────────────────────────────────────────────────────────────────────
 
-@command(local_name='EKSPORT_ATRYBUTOW')
+@command(local_name='GSAI_EKSPORT_ATRYBUTOW', global_name='GSAI_EXPORTATTR', group_name='GSAI')
 def exportAttributes():
     """Zapisuje wszystkie atrybuty bloków bieżącego rysunku do CSV na Pulpicie."""
     try:
@@ -162,12 +164,12 @@ def exportAttributes():
         gcutPrintf(f"\n[BŁĄD] przy eksporcie atrybutów: {err}")
 
 
-@command(local_name='IMPORT_ATRYBUTOW')
+@command(local_name='GSAI_IMPORT_ATRYBUTOW', global_name='GSAI_IMPORTATTR', group_name='GSAI')
 def importAttributes():
     """Czyta CSV z Pulpitu i aktualizuje wartości atrybutów (dopasowanie handle+tag)."""
     try:
         if not os.path.exists(CSV_PATH):
-            gcutPrintf(f"\nBrak pliku: {CSV_PATH}. Najpierw EKSPORT_ATRYBUTOW.")
+            gcutPrintf(f"\nBrak pliku: {CSV_PATH}. Najpierw GSAI_EKSPORT_ATRYBUTOW.")
             return
         wanted = {}  # (handle, tag) -> wartosc
         with open(CSV_PATH, "r", encoding="utf-8") as fp:

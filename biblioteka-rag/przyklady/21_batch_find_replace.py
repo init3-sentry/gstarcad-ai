@@ -12,12 +12,13 @@
 #         Silnik DXF zwalidowany na LC (RENUMERUJ/EKSPORT na 30993, REGEN bez crasha).
 #         Uwaga BUG-01b: justowane teksty po zmianie wartości mogą nie re-centrować się (kosmetyka).
 #
-# Sposób użycia: APPLOAD, ZAMIEN_TEKST. Pyta o szukany tekst i tekst docelowy; podmienia
+# Sposób użycia: APPLOAD, komenda GSAI_ZAMIEN_TEKST (globalnie: GSAI_REPLACETEXT). Pyta o szukany tekst i tekst docelowy; podmienia
 # we WSZYSTKICH tekstach/mtekstach/atrybutach bieżącego rysunku.
 
 # @KATALOG
 # nazwa: Zamiana tekstów hurtem
-# komenda: ZAMIEN_TEKST
+# komenda: GSAI_ZAMIEN_TEKST
+# komenda_en: GSAI_REPLACETEXT
 # branza: ogólne
 # opis: Znajdź-i-zamień naraz we wszystkich tekstach, mtekstach i atrybutach bloków całego rysunku. Zamiast poprawiać setki opisów ręcznie, zmieniasz np. nazwę inwestycji jednym poleceniem.
 # przyklad: Zmiana numeru działki w 200 opisach na rzucie jednym ruchem.
@@ -188,7 +189,7 @@ def _replace_in_text(handle, find, repl):
 
 # ── Komenda ─────────────────────────────────────────────────────────────────────────────
 
-@command(local_name='ZAMIEN_TEKST')
+@command(local_name='GSAI_ZAMIEN_TEKST', global_name='GSAI_REPLACETEXT', group_name='GSAI')
 def batchFindReplace():
     """Znajdź i zamień tekst we wszystkich tekstach/mtekstach/atrybutach — zapis przez DXF."""
     try:

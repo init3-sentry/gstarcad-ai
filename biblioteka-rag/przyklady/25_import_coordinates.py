@@ -23,7 +23,7 @@
 #   NrXY   : "Nr X Y"         (pierwsza kolumna = numer/nazwa punktu)  ← DOMYŚLNY
 #   NrXYZ  : "Nr X Y Z"
 #
-# Sposób użycia: APPLOAD tego pliku → komenda IMPORTXYZ → wybierz plik w oknie
+# Sposób użycia: APPLOAD tego pliku → komenda GSAI_IMPORTXYZ → wybierz plik w oknie
 # (przeglądasz katalogi, klikasz plik) → wybierz format → punkty i opisy pojawią się
 # w rysunku → wpisz ZOOM, potem A (Wszystko) albo E (Zakres), żeby je zobaczyć.
 # UWAGA: opcji „Granice/G" ZOOM nie ma.
@@ -33,7 +33,8 @@
 
 # @KATALOG
 # nazwa: Import współrzędnych
-# komenda: IMPORTXYZ
+# komenda: GSAI_IMPORTXYZ
+# komenda_en: GSAI_IMPORTXYZ
 # branza: geodezja
 # opis: Wskazujesz plik z Excela lub Notatnika ze współrzędnymi punktów, a one lądują w rysunku jako punkty z opisami numerów. Koniec ręcznego wstawiania punkt po punkcie.
 # przyklad: Wczytanie 300 punktów pomiarowych z pliku od geodety.
@@ -131,7 +132,7 @@ def _readRows(path, fmt):
     return rows, skipped
 
 
-@command(local_name='IMPORTXYZ')
+@command(local_name='GSAI_IMPORTXYZ', global_name='GSAI_IMPORTXYZ', group_name='GSAI')
 def importxyz():
     """Wczytaj plik ze współrzędnymi i wstaw punkty + opisy numerów."""
     try:
