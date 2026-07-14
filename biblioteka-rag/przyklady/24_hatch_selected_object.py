@@ -20,6 +20,13 @@
 #   - Idiom selekcji jak wzorzec 13 / 18_offset: gds_name + gcedEntSel +
 #     gcdbGetObjectId + gcdbOpenObject + isKindOf + cast.
 
+# @KATALOG
+# nazwa: Kreskowanie wskazanego obiektu
+# komenda: ZAKRESKUJ
+# branza: ogólne
+# opis: Wskazujesz zamkniętą polilinię (dowolny kształt), a narzędzie wypełnia ją kreskowaniem pod skos 45°. Radzi sobie też z nietypowymi, samoprzecinającymi się obrysami.
+# przyklad: Zakreskowanie obrysu działki albo strefy na rzucie jednym kliknięciem.
+
 from pygcad.core import *
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
