@@ -1,16 +1,18 @@
 # Modul do SKOMPILOWANIA przez Cython -> secret_demo.pyd (cp311-win_amd64).
-# BRAMKA #2 ochrony: czy Cython .pyd potrafi import pygcad i wywolac GcDb API w GstarCAD.
-# Cython przy kompilacji NIE potrzebuje pygcad (importy rozwiazuja sie w runtime w GstarCAD).
+# BRAMKA #2 ochrony: czy Cython .pyd potrafi wykonac logike i wywolac API GstarCAD.
 #
-# WAZNE: pygcad dziala TYLKO z 'from ... import *'. Jawny import po nazwie
-# (from pygcad.core.runtime import gcutPrintf) wywala ImportError: cannot import
-# name gcutPrintf w GstarCAD — potwierdzone Rafal, GstarCAD2027 PL, 2026-07-14
-# (loader_secret.py z 'import *' przeszedl, ten plik z jawnym importem sie wywalil
-# w tej samej sesji). Cala nasza biblioteka narzedzi tez uzywa 'import *'.
-# Cython kompiluje 'import *' jako import runtime — build przechodzi bez problemu.
-from pygcad.core.runtime import *
+# NAUCZKA (test Rafala 2026-07-14, LC/Win10): skompilowany/importowany modul NIE
+# widzi API pygcad ani przez jawny import (ImportError: cannot import name), ani
+# przez 'from ... import *' (import przechodzi, ale w czasie wywolania leci
+# NameError: name 'gcdbWorkingDatabase' is not defined). Powod: pygcad wstrzykuje
+# swoje nazwy tylko do namespace pliku APPLOAD-owanego, nie do importowanych
+# podmodulow.
+#
+# ROZWIAZANIE: ten modul pygcada NIE importuje wcale. Loader (APPLOAD-owany, ma
+# API przez 'import *') PRZEKAZUJE potrzebne funkcje do run(). Dzieki temu .pyd
+# jest czysty, przenosny i niezalezny od mechanizmu wstrzykiwania nazw.
 
 
-def run():
-    db = gcdbWorkingDatabase()  # dowod ze skompilowany modul siega API
-    gcutPrintf("\n=== secret_demo.pyd DZIALA — logika ze skompilowanego Cython .pyd + pygcad OK ===")
+def run(gcdbWorkingDatabase, gcutPrintf):
+    db = gcdbWorkingDatabase()   # dowod, ze skompilowany modul siega API GstarCAD
+    gcutPrintf("\n=== secret_demo.pyd DZIALA: skompilowany Cython .pyd + API GstarCAD OK ===")

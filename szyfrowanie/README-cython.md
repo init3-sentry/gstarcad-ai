@@ -27,8 +27,17 @@ python setup.py build_ext --inplace   # jesli setup.py; albo uzyj 'cythonize -i 
 1. Otworz GstarCAD, Interfejs Python = Uruchomione.
 2. APPLOAD `loader_secret.py`.
 3. Wpisz `TESTPYD`.
-4. Sukces = `secret_demo.pyd DZIALA ...` → **Cython .pyd importuje pygcad i dziala** → cala ochrona OK.
+4. Sukces = `secret_demo.pyd DZIALA ...` → **skompilowany .pyd wykonuje logike i siega API GstarCAD** → cala ochrona OK.
    Porazka (import error / crash) → ABI/sciezka; diagnozujemy.
+
+## WAZNE — wzorzec przekazywania API (nauczka Rafal 2026-07-14)
+Skompilowany/importowany modul **nie widzi API pygcad** ani przez jawny import
+(`ImportError: cannot import name`), ani przez `import *` (`NameError` przy wywolaniu —
+nazwy sa wstrzykiwane tylko do pliku APPLOAD-owanego). Dlatego:
+- **`.pyd` NIE importuje pygcad.** Jego funkcje przyjmuja potrzebne API jako argumenty.
+- **Loader** (`.py`, APPLOAD-owany, ma API przez `import *`) **przekazuje** je do `.pyd`.
+  Wzorzec: `secret_demo.run(gcdbWorkingDatabase, gcutPrintf)`.
+Ten sam wzorzec stosujemy potem do realnych narzedzi (logika w `.pyd`, API z loadera).
 
 ## Po sukcesie
 - Docelowo: logika narzedzi (21/22/23/... + konwersje Lee Mac) jako `.pyd`, cienkie `.py` wrappery @command,
