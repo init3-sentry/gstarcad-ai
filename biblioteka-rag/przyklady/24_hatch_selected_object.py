@@ -20,12 +20,10 @@
 #   - Idiom selekcji jak wzorzec 13 / 18_offset: gds_name + gcedEntSel +
 #     gcdbGetObjectId + gcdbOpenObject + isKindOf + cast.
 
-# @KATALOG
-# nazwa: Kreskowanie wskazanego obiektu
-# komenda: ZAKRESKUJ
-# branza: ogólne
-# opis: Wskazujesz zamkniętą polilinię (dowolny kształt), a narzędzie wypełnia ją kreskowaniem pod skos 45°. Radzi sobie też z nietypowymi, samoprzecinającymi się obrysami.
-# przyklad: Zakreskowanie obrysu działki albo strefy na rzucie jednym kliknięciem.
+# UWAGA: to WZORZEC DYDAKTYCZNY (demo API kreskowania GcDbMPolygon), NIE narzędzie klienckie.
+# Kompletne kreskowanie (skos/kratka/kąt/odstępy) daje natywny HATCH GstarCAD — nie dublujemy
+# (REGUŁA #0). Dlatego BEZ bloku @KATALOG — nie wchodzi do katalogu klienckiego. Wartość AI
+# dla hatchu = język naturalny przez ASKAI ("wypełnij w kratkę co 5mm"), nie hardcodowany skrypt.
 
 from pygcad.core import *
 from pygcad.core.runtime import *
