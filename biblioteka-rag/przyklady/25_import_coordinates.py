@@ -31,6 +31,13 @@
 # Konwencje domu: 3 importy, @command, całość w try/except, Gcad.eOk dla bazy /
 # RTNORM dla wejścia edytora, model space open→append→close, GcDbText(pt, str).
 
+# @KATALOG
+# nazwa: Import współrzędnych
+# komenda: IMPORTXYZ
+# branza: geodezja
+# opis: Wskazujesz plik z Excela lub Notatnika ze współrzędnymi punktów, a one lądują w rysunku jako punkty z opisami numerów. Koniec ręcznego wstawiania punkt po punkcie.
+# przyklad: Wczytanie 300 punktów pomiarowych z pliku od geodety.
+
 from pygcad.core import *
 from pygcad.core.runtime import *
 from pygcad.pygrx import *

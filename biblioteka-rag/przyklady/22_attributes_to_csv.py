@@ -16,6 +16,19 @@
 #   EKSPORT_ATRYBUTOW — wszystkie atrybuty -> CSV na Pulpicie (handle,blok,tag,wartość).
 #   IMPORT_ATRYBUTOW  — czyta CSV i aktualizuje wartości (dopasowanie handle+tag).
 
+# @KATALOG
+# nazwa: Eksport atrybutów do tabeli
+# komenda: EKSPORT_ATRYBUTOW
+# branza: ogólne
+# opis: Wyciąga wszystkie atrybuty bloków rysunku (z tabelek, stempli, metryk) do pliku CSV do edycji w Excelu. Fundament pod zestawienia i masową edycję danych.
+# przyklad: Wyeksportowanie metryk wszystkich pomieszczeń do arkusza.
+# @KATALOG
+# nazwa: Import atrybutów z tabeli
+# komenda: IMPORT_ATRYBUTOW
+# branza: ogólne
+# opis: Wczytuje z powrotem do rysunku wartości atrybutów po edycji w Excelu (dopasowanie po handle i tagu). Domyka round-trip: eksport, poprawki hurtem, import.
+# przyklad: Aktualizacja powierzchni w 50 metrykach po przeliczeniu w arkuszu.
+
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
 import os

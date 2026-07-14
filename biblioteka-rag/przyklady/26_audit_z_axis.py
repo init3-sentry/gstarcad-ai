@@ -35,6 +35,13 @@
 # Konwencje domu: 3 importy, @command, try/except, Gcad.eOk dla bazy, RTNORM/status dla
 # edytora, iteracja modelu jak wzorzec 12, idiom selection setu jak wzorzec 05.
 
+# @KATALOG
+# nazwa: Audyt osi Z
+# komenda: AUDYTZ
+# branza: ogólne
+# opis: Znajduje i zaznacza obiekty, które „uciekły" w trzeci wymiar (Z≠0) i psują pomiary w płaskim rysunku — niewidoczne z góry, inaczej nie do znalezienia. Potem prostuje się je poleceniem FLATTEN.
+# przyklad: Wykrycie linii z niezerowym Z, które zawyżały pole powierzchni.
+
 from pygcad.core import *
 from pygcad.core.runtime import *
 from pygcad.pygrx import *

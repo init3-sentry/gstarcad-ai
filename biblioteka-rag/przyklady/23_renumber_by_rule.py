@@ -12,6 +12,13 @@
 #
 # Sposób użycia: APPLOAD, RENUMERUJ. Pyta o tag, prefiks, numer startowy, krok.
 
+# @KATALOG
+# nazwa: Renumeracja elementów
+# komenda: RENUMERUJ
+# branza: ogólne
+# opis: Automatyczne przenumerowanie atrybutów wg reguły (prefiks + numer startowy + krok, np. P-001, P-002, P-003…). Zamiast poprawiać numery ręcznie, nadajesz je wszystkim naraz.
+# przyklad: Ponumerowanie 200 pomieszczeń na rzucie w kilka sekund.
+
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
 

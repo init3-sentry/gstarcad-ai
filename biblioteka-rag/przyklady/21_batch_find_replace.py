@@ -1,154 +1,196 @@
 # Wzorzec 21 (★ RDZEŃ workhorse, Faza A) — Znajdź i zamień tekst.
 #
-# Kierunek zatwierdzony po researchu (research/05-decyzje.md): batch operacje na
-# tekście = rdzeń wartości (rank #1, 24/25). GstarCAD ma natywne Find&Replace,
-# ale TYLKO w jednym rysunku i bez reguł/semantyki — nasza wartość to: (a) batch
-# przez wiele plików, (b) reguła/semantyka opisana po ludzku (LLM generuje z opisu).
+# Kierunek (research/05-decyzje.md): rank #1 (24/25). GstarCAD ma natywne Find&Replace,
+# ale tylko w jednym rysunku, bez reguł/batcha. Nasza wartość: batch + reguła LLM.
 #
-# STATUS: TEKST 🟡 / ATRYBUTY BLOKÓW 🔴 ZAPIS ZABLOKOWANY.
-# Ścieżka TEKST/MTEXT (encje top-level, nie sub-encje) — reopen kForWrite standalone jest OK
-#   (crash dotyczy tylko atrybutów-sub-encji). Empiria TESTREAD: MText ma contents(surowy)/
-#   text(czysty), brak textString; read-mode nie wpływa na odczyt. Do realnego testu.
-# Ścieżka ATRYBUTÓW BLOKÓW — setTextString na atrybucie wywala GstarCAD 2027 SP1 na regenie
-#   (empiria LC 13.07, 9 wariantów — memory feedback_gstarcad_attribute_write_bug). Do
-#   przepisania na DXF entMod. NIE wysyłać zamiany w atrybutach do chłopaków poki nie przejdzie DXF.
+# STATUS: 🟢 CAŁOŚĆ PRZEZ DXF/ADS (obejście buga GS 2027 SP1). Obiektowe API zapisu
+#         (setTextString) wywala GstarCAD na regenie; attributeIterator zatruwa entGet
+#         (memory feedback_gstarcad_attribute_write_bug, 9 wariantów, LC 2026-07-13).
+#         Dlatego zamiana idzie wyłącznie przez DXF:
+#           - ATRYBUTY: handEnt(INSERT) -> entNext -> ATTRIB -> entGet -> grupa 1 -> entMod/entUpd.
+#           - TEKSTY/MTEKSTY (top-level): handEnt -> entGet -> grupy 1 (+3 dla MText) -> entMod/entUpd.
+#         Silnik DXF zwalidowany na LC (RENUMERUJ/EKSPORT na 30993, REGEN bez crasha).
+#         Uwaga BUG-01b: justowane teksty po zmianie wartości mogą nie re-centrować się (kosmetyka).
 #
-# Sposób użycia: APPLOAD, następnie ZAMIEN_TEKST. Komenda pyta o szukany tekst
-# i tekst docelowy, po czym podmienia we WSZYSTKICH tekstach/mtekstach/atrybutach
-# bieżącego rysunku. Wariant folder-batch (wiele plików) — patrz sekcja na dole.
+# Sposób użycia: APPLOAD, ZAMIEN_TEKST. Pyta o szukany tekst i tekst docelowy; podmienia
+# we WSZYSTKICH tekstach/mtekstach/atrybutach bieżącego rysunku.
+
+# @KATALOG
+# nazwa: Zamiana tekstów hurtem
+# komenda: ZAMIEN_TEKST
+# branza: ogólne
+# opis: Znajdź-i-zamień naraz we wszystkich tekstach, mtekstach i atrybutach bloków całego rysunku. Zamiast poprawiać setki opisów ręcznie, zmieniasz np. nazwę inwestycji jednym poleceniem.
+# przyklad: Zmiana numeru działki w 200 opisach na rzucie jednym ruchem.
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
 
 
-def _get_str(ent):
-    """Odczyt stringa z encji tekstowej (GcDbText/GcDbMText/GcDbAttribute) — defensywnie.
-    Zwraca str albo None. Formy do potwierdzenia sweep-10 (textStringConst / text / contents)."""
-    # textString() POTWIERDZONE empirycznie (TESTZAPIS 2026-07-13: attr.textString()->'POW ZABUD').
-    # textStringConst/text NIEpotwierdzone (sweep-10) -> jako fallback. contents = GcDbMText.
-    for getter in ("textString", "textStringConst", "contents"):
-        try:
-            fn = getattr(ent, getter, None)
-            if fn is None:
-                continue
-            val = fn()
-            if isinstance(val, str):
-                return val
-        except Exception:
-            continue
-    return None
+# ── DXF/ADS helpers (bez obiektowego API atrybutów) ─────────────────────────────────────
 
-
-def _set_str(ent, s):
-    """Zapis stringa do encji tekstowej — defensywnie. Zwraca True przy sukcesie."""
-    for setter in ("setTextString", "setContents"):
-        try:
-            fn = getattr(ent, setter, None)
-            if fn is None:
-                continue
-            fn(s)
-            return True
-        except Exception:
-            continue
-    return False
-
-
-def _replace_in_current_db(database, find, repl):
-    """Znajdź i zamień w bieżącej bazie: teksty, mteksty, atrybuty referencji bloków.
-    Zwraca liczbę podmian.
-
-    UWAGA (empiria 2026-07-10): iterator zwraca encje otwarte do ODCZYTU — zapis na
-    nich = 'Internal Error: eNotOpenForWrite'. Dlatego dwa kroki: (1) zbierz ObjectId
-    przy odczycie i zamknij kontener, (2) otwórz każdą encję OSOBNO do zapisu.
-    """
-    count = 0
-    # 1) Zbierz ObjectId wszystkich encji w model space (odczyt), potem zamknij.
-    s, bt = database.getBlockTable(GcDb.kForRead)
+def _insert_handles():
+    """Handle ref. bloków w model space. TYLKO getEntity+isA+handle (bez attributeIterator)."""
+    db = gcdbWorkingDatabase()
+    out = []
+    s, bt = db.getBlockTable(GcDb.kForRead)
     if s != Gcad.eOk:
-        return 0
+        return out
     s, ms = bt.getAt(GCDB_MODEL_SPACE, GcDb.kForRead)
     bt.close()
     if s != Gcad.eOk:
-        return 0
-    ids = []
-    s, it = ms.newIterator()
-    it.start()
+        return out
+    s, it = ms.newIterator(); it.start()
     while not it.done():
         s, ent = it.getEntity()
         if s == Gcad.eOk and ent is not None:
             try:
-                ids.append(ent.objectId())
+                if "BlockReference" in ent.isA().name():
+                    ok, hx = ent.getGcDbHandle().getIntoAsciiBuffer()
+                    if ok:
+                        out.append(hx)
             except Exception:
                 pass
             ent.close()
         it.step()
     ms.close()
+    return out
 
-    # 2) Podmień. WAŻNE (fix crash 2026-07-13): NIE otwieramy hurtem wszystkiego do zapisu —
-    #    to kumulowało uchwyty write i wywalało GstarCAD. Zamiast tego:
-    #    - encję otwieramy najpierw do ODCZYTU (gcdbOpenObject zwraca bazowy GcDbObject → CAST),
-    #    - TEKST do zapisu otwieramy PONOWNIE tylko gdy realnie zawiera szukany ciąg,
-    #    - BLOK zostaje w odczycie, a do zapisu idzie tylko sam ATRYBUT.
-    for oid in ids:
-        s, ent = gcdbOpenObject(oid, GcDb.kForRead)
-        if s != Gcad.eOk or ent is None:
-            continue
-        try:
-            cls = ent.isA().name()
-        except Exception:
-            cls = ""
 
-        # TEKST / MTEKST — przeczytaj; jeśli trafiony, reopen do zapisu i podmień
-        if "Text" in cls and "Attribute" not in cls:
-            tent = GcDbMText.cast(ent) if "MText" in cls else GcDbText.cast(ent)
-            cur = _get_str(tent) if tent is not None else None
-            ent.close()
-            if cur is not None and find in cur:
-                sw, went = gcdbOpenObject(oid, GcDb.kForWrite)
-                if sw == Gcad.eOk and went is not None:
-                    wt = GcDbMText.cast(went) if "MText" in cls else GcDbText.cast(went)
-                    if wt is not None and _set_str(wt, cur.replace(find, repl)):
-                        count += 1
-                    went.close()
-            continue
-
-        # BLOK — modyfikuj atrybuty przez read-blok. Iterator SKONCZ przed modyfikacja,
-        # bloku NIE zamykaj (empiria LC v7 2026-07-13: close read-bloku po modyfikacji
-        # atrybutu = crash; blok kForWrite lub atrybut standalone tez = crash).
-        elif "BlockReference" in cls:
-            bref = GcDbBlockReference.cast(ent)
-            if bref is None:
-                ent.close()
-                continue
-            aids = []
+def _text_handles():
+    """Handle top-level tekstów/mtekstów (nie atrybutów — te są sub-encjami INSERT-ów)."""
+    db = gcdbWorkingDatabase()
+    out = []
+    s, bt = db.getBlockTable(GcDb.kForRead)
+    if s != Gcad.eOk:
+        return out
+    s, ms = bt.getAt(GCDB_MODEL_SPACE, GcDb.kForRead)
+    bt.close()
+    if s != Gcad.eOk:
+        return out
+    s, it = ms.newIterator(); it.start()
+    while not it.done():
+        s, ent = it.getEntity()
+        if s == Gcad.eOk and ent is not None:
             try:
-                ait = bref.attributeIterator()
-                while not ait.done():
-                    aids.append(ait.objectId())
-                    ait.step()
+                cls = ent.isA().name()
+                if "Text" in cls and "Attribute" not in cls:
+                    ok, hx = ent.getGcDbHandle().getIntoAsciiBuffer()
+                    if ok:
+                        out.append(hx)
             except Exception:
                 pass
-            if not aids:
-                ent.close()   # blok bez atrybutow -> nietkniety -> zamknij
-                continue
-            for aid in aids:
-                sa, attr = bref.openAttribute(aid, GcDb.kForWrite)
-                if sa == Gcad.eOk and attr is not None:
-                    cur = _get_str(attr)
-                    if cur is not None and find in cur:
-                        if _set_str(attr, cur.replace(find, repl)):
-                            count += 1
-                    attr.close()
-            continue   # NIE ent.close() — read-blok ze zmodyfikowanymi atrybutami
+            ent.close()
+        it.step()
+    ms.close()
+    return out
 
-        # inne encje (nie tekst, nie blok) — tylko odczyt, zamknij
-        ent.close()
-    return count
 
+def _grp(rb, code):
+    node = rb
+    while node is not None:
+        try:
+            if node.restype == code:
+                return node
+        except Exception:
+            pass
+        node = node.rbnext
+    return None
+
+
+def _rstr(node):
+    try:
+        return node.resval.rstring if node is not None else None
+    except Exception:
+        return None
+
+
+def _free(rb):
+    try:
+        gcutRelRb(rb)
+    except Exception:
+        pass
+
+
+def _for_each_attribute(fn):
+    """fn(tag, value, set_value); set_value(new) zapisuje grupę 1. Zwraca liczbę zapisów."""
+    written = 0
+    for ih in _insert_handles():
+        en = gds_name()
+        if gcdbHandEnt(ih, en) != RTNORM:
+            continue
+        rb = gcdbEntGet(en)
+        has_attr = _grp(rb, 66) is not None
+        _free(rb)
+        if not has_attr:
+            continue
+        cur = en
+        for _ in range(500):
+            nxt = gds_name()
+            if gcdbEntNext(cur, nxt) != RTNORM:
+                break
+            rb = gcdbEntGet(nxt)
+            typ = _rstr(_grp(rb, 0))
+            if typ == "SEQEND":
+                _free(rb)
+                break
+            if typ == "ATTRIB":
+                tag = _rstr(_grp(rb, 2))
+                valn = _grp(rb, 1)
+                val = _rstr(valn)
+                box = {"new": None}
+
+                def set_value(new, _b=box):
+                    _b["new"] = new
+
+                fn(tag, val, set_value)
+                if box["new"] is not None and valn is not None:
+                    try:
+                        valn.resval.rstring = box["new"]
+                        if gcdbEntMod(rb) == RTNORM:
+                            gcdbEntUpd(nxt)
+                            written += 1
+                    except Exception:
+                        pass
+            _free(rb)
+            cur = nxt
+    return written
+
+
+def _replace_in_text(handle, find, repl):
+    """Podmiana w tekście/mtekście top-level przez DXF (grupy 1 i 3). Zwraca True gdy zmieniono."""
+    en = gds_name()
+    if gcdbHandEnt(handle, en) != RTNORM:
+        return False
+    rb = gcdbEntGet(en)
+    changed = False
+    node = rb
+    while node is not None:
+        try:
+            if node.restype in (1, 3):
+                s = node.resval.rstring
+                if isinstance(s, str) and find in s:
+                    node.resval.rstring = s.replace(find, repl)
+                    changed = True
+        except Exception:
+            pass
+        node = node.rbnext
+    if changed:
+        try:
+            if gcdbEntMod(rb) == RTNORM:
+                gcdbEntUpd(en)
+            else:
+                changed = False
+        except Exception:
+            changed = False
+    _free(rb)
+    return changed
+
+
+# ── Komenda ─────────────────────────────────────────────────────────────────────────────
 
 @command(local_name='ZAMIEN_TEKST')
 def batchFindReplace():
-    """Znajdź i zamień tekst we wszystkich tekstach/mtekstach/atrybutach bieżącego rysunku."""
+    """Znajdź i zamień tekst we wszystkich tekstach/mtekstach/atrybutach — zapis przez DXF."""
     try:
         status, find = gcedGetString(1, "\nSzukany tekst: ")   # 1 = zezwól na spacje
         if status != RTNORM or not find:
@@ -159,28 +201,21 @@ def batchFindReplace():
             gcutPrintf("\nAnulowano.")
             return
 
-        n = _replace_in_current_db(gcdbWorkingDatabase(), find, repl)
-        gcutPrintf(f"\nZamieniono '{find}' -> '{repl}' w {n} miejscach.")
+        # 1) atrybuty bloków (DXF)
+        def rule(tag, val, set_value):
+            if val and find in val:
+                set_value(val.replace(find, repl))
+
+        n_attr = _for_each_attribute(rule)
+
+        # 2) teksty i mteksty top-level (DXF)
+        n_text = 0
+        for h in _text_handles():
+            if _replace_in_text(h, find, repl):
+                n_text += 1
+
+        gcutPrintf(f"\nZamieniono '{find}' -> '{repl}' w {n_attr + n_text} miejscach "
+                   f"(teksty: {n_text}, atrybuty: {n_attr}).")
 
     except Exception as err:
-        gcutPrintf(f"\n[BŁĄD] przy zamianie tekstu: {err}")
-
-
-# =====================================================================
-# WARIANT FOLDER-BATCH (★ realna wartość #1 — wiele rysunków naraz). 🟡 do walidacji.
-# Przetwarza wszystkie .dwg w folderze BEZ otwierania ich w edytorze:
-# każdy plik -> GcDbDatabase(False,False) + readDwgFile -> _replace_in_current_db-owy
-# odpowiednik na tej bazie -> saveAs. Prymitywy readDwgFile/saveAs są zwalidowane
-# (wzorzec 17/sweep-9); podmiana tekstu na NIE-aktywnej bazie do potwierdzenia na LC.
-# Szkielet (po walidacji sweep-10 + testach batch przeniesiemy do osobnej komendy
-# BATCH_ZAMIEN_TEKST z pytaniem o ścieżkę folderu):
-#
-#   import os
-#   for name in os.listdir(folder):
-#       if not name.lower().endswith(".dwg"): continue
-#       path = os.path.join(folder, name)
-#       db = GcDbDatabase(False, False)
-#       if db.readDwgFile(path) != Gcad.eOk: continue
-#       n = _replace_in_db(db, find, repl)     # wariant _replace_in_current_db na 'db'
-#       if n: db.saveAs(path)
-# =====================================================================
+        gcutPrintf(f"\n[BŁĄD] przy zamianie: {err}")
