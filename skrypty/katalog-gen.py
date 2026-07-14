@@ -13,9 +13,8 @@ Blok w skrypcie (w nagłówku, linie komentarza):
   # opis: Automatyczne przenumerowanie... (2-3 zdania).
   # przyklad: Ponumerowanie 200 pomieszczeń na rzucie w kilka sekund.
 
-Autonomia: uruchamiany cyklicznie (cron na Oracle) — pull repo -> ten skrypt ->
-commit/push KATALOG.md. Nowy skrypt z blokiem = automatycznie w katalogu.
-Bez zależności zewnętrznych (tylko stdlib) — działa na Oracle bez venv.
+Autonomia: uruchamiany cyklicznie — pull repo -> ten skrypt -> commit/push KATALOG.md.
+Nowy skrypt z blokiem = automatycznie w katalogu. Bez zależności zewnętrznych (tylko stdlib).
 """
 import os
 import re
@@ -63,9 +62,8 @@ def parse_katalog_blocks(path):
 def build_markdown(entries):
     out = []
     out.append("# Katalog narzędzi GstarCAD (TMSys)\n")
-    out.append(f"> ⚙️ **Plik generowany automatycznie** przez `skrypty/katalog-gen.py` "
-               f"(cron na Oracle). Nie edytuj ręcznie — opis pochodzi z bloku `# @KATALOG` "
-               f"w każdym skrypcie. Daty zmian: historia commitów. Narzędzi: **{len(entries)}**.\n")
+    out.append(f"> Narzędzia rozszerzające GstarCAD o funkcje przydatne w codziennej pracy. "
+               f"Każde: komenda, krótki opis i przykład zastosowania. Liczba narzędzi: **{len(entries)}**.\n")
     # grupowanie po branży
     by_branch = {}
     for e in entries:

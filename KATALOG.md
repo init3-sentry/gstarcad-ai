@@ -1,6 +1,6 @@
 # Katalog narzędzi GstarCAD (TMSys)
 
-> ⚙️ **Plik generowany automatycznie** przez `skrypty/katalog-gen.py` (cron na Oracle). Nie edytuj ręcznie — opis pochodzi z bloku `# @KATALOG` w każdym skrypcie. Daty zmian: historia commitów. Narzędzi: **2**.
+> Narzędzia rozszerzające GstarCAD o funkcje przydatne w codziennej pracy. Każde: komenda, krótki opis i przykład zastosowania. Liczba narzędzi: **2**.
 
 
 ## Geodezja
