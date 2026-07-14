@@ -20,7 +20,6 @@ Bez zależności zewnętrznych (tylko stdlib) — działa na Oracle bez venv.
 import os
 import re
 import sys
-from datetime import datetime, timezone
 
 FIELDS = ("nazwa", "komenda", "branza", "opis", "przyklad")
 
@@ -62,12 +61,11 @@ def parse_katalog_blocks(path):
 
 
 def build_markdown(entries):
-    now = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M")
     out = []
     out.append("# Katalog narzędzi GstarCAD (TMSys)\n")
     out.append(f"> ⚙️ **Plik generowany automatycznie** przez `skrypty/katalog-gen.py` "
                f"(cron na Oracle). Nie edytuj ręcznie — opis pochodzi z bloku `# @KATALOG` "
-               f"w każdym skrypcie. Ostatnia aktualizacja: **{now}**. Narzędzi: **{len(entries)}**.\n")
+               f"w każdym skrypcie. Daty zmian: historia commitów. Narzędzi: **{len(entries)}**.\n")
     # grupowanie po branży
     by_branch = {}
     for e in entries:
