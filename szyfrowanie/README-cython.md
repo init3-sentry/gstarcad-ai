@@ -3,6 +3,25 @@
 Cel: skompilować logikę do natywnego `.pyd` (niedekompilowalny), ładowanego przez cienki otwarty
 `.py` wrapper. Mocniejsze niż `.pyc` (który już zwalidowany — dekompilowalny, lekka ochrona).
 
+## ✅ ZWALIDOWANE END-TO-END (LC, GstarCAD 2027 SP1, 2026-07-14)
+
+Bramka #2 PRZESZŁA: skompilowany `secret_demo.pyd` (folder BEZ źródła, tylko loader + .pyd) po `APPLOAD loader_secret.py` + `TESTPYD` wypisał `=== secret_demo.pyd DZIALA ... ===`. Ochrona IP działa — narzędzia można wydawać jako compiled `.pyd` + otwarty loader.
+
+**Działająca receptura (dokładnie te kroki, ~5 min na 8GbE):**
+```powershell
+# 1) kompilator — bootstrapper VS BuildTools (pewniejszy headless niż winget):
+curl -sL -o vs_BuildTools.exe https://aka.ms/vs/17/release/vs_BuildTools.exe
+vs_BuildTools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended
+# 2) cython:
+python -m pip install cython
+# 3) build (setuptools SAM znajduje MSVC przez vswhere — vcvars NIE trzeba):
+python setup.py build_ext --inplace     # -> secret_demo.cp311-win_amd64.pyd w folderze
+# 4) do folderu dystrybucji TYLKO .pyd (jako secret_demo.pyd) + otwarty loader, bez .py/.c:
+copy secret_demo.cp311-win_amd64.pyd  <dist>\secret_demo.pyd
+# 5) GstarCAD (otwarty rysunek): APPLOAD <dist>\loader_secret.py -> TESTPYD
+```
+Kluczowe lekcje: (a) `.pyd` **nie importuje pygcad** — loader przekazuje API (patrz sekcja niżej); (b) `build_ext --inplace` kładzie `.pyd` w KORZENIU folderu (nie w `build\lib...`); (c) setuptools lokalizuje cl.exe sam po instalacji BuildTools.
+
 ## Warunki
 - GstarCAD jedzie na CPython **3.11.8 x64** → `.pyd` musi być **cp311-win_amd64**.
 - LC ma: Python 3.11.8 + `Python.h` + `python3.lib` (zweryfikowane). Brakuje: kompilatora C + Cython.
