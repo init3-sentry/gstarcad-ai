@@ -14,7 +14,7 @@ Narzędzia są napisane w Pythonie. GstarCAD potrafi je uruchamiać, ale potrzeb
 
 **Dokładnie ta wersja.** Inne nie zadziałają — GstarCAD szuka konkretnie jej (`python311.dll`).
 
-Instalator prawdopodobnie **jest już na dysku** — dokłada go instalator GstarCAD-a. Gdyby go nie było, tu leży nasza kopia (ta sama wersja, ze sprawdzoną sumą kontrolną):
+Instalator prawdopodobnie **jest już na dysku** — dokłada go instalator GstarCAD. Gdyby go nie było, tu leży nasza kopia (ta sama wersja, ze sprawdzoną sumą kontrolną):
 
 👉 **[python-3.11.8-amd64.exe → Download raw file](tools/python-runtime/python-3.11.8-amd64.exe)** *(24 MB)*
 
@@ -79,7 +79,7 @@ W **[katalogu narzędzi](NARZEDZIA.md)** przy każdym narzędziu jest link. Klik
 
 Wpisać **nazwę komendy** (WIELKIMI literami, z [katalogu](NARZEDZIA.md)) i Enter.
 
-> **Komendy mają przedrostek `GSAI_`** — czyli `GSAI_IMPORTXYZ`, nie `IMPORTXYZ`. Zmiana z 14.07.2026, żeby nasze narzędzia nie myliły się z komendami GstarCAD-a. Starsze nazwy (bez przedrostka) już nie działają.
+> **Komendy mają przedrostek `GSAI_`** — czyli `GSAI_IMPORTXYZ`, nie `IMPORTXYZ`. Zmiana z 14.07.2026, żeby nasze narzędzia nie myliły się z komendami GstarCAD. Starsze nazwy (bez przedrostka) już nie działają.
 
 ---
 

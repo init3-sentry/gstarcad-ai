@@ -12,7 +12,7 @@
 
 ## ✅ Działają — sprawdzone na prawdziwych rysunkach
 
-Przeszły testy zespołu na realnych plikach klientów, nie na demie.
+Sprawdzone na realnych plikach projektowych, często bardzo złożonych — nie na sztucznie wygenerowanych.
 
 | Komenda | Co robi | Plik |
 |---|---|---|
@@ -42,7 +42,7 @@ Warto też znać: **`FLATTEN`** (prostowanie do płaszczyzny), **`TCOUNT`** (num
 
 ## 🧪 Biblioteka wzorców
 
-W [`biblioteka-rag/przyklady/`](biblioteka-rag/przyklady/) leży **27 przykładów wzorcowych**. Powstały jako materiał uczący sztuczną inteligencję, jak poprawnie pisać kod dla GstarCAD-a. **Działają** i bywają przydatne, ale to pomoce warsztatowe, nie produkty — dlatego **nie mają przedrostka `GSAI_`**.
+W [`biblioteka-rag/przyklady/`](biblioteka-rag/przyklady/) leży **27 przykładów wzorcowych**. Powstały jako materiał uczący sztuczną inteligencję, jak poprawnie pisać kod dla GstarCAD. **Działają** i bywają przydatne, ale to pomoce warsztatowe, nie produkty — dlatego **nie mają przedrostka `GSAI_`**.
 
 Kilka użytecznych z brzegu:
 
