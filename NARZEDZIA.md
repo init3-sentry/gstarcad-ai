@@ -16,7 +16,7 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 
 | Komenda | Co robi | Plik |
 |---|---|---|
-| **`GSAI_IMPORTXYZ`** | Plik z Excela albo Notatnika ze współrzędnymi → punkty z numerami w rysunku. Natywnie GstarCAD tego nie ma (tylko płatna nakładka). | [25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py) |
+| **`GSAI_IMPORTXYZ`** | Plik z Excela albo Notatnika ze współrzędnymi → punkty z numerami w rysunku. Natywnie GstarCAD tego nie ma (są płatne nakładki). | [25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py) |
 | **`GSAI_AUDYTZ`** | Znajduje i zaznacza obiekty, które „uciekły" w trzeci wymiar (Z≠0) i psują pomiary w płaskim rysunku — z góry są niewidoczne, więc inaczej nie sposób ich znaleźć. Potem prostuje się je natywnym `FLATTEN`. | [26_audit_z_axis.py](biblioteka-rag/przyklady/26_audit_z_axis.py) |
 
 ## 🟡 W testach — jeszcze nie zwalidowane
