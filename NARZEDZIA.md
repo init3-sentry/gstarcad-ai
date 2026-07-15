@@ -12,7 +12,7 @@
 
 ## ✅ Działają — sprawdzone na prawdziwych rysunkach
 
-Sprawdzone na prawdziwych rysunkach klientów — tych ciężkich, z bałaganem po poprzednim projektancie. **To najlepsze źródło problemów, jakie mamy** — narzędzie, które działa tylko na sztucznie wygenerowanym pliku, jest do niczego.
+Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałaganem po poprzednim projektancie. **To najlepsze źródło problemów, jakie mamy** — narzędzie, które działa tylko na sztucznie wygenerowanym pliku, jest do niczego.
 
 | Komenda | Co robi | Plik |
 |---|---|---|
