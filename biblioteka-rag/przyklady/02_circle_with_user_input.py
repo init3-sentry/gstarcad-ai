@@ -1,7 +1,8 @@
 # Wzorcowa komenda 02 — Rysowanie okręgu z interakcją użytkownika.
 #
 # Demonstruje pobieranie danych od użytkownika w trakcie wykonania komendy:
-# zapytanie o promień przy pomocy gcedGetReal, sprawdzenie czy użytkownik
+# zapytanie o promień przez gcedGetString + parsowanie (gcedGetReal nie działa
+# z Pythona — BUG-06), sprawdzenie czy użytkownik
 # nie anulował operacji, użycie wartości w konstrukcji okręgu.
 #
 # Sposób użycia: APPLOAD w GstarCAD 2026/2027, następnie wpisz
@@ -13,7 +14,9 @@
 # więc zbieramy nazwy komend do ASCII.
 #
 # Konwencje (v2 przewodnika-systemowego):
-#   - gcedGetReal / gcedSSGet / gcedGetPoint zwracają RTNORM przy sukcesie
+#   - gcedSSGet / gcedGetPoint / gcedGetString zwracają RTNORM przy sukcesie
+#   - gcedGetReal JEST NIEUŻYWALNY z Pythona (parametr wyjściowy) — pytaj
+#     tekstem przez gcedGetString i parsuj sam. Patrz BUG-06 w ledgerze.
 #     (NIE Gcad.eOk — to inna rodzina statusów, "input result")
 #   - operacje na bazie porównujemy z Gcad.eOk
 
@@ -26,7 +29,22 @@ def drawCircleByUserRadius():
     """Pyta użytkownika o promień i rysuje okrąg w środku układu współrzędnych."""
     try:
         # Zapytaj użytkownika o promień okręgu
-        status, radius = gcedGetReal("\nPodaj promień okręgu (w jednostkach rysunku): ")
+        # ⚠️ NIE UŻYWAJ gcedGetReal — pygcad wystawia go jako
+        #      (prompt: str, result: float) -> int
+        #    czyli z parametrem WYJŚCIOWYM, którego z Pythona nie da się wypełnić
+        #    (float jest niezmienny). Wywala się z TypeError. Potwierdzone empirycznie
+        #    2026-07-16 (Issue #32) — ten wzorzec uczył wcześniej BŁĘDNEJ formy
+        #      status, radius = gcedGetReal(prompt)
+        #    i model ją skopiował do narzędzia, które poszło do testów.
+        #    Poprawnie: pytamy tekstem i parsujemy sami.
+        status, tekst = gcedGetString(1, "\nPodaj promień okręgu (w jednostkach rysunku): ")
+        radius = 0.0
+        if status == RTNORM and tekst and tekst.strip():
+            try:
+                radius = float(tekst.strip().replace(",", "."))   # przecinek dziesiętny PL
+            except ValueError:
+                gcutPrintf("\n'%s' to nie jest liczba. Operacja anulowana." % tekst)
+                return
 
         # RTNORM = użytkownik podał wartość poprawnie. Cokolwiek innego
         # (Escape, puste wejście, błąd parsowania) — anulujemy komendę.
