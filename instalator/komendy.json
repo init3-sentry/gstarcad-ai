@@ -1,0 +1,66 @@
+{
+  "_opis": "Manifest komend dla generatora gsai.cuix. Jedna pozycja = jeden przycisk we wstazce, w menu klasycznym i na pasku narzedzi.",
+  "_pola": {
+    "komenda": "Nazwa komendy zarejestrowanej przez @command w Pythonie. WIELKIE LITERY, bez polskich znakow.",
+    "nazwa": "Podpis przycisku. Widoczny dla czlowieka. Polskie znaki OK.",
+    "opis": "Dymek (tooltip). Jedno zdanie, co narzedzie robi.",
+    "panel": "Nazwa panelu na wstazce. Pozycje z tym samym panelem laduja razem, w kolejnosci z tego pliku.",
+    "ikona": "Czlon nazwy pliku SVG. Plik musi sie nazywac RCDATA_16_<ikona>.svg i RCDATA_32_<ikona>.svg. Domyslnie = komenda.",
+    "wlaczone": "false = pozycja nie trafia do .cuix. Tak parkujemy narzedzia jeszcze nieprzetestowane."
+  },
+  "grupa": "GSAI",
+  "nazwa_grupy": "GstarCAD AI",
+  "zakladka": "GstarCAD AI",
+  "komendy": [
+    {
+      "komenda": "GSAI_IMPORTXYZ",
+      "nazwa": "Import współrzędnych",
+      "opis": "Wstawia punkty z pliku tekstowego. Format rozpoznaje sam.",
+      "panel": "Punkty",
+      "wlaczone": true
+    },
+    {
+      "komenda": "GSAI_AUDITZ",
+      "nazwa": "Audyt osi Z",
+      "opis": "Znajduje obiekty, które nie leżą na zerowej wysokości.",
+      "panel": "Kontrola rysunku",
+      "wlaczone": true
+    },
+    {
+      "komenda": "GSAI_REPLACETEXT",
+      "nazwa": "Zamiana tekstu",
+      "opis": "Znajduje i zamienia tekst w wielu obiektach naraz.",
+      "panel": "Tekst",
+      "wlaczone": true
+    },
+    {
+      "komenda": "GSAI_RENUMBER",
+      "nazwa": "Przenumerowanie",
+      "opis": "Nadaje kolejne numery według wskazanej reguły.",
+      "panel": "Tekst",
+      "wlaczone": true
+    },
+    {
+      "komenda": "GSAI_EXPORTATTR",
+      "nazwa": "Eksport atrybutów",
+      "opis": "Zapisuje atrybuty bloków do pliku CSV.",
+      "panel": "Atrybuty",
+      "wlaczone": true
+    },
+    {
+      "komenda": "GSAI_IMPORTATTR",
+      "nazwa": "Import atrybutów",
+      "opis": "Wczytuje wartości atrybutów z pliku CSV do bloków.",
+      "panel": "Atrybuty",
+      "wlaczone": true
+    },
+    {
+      "komenda": "GSAI_ROUGHNESS",
+      "nazwa": "Chropowatość",
+      "opis": "Wstawia symbol chropowatości powierzchni.",
+      "panel": "Mechanika",
+      "wlaczone": false,
+      "_dlaczego_wylaczone": "Zadanie #43 — czeka na normę ISO 21920 od klienta Rafała."
+    }
+  ]
+}
