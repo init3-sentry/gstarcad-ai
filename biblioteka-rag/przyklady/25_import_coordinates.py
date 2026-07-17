@@ -58,7 +58,9 @@ from pygcad.core import *
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
 import re
+import os
 import math
+import time
 import zipfile
 
 
@@ -456,6 +458,66 @@ def _openModelSpace():
     return ms, db
 
 
+def _nazwa_grupy(db, path):
+    """Nazwa grupy z nazwy pliku + data. Unikalna — przy powtórnym imporcie dokleja _2, _3…
+
+    Nazwa musi przeżyć okno dialogowe GROUP, więc tylko litery, cyfry, `_` i `-`."""
+    baza = os.path.splitext(os.path.basename(path))[0]
+    baza = re.sub(r"[^A-Za-z0-9_-]+", "_", baza).strip("_")[:40] or "IMPORT"
+    kand = "PIKIETY_%s_%s" % (time.strftime("%Y-%m-%d"), baza)
+    st, gd = db.getGroupDictionary(GcDb.kForRead)
+    if st != Gcad.eOk:
+        return kand
+    try:
+        if not gd.has(kand):
+            return kand
+        for i in range(2, 100):                     # ten sam plik wczytany drugi raz tego dnia
+            n = "%s_%d" % (kand, i)
+            if not gd.has(n):
+                return n
+        return "%s_%s" % (kand, time.strftime("%H%M%S"))
+    finally:
+        gd.close()
+
+
+def _grupuj(db, ids, nazwa):
+    """Wrzuca wstawione encje do NAZWANEJ grupy. Zwraca (ok, powod).
+
+    PO CO — pomysł Roberta Nowakowskiego (2026-07-17), z realnej pracy geodety:
+    dostaje poprawione współrzędne i importuje drugi raz. Bez grupy stare punkty ZOSTAJĄ
+    i nakładają się na nowe — albo trzeba ręcznie wyszukiwać setki punktów z kilku plików.
+    Z grupą: zaznacz → skasuj → wczytaj nową wersję. Jednym ruchem.
+    Grupę zawsze można rozbić (UNGROUP), więc nikomu niczego nie zabieramy.
+
+    KSZTAŁT WYWOŁAŃ sprawdzony w stubach (nauczka z BUG-06):
+      getGroupDictionary(mode) -> (status, GcDbDictionary)   — jak getBlockTable
+      setAt(nazwa, obiekt)     -> (status, GcDbObjectId)
+      GcDbGroup(opis, selectable) / append(GcDbObjectIdArray)
+    """
+    if ids.length() == 0:
+        return False, "brak encji"
+    st, gd = db.getGroupDictionary(GcDb.kForWrite)
+    if st != Gcad.eOk:
+        return False, "nie moge otworzyc slownika grup"
+    try:
+        grp = GcDbGroup("Punkty z importu wspolrzednych", True)
+        # Najpierw do słownika (grupa dostaje bazę), DOPIERO potem encje.
+        st, gid = gd.setAt(nazwa, grp)
+        if st != Gcad.eOk:
+            try:
+                grp.close()
+            except Exception:
+                pass
+            return False, "setAt: %s" % st
+        try:
+            grp.append(ids)
+        finally:
+            grp.close()
+        return True, ""
+    finally:
+        gd.close()
+
+
 def _setPointDisplayVars():
     """Best-effort: zrób punkty widocznymi (PDMODE/PDSIZE). Niekrytyczne."""
     try:
@@ -600,7 +662,7 @@ def importxyz():
         txtH = (span * 0.02) if span > 1e-6 else 2.5   # 2% rozpiętości; fallback dla 1 pkt
         off = txtH * 0.6
 
-        ms, _ = _openModelSpace()
+        ms, db_ms = _openModelSpace()
         if ms is None:
             gcutPrintf("\n[BLAD] Nie mozna otworzyc przestrzeni modelu.")
             return
@@ -609,17 +671,22 @@ def importxyz():
         # zostawia bazę rysunku w niespójnym stanie i wywraca program przy autozapisie
         # kilkanaście minut później (diagnoza 2026-07-15).
         placed = 0
+        ids = GcDbObjectIdArray()          # zbieramy do grupy — patrz _grupuj()
         try:
             for label, x, y, z in punkty:
                 point = GcDbPoint(GcGePoint3d(x, y, z))
                 try:
-                    ms.appendGcDbEntity(point)
+                    stp, oid = ms.appendGcDbEntity(point)
+                    if stp == Gcad.eOk:
+                        ids.append(oid)
                 finally:
                     point.close()
                 txt = GcDbText(GcGePoint3d(x + off, y + off, z), str(label))
                 try:
                     txt.setHeight(txtH)
-                    ms.appendGcDbEntity(txt)
+                    stt, oidt = ms.appendGcDbEntity(txt)
+                    if stt == Gcad.eOk:
+                        ids.append(oidt)
                 finally:
                     txt.close()
                 placed += 1
@@ -629,6 +696,22 @@ def importxyz():
         _setPointDisplayVars()
 
         gcutPrintf("\n[IMPORTXYZ] Wstawiono %d punktow (format %s)." % (placed, fmt))
+
+        # Grupowanie NIGDY nie wywraca importu — punkty są już w rysunku i są ważniejsze
+        # niż wygoda kasowania. Gdy nie wyjdzie: mówimy, i tyle.
+        try:
+            nazwa = _nazwa_grupy(db_ms, path)
+            ok, powod = _grupuj(db_ms, ids, nazwa)
+            if ok:
+                gcutPrintf("\n[IMPORTXYZ] Punkty i opisy w grupie: %s" % nazwa)
+                gcutPrintf("\n            Import tego samego pliku drugi raz? Wpisz GROUP, zaznacz te")
+                gcutPrintf("\n            grupe, skasuj — i wczytaj nowa wersje. Bez szukania po jednym.")
+            else:
+                gcutPrintf("\n[IMPORTXYZ] Uwaga: nie udalo sie zgrupowac punktow (%s)." % powod)
+                gcutPrintf("\n            Punkty SA w rysunku — tylko trzeba je kasowac recznie.")
+        except Exception as gerr:
+            gcutPrintf("\n[IMPORTXYZ] Uwaga: grupowanie pominiete (%s: %s)." % (type(gerr).__name__, gerr))
+            gcutPrintf("\n            Punkty SA w rysunku.")
         if pominiete:
             gcutPrintf("\n[IMPORTXYZ] Pominieto %d wierszy:" % len(pominiete))
             for nr, powod, tresc in pominiete[:5]:
