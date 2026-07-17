@@ -29,15 +29,18 @@
 #     PDSIZE=-2 (2% ekranu), żeby było je widać.
 #   - Wadliwy wiersz NIGDY nie przerywa importu — jest pomijany z podaniem powodu.
 #
-# Format pliku wybierany słowem kluczowym (komenda pyta):
-#   XY     : "X Y"            (bez numeru, bez Z; numer nadawany automatycznie 1,2,3…)
+# Format pliku NIE jest pytaniem — rozpoznajemy go z zawartości (patrz _wykryj_format):
+#   XY     : "X Y"            (numer nadawany automatycznie 1,2,3…)
 #   XYZ    : "X Y Z"
-#   NrXY   : "Nr X Y"         (pierwsza kolumna = numer/nazwa punktu)  ← DOMYŚLNY
+#   NrXY   : "Nr X Y"         (pierwsza kolumna = numer/nazwa punktu)
 #   NrXYZ  : "Nr X Y Z"
+# Komenda ZAWSZE mówi, co rozpoznała i co zrobiła z wysokością Z. Pyta wyłącznie
+# wtedy, gdy dane są naprawdę dwuznaczne — i wtedy pyta o jedną konkretną rzecz
+# („czym jest pierwsza kolumna?"), pokazując przykładowy wiersz, a nie o nazwę formatu.
 #
 # Sposób użycia: APPLOAD tego pliku → komenda GSAI_IMPORTXYZ → wybierz plik w oknie
-# (przeglądasz katalogi, klikasz plik) → wybierz format → punkty i opisy pojawią się
-# w rysunku → wpisz ZOOM, potem A (Wszystko) albo E (Zakres), żeby je zobaczyć.
+# (przeglądasz katalogi, klikasz plik) → punkty i opisy pojawią się w rysunku →
+# wpisz ZOOM, potem A (Wszystko) albo E (Zakres), żeby je zobaczyć.
 # UWAGA: opcji „Granice/G" ZOOM nie ma.
 #
 # Konwencje domu: 3 importy, @command, całość w try/except, Gcad.eOk dla bazy /
@@ -284,6 +287,128 @@ def _num(tok):
     return float(str(tok).replace(" ", "").replace("\xa0", "").replace(",", "."))
 
 
+def _czy_liczba(tok):
+    try:
+        _num(tok)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Rozpoznanie formatu Z ZAWARTOŚCI pliku
+#
+# DLACZEGO TO ISTNIEJE — dwa razy ten sam błąd, oba razy NIE z winy człowieka:
+#   2026-07-16  Tomasz dostaje pytanie „Format pliku [XY/XYZ/NrXY/NrXYZ]" i wpisuje
+#               inny format, niż zakładałem.
+#   2026-07-17  Tomasz wpisuje „N", chcąc NrXYZ. „N" jest prefiksem NrXY ORAZ NrXYZ.
+#               gcedGetKword nie zgłasza niejednoznaczności — bierze pierwsze z listy,
+#               czyli NrXY. Parser cichcem ODCINA kolumnę Z i wstawia 24 pikiety na
+#               wysokości zero. Zero ostrzeżeń. Dla pikiet wysokość JEST pomiarem.
+#
+# Skoro pierwszy człowiek, który dotknął tego pytania, dwa razy odpowiedział inaczej,
+# niż projekt zakładał, to złe jest PYTANIE, nie odpowiedź. Plik sam mówi, jaki ma
+# format — wystarczy go przeczytać.
+#
+# Zasada: pytamy TYLKO wtedy, gdy dane naprawdę są dwuznaczne, i wtedy pokazujemy
+# konkret (gdzie ląduje pierwszy punkt), zamiast żądać nazwy formatu. Ta sama filozofia
+# co przy kolejności osi niżej — nie zgadujemy po cichu.
+# ─────────────────────────────────────────────────────────────────────────────
+def _liczba_kolumn(wiersze):
+    """Dominująca liczba kolumn. Wiersze odstające to zwykle nagłówek albo śmieć."""
+    licz = {}
+    for toks in wiersze:
+        licz[len(toks)] = licz.get(len(toks), 0) + 1
+    if not licz:
+        return 0
+    return max(licz.items(), key=lambda kv: (kv[1], kv[0]))[0]
+
+
+def _pary(dane, i, j):
+    out = []
+    for toks in dane:
+        try:
+            out.append((_num(toks[i]), _num(toks[j])))
+        except (ValueError, IndexError):
+            pass
+    return out
+
+
+def _pierwsza_to_numer(dane):
+    """Czy pierwsza kolumna to etykieta punktu, a nie współrzędna?
+    True / False / None (nie da się rozstrzygnąć — trzeba spytać człowieka).
+
+    Kolejność prób: od dowodu twardego do poszlaki."""
+    if not dane:
+        return None
+
+    # 1) DOWÓD: cokolwiek nieliczbowego w 1. kolumnie (np. „P1", „A-12") = etykieta.
+    if any(not _czy_liczba(t[0]) for t in dane):
+        return True
+
+    # 2) DOWÓD: która PARA kolumn układa się w polski układ współrzędnych?
+    #    (0,1) sensowne a (1,2) nie  → pierwsza kolumna to współrzędna.
+    #    (1,2) sensowne a (0,1) nie  → pierwsza kolumna to numer.
+    #    Ta sama maszyneria, co przy wykrywaniu osi — nie dokładamy heurystyk,
+    #    skoro mamy twarde kryterium geodezyjne.
+    w01 = _wykryj_uklad(_pary(dane, 0, 1))
+    w12 = _wykryj_uklad(_pary(dane, 1, 2))
+    if w12 and not w01:
+        return True
+    if w01 and not w12:
+        return False
+
+    # 3) POSZLAKA (układ lokalny/umowny — geodezja nie pomoże): numery punktów
+    #    to zwykle rosnące liczby całkowite o rozpiętości nieporównywalnie mniejszej
+    #    niż współrzędne.
+    try:
+        kol0 = [_num(t[0]) for t in dane]
+        kol1 = [_num(t[1]) for t in dane]
+    except ValueError:
+        return None
+    if len(kol0) >= 3:
+        calkowite = all(abs(v - round(v)) < 1e-9 for v in kol0)
+        rosnace = all(kol0[i] < kol0[i + 1] for i in range(len(kol0) - 1))
+        rozp0 = max(kol0) - min(kol0)
+        rozp1 = max(kol1) - min(kol1)
+        if calkowite and rosnace and rozp1 > 1e-6 and rozp0 < rozp1:
+            return True
+
+    return None
+
+
+def _wykryj_format(wiersze):
+    """(fmt, opis, dane) — format rozpoznany z zawartości. fmt=None => spytaj człowieka.
+
+    `dane` to wiersze wyglądające na dane (ostatnie dwie kolumny liczbowe) —
+    nagłówek i śmieci odpadają, żeby nie zatruwały rozpoznania."""
+    n = _liczba_kolumn(wiersze)
+    if n < 2:
+        return None, "plik ma mniej niz 2 kolumny", []
+
+    # Wiersz z danymi = ma współrzędne, czyli parę liczb na (0,1) albo na (1,2).
+    # NIE testujemy dwóch OSTATNICH kolumn: „1 X Y Z SW" (pikieta z kodem) ma na końcu
+    # tekst i cały plik wypadłby jako śmieć. Nagłówek „Nr X Y Z" przepada tu sam,
+    # bo nie ma ani jednej pary liczb.
+    dane = [t for t in wiersze
+            if len(t) >= n and ((_czy_liczba(t[0]) and _czy_liczba(t[1])) or
+                                (len(t) >= 3 and _czy_liczba(t[1]) and _czy_liczba(t[2])))]
+    if not dane:
+        return None, "zaden wiersz nie wyglada na dane liczbowe", []
+
+    if n == 2:
+        return "XY", "2 kolumny: X Y", dane
+
+    numer = _pierwsza_to_numer(dane)
+    if numer is None:
+        return None, "%d kolumny — nie wiadomo, czy pierwsza to numer punktu" % n, dane
+    if n == 3:
+        return ("NrXY", "3 kolumny: Nr X Y", dane) if numer else \
+               ("XYZ", "3 kolumny: X Y Z", dane)
+    return ("NrXYZ", "%d kolumn: Nr X Y Z" % n, dane) if numer else \
+           ("XYZ", "%d kolumn: X Y Z" % n, dane)
+
+
 def _rozbierz(wiersze, fmt):
     """Wiersze tokenów → (rows, pominiete). rows = [(label, a, b, z)] — a,b SUROWE kolumny
     (kolejność osi rozstrzygana później). pominiete = [(nr_wiersza, powod, tresc)]."""
@@ -380,20 +505,7 @@ def importxyz():
                 return
         path = path.strip().strip('"')
 
-        # 2) format pliku (słowo kluczowe; Enter = domyślny NrXY)
-        #    gcedInitGet MUSI poprzedzać gcedGetKword — inaczej KAŻDE wpisane słowo
-        #    jest odrzucane jako „Nieprawidłowe opcje słów kluczowych" (wzorzec 15).
-        gcedInitGet(0, "XY XYZ NrXY NrXYZ")
-        rc, kw = gcedGetKword("\nFormat pliku [XY/XYZ/NrXY/NrXYZ] <NrXY>: ")
-        if rc == RTNONE:
-            fmt = "NrXY"                                   # Enter bez wpisania = domyślny
-        elif rc == RTNORM and kw in ("XY", "XYZ", "NrXY", "NrXYZ"):
-            fmt = kw
-        else:
-            gcutPrintf("\nAnulowano.")
-            return
-
-        # 3) wczytanie — typ po zawartości pliku
+        # 2) wczytanie — typ po zawartości pliku
         wiersze, typ = _wczytaj(path)
         if typ == "xls_stary":
             gcutPrintf("\n[IMPORTXYZ] To stary binarny .xls (sprzed 2007). Otworz go w Excelu")
@@ -404,6 +516,44 @@ def importxyz():
             return
         if typ == "xlsx":
             gcutPrintf("\n[IMPORTXYZ] Plik to skoroszyt Excela — czytam arkusz wprost.")
+
+        # 3) FORMAT — z zawartości pliku, nie z pytania. Patrz komentarz przy _wykryj_format:
+        #    pytanie o format dwa razy dało cichy zły import (ostatnio: „N" → NrXY zamiast
+        #    NrXYZ, kolumna Z wyrzucona bez słowa).
+        fmt, opis, dane = _wykryj_format(wiersze)
+        if fmt is None:
+            # Dwuznaczne NAPRAWDĘ (np. lokalny układ, 3 liczbowe kolumny). Nie pytamy
+            # o nazwę formatu — pytamy o jedną konkretną rzecz i pokazujemy przykład.
+            gcutPrintf("\n[IMPORTXYZ] %s." % opis)
+            if dane:
+                p = dane[0]
+                gcutPrintf("\n            Pierwszy wiersz danych: %s" % "  ".join(str(t) for t in p[:4]))
+                gcutPrintf("\n            Numer     = pierwsza kolumna to numer punktu (%s)" % p[0])
+                gcutPrintf("\n            Wspolrzed = pierwsza kolumna to wspolrzedna (%s)" % p[0])
+            gcedInitGet(0, "Numer Wspolrzedna")
+            rc2, kw2 = gcedGetKword("\nCzym jest pierwsza kolumna? [Numer/Wspolrzedna] <Numer>: ")
+            if rc2 == RTNORM and kw2 == "Wspolrzedna":
+                numer = False
+            elif rc2 in (RTNORM, RTNONE):
+                numer = True
+            else:
+                gcutPrintf("\nAnulowano.")
+                return
+            n = _liczba_kolumn(wiersze)
+            if n == 2:
+                fmt = "XY"
+            elif n == 3:
+                fmt = "NrXY" if numer else "XYZ"
+            else:
+                fmt = "NrXYZ" if numer else "XYZ"
+            opis = "%d kolumn, wybor uzytkownika" % n
+
+        # ZAWSZE mów, co rozpoznałeś — cichy zły format to dokładnie ten bug.
+        gcutPrintf("\n[IMPORTXYZ] Rozpoznany format: %s  (%s)" % (fmt, opis))
+        if fmt in ("XY", "NrXY"):
+            gcutPrintf("\n            Wysokosc Z: brak w pliku — punkty na Z=0.")
+        else:
+            gcutPrintf("\n            Wysokosc Z: wczytuje z pliku.")
 
         rows, pominiete = _rozbierz(wiersze, fmt)
         if not rows:

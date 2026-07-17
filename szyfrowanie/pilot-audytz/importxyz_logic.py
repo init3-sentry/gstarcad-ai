@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 # Logika GSAI_IMPORTXYZ -> importxyz_logic.pyd (Cython). NIE importuje pygcad;
 # loader podaje globals(), tu globals().update(api). Nazwy API pre-deklarowane (Cython).
+#
+# ⚠️ TO JEST SZABLON WZORCA SZYFROWANIA, NIE DZIAŁAJĄCE NARZĘDZIE.
+# Zamrożony 2026-07-14, pokazuje wyłącznie mechanikę loader→globals()→.pyd.
+# Logika importu jest tu STARA i ma znany błąd: pyta o format słowem kluczowym,
+# a „N" trafia w NrXY zamiast NrXYZ i po cichu wyrzuca kolumnę Z (Tomasz, 2026-07-17).
+#
+# SoT logiki = `biblioteka-rag/przyklady/25_import_coordinates.py` (format rozpoznawany
+# z zawartości pliku). Budując płatny suite jako .pyd: weź WZORZEC stąd, LOGIKĘ z SoT.
 import re
 
 # API pygcad — deklaracja (Cython), realne wartosci z loadera przez globals().update:
