@@ -445,6 +445,28 @@ def _rozbierz(wiersze, fmt):
 # ─────────────────────────────────────────────────────────────────────────────
 # Rysowanie
 # ─────────────────────────────────────────────────────────────────────────────
+_ROWNE_WYSOKOSCI = (0.1, 0.2, 0.25, 0.5, 0.75, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0,
+                    6.0, 7.5, 10.0, 12.5, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 75.0, 100.0)
+
+
+def _rowna_wysokosc(h):
+    """Zaokrągla wysokość tekstu do najbliższej „ładnej" wartości.
+
+    Uwaga Roberta Nowakowskiego (2026-07-18): opis punktu dostawał wysokość 1.207,
+    bo liczymy ją z rozpiętości rysunku. Geodeta oczekuje 1.2 albo 1.5 — takie
+    wartości siedzą w standardach biur i w tabelkach rysunkowych. Ułamek z trzema
+    miejscami po przecinku wygląda jak pomyłka, nawet jeśli jest matematycznie dobry.
+
+    Powyżej 100 zaokrąglamy do pełnych dziesiątek — tam i tak nikt nie patrzy na
+    dokładność, a chodzi o to, żeby liczba dała się wypowiedzieć.
+    """
+    if h <= 0:
+        return 2.5
+    if h > 100.0:
+        return round(h / 10.0) * 10.0
+    return min(_ROWNE_WYSOKOSCI, key=lambda w: abs(w - h))
+
+
 def _openModelSpace():
     """Zwraca (ms, db) z modelem otwartym do zapisu, albo (None, None)."""
     db = gcdbWorkingDatabase()
@@ -659,7 +681,7 @@ def importxyz():
         xs = [p[1] for p in punkty]
         ys = [p[2] for p in punkty]
         span = max(max(xs) - min(xs), max(ys) - min(ys))
-        txtH = (span * 0.02) if span > 1e-6 else 2.5   # 2% rozpiętości; fallback dla 1 pkt
+        txtH = _rowna_wysokosc((span * 0.02) if span > 1e-6 else 2.5)
         off = txtH * 0.6
 
         ms, db_ms = _openModelSpace()
