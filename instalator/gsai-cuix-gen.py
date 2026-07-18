@@ -53,18 +53,31 @@ POTWIERDZONY W BOJU. Nie wolno go wysylac klientowi na podstawie samego "skrypt 
 wywalil sie".
 
 --------------------------------------------------------------------------------
-DWIE KONWENCJE NAZW IKON — pulapka znaleziona w ich pliku
+⚠️ KONWENCJA NAZW IKON ROZNI SIE MIEDZY PLATFORMAMI — sprawdzone 2026-07-18 na LC
 
-W MenuGroup.cui producenta sa OBIE naraz:
-    280x  <SmallImage Name="LAYISO"/>                 -> RCDATA_16_LAYISO.svg
-     22x  <SmallImage Name="RCDATA_16_PUBLISH_SHP"/>  -> RCDATA_16_PUBLISH_SHP.svg
+Policzone w `MenuGroup.cui` producenta, obie platformy:
 
-Ta druga ma prefiks juz w nazwie. Obie wskazuja na istniejace pliki, wiec albo GstarCAD
-probuje najpierw nazwy doslownej, albo te 22 przyciski po prostu nie maja ikon i nikt
-tego nie zauwazyl. Z samych plikow tego nie rozstrzygne.
+    platforma   <SmallImage Name="LAYISO">   <SmallImage Name="RCDATA_16_LAYISO">
+    macOS                 280                            22
+    Windows                 0                           149     <-- WYLACZNIE ta
 
-Idziemy konwencja wiekszosciowa (nazwa krotka, bez prefiksu) — jedyna zweryfikowana
-w obie strony. Sprawdzenie tej drugiej dopisane do Z-13.
+**Windows uzywa TYLKO konwencji z pelnym prefiksem.** Krotkiej nie ma tam ani razu.
+Dlatego generator sklada nazwe jako `RCDATA_16_<ikona>` / `RCDATA_32_<ikona>`.
+
+Skad blad, ktory tu byl: rozbieralem `express.cuix` z **macOS** (bo tam mialem dostep do
+plikow), zobaczylem 280 do 22 i poszedlem za wiekszoscia. Na Windows to jest 0 do 149 —
+czyli dokladnie odwrotnie. **Produkt jest windowsowy, wiec liczy sie kolumna Windows.**
+
+Gdyby to przeszlo: zakladka na wstazce owszem by sie pojawila, ale przyciski **bez ikon**
+— i wygladaloby to jak „grafiki jeszcze nie ma", a nie jak blad. Wykrylibysmy dopiero,
+gdy graficy oddadza pliki i nadal nic by sie nie pokazalo.
+
+🔴 GDZIE FIZYCZNIE SA IKONY NA WINDOWS — NIEROZSTRZYGNIETE:
+Katalog RibbonIcon (z plikami SVG) **na Windows nie istnieje**. `RCDATA` to typ zasobu
+wkompilowanego w pliki binarne Windows, a w `express.bundle` leza `express.dll` (5,3 MB)
+i `expressTheme.dll` (5,3 MB). Wszystko wskazuje, ze ikony sa **zasobami w .dll**, nie
+plikami. Jesli tak, sam plik SVG od grafika NIE WYSTARCZY — trzeba go czyms zapakowac.
+To trzeba sprawdzic PRZED zamowieniem grafiki.
 """
 
 import argparse
@@ -178,7 +191,7 @@ def menu_group(d, kom):
                 quoteattr(uid("XLS", k["komenda"] + ":nazwa")), escape(k["nazwa"]),
                 PREFIKS_MAKRA, escape(k["komenda"]),
                 quoteattr(uid("XLS", k["komenda"] + ":opis")), escape(k["opis"]),
-                quoteattr(k["ikona"]), quoteattr(k["ikona"]),
+                quoteattr("RCDATA_16_" + k["ikona"]), quoteattr("RCDATA_32_" + k["ikona"]),
             ))
     return ('<?xml version="1.0"?>\n'
             '<MenuGroup %s Name=%s DisplayName=%s>\n'
