@@ -21,8 +21,25 @@ from pygcad.core.runtime import *
 from pygcad.pygrx import *
 import os
 import csv
+import io
 
 CSV_PATH = os.path.join(os.path.expanduser("~"), "Desktop", "atrybuty_gstarcad.csv")
+
+# Kolejnosc prob odczytu. utf-8-sig zdejmuje znacznik BOM i czyta zwykle utf-8.
+# cp1250 to domyslny zapis Excela w polskim Windows, gdy uzytkownik wybierze
+# "CSV (rozdzielany przecinkami)" zamiast "CSV UTF-8".
+_KODOWANIA = ("utf-8-sig", "cp1250", "cp852")
+
+
+def _wczytaj_tekst(sciezka):
+    """Czyta plik, probujac kolejnych kodowan. Zwraca None, gdy zadne nie pasuje."""
+    for kod in _KODOWANIA:
+        try:
+            with open(sciezka, "r", encoding=kod, newline="") as fp:
+                return fp.read()
+        except UnicodeDecodeError:
+            continue
+    return None
 
 
 # ── DXF/ADS helpers (bez obiektowego API atrybutów — patrz STATUS) ──────────────────────
@@ -141,8 +158,12 @@ def exportAttributes():
             rows.append([ih, bname, tag or "", val or ""])
 
         for_each_attribute(collect)
-        with open(CSV_PATH, "w", newline="", encoding="utf-8") as fp:
-            w = csv.writer(fp)
+        # Sredniki i utf-8-sig, bo tego wymaga Excel w polskiej wersji.
+        # Przecinek wrzuca caly wiersz do jednej kolumny, a brak znacznika
+        # kodowania psuje polskie znaki. Robert Nowakowski zglosil oba objawy
+        # w natywnym ATTIN (2026-07-18) — mielismy je tak samo.
+        with open(CSV_PATH, "w", newline="", encoding="utf-8-sig") as fp:
+            w = csv.writer(fp, delimiter=";")
             w.writerow(["handle", "blok", "tag", "wartosc"])
             w.writerows(rows)
         gcutPrintf(f"\nWyeksportowano {len(rows)} atrybutów do: {CSV_PATH}")
@@ -158,9 +179,13 @@ def importAttributes():
             gcutPrintf(f"\nBrak pliku: {CSV_PATH}. Najpierw GSAI_EKSPORT_ATRYBUTOW.")
             return
         wanted = {}  # (handle, tag) -> wartosc
-        with open(CSV_PATH, "r", encoding="utf-8") as fp:
-            for r in csv.DictReader(fp):
-                wanted[(r.get("handle", ""), r.get("tag", ""))] = r.get("wartosc", "")
+        tekst = _wczytaj_tekst(CSV_PATH)
+        if tekst is None:
+            gcutPrintf("\n[BLAD] Nie umiem odczytac pliku CSV — nieznane kodowanie.")
+            return
+        sep = ";" if tekst.count(";") >= tekst.count(",") else ","
+        for r in csv.DictReader(io.StringIO(tekst), delimiter=sep):
+            wanted[(r.get("handle", ""), r.get("tag", ""))] = r.get("wartosc", "")
 
         def apply(ih, bname, tag, val, set_value):
             key = (ih, tag or "")
