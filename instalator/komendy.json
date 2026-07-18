@@ -31,7 +31,8 @@
       "nazwa": "Zamiana tekstu",
       "opis": "Znajduje i zamienia tekst w wielu obiektach naraz.",
       "panel": "Tekst",
-      "wlaczone": true
+      "wlaczone": false,
+      "_dlaczego_wylaczone": "NATIVE-FIRST: GstarCAD ma pelne Znajdz i zamien (komenda FIND) - z zamiana, zakresem caly rysunek, wartosciami atrybutow bloku, wymiarami, tabelami, hiperlaczami, symbolami wieloznacznymi i odnosnikami zewnetrznymi. Sprawdzone wzrokowo na 2027 Premium 18.07.2026. Nasze narzedzie robi wycinek tego, gorzej (obejscie DXF, BUG-01b z justowaniem). NIE dublujemy tego, co klient juz ma."
     },
     {
       "komenda": "GSAI_RENUMBER",
