@@ -1,0 +1,411 @@
+# Wzorcowa komenda 28 — Raport warstw: pokazuje TO, CZEGO MENEDŻER WARSTW NIE POKAZUJE.
+#
+# ⚠ NAPISANE, NIETESTOWANE — wymaga uruchomienia. Powstało w sesji bez pulpitu
+#   (SSH), GstarCAD nie był ani razu uruchomiony. Przeszła wyłącznie kompilacja
+#   składni. Przed pokazaniem komukolwiek: uruchomić na prawdziwym rysunku.
+#
+# DLACZEGO tak wąsko — najważniejsza decyzja w tym pliku:
+#   Menedżer warstw (LAYER), LAYWALK, SHOWLAYERUSAGE i PURGE pokazują natywnie:
+#   ile jest warstw, które są wyłączone/zamrożone/zablokowane/nie do wydruku,
+#   które pochodzą z XREF-a i które GstarCAD uważa za nieużywane — w kolumnach,
+#   z sortowaniem i filtrowaniem, czyli lepiej niż jakikolwiek nasz tekst.
+#   Powtarzanie tego w raporcie nie daje klientowi nic i psuje wiarygodność
+#   reszty. Zostało więc TYLKO to, czego natywnie nie ma (analiza Z-23/Z-26):
+#     1. ROZJAZD — warstwy, na których nie znaleźliśmy ani jednego obiektu,
+#        a GstarCAD twierdzi, że są używane. Wymaga zestawienia DWÓCH źródeł
+#        prawdy obok siebie; żadne natywne okno tego nie robi.
+#     2. BLIŹNIAKI — nazwy różniące się tylko wielkością liter albo spacjami.
+#     3. PRZEDROSTKI — ile konwencji nazewniczych spotkało się w jednym rysunku.
+#     4. NIE DO PRZEMIANOWANIA — czego nie da się przemianować przy porządkowaniu.
+#     5. PEŁNA LISTA DO PLIKU — natywnie wszystko jest oknem, do oglądania.
+#   Liczba warstw jest podana wyłącznie jako mianownik dla procentów, nie jako
+#   „funkcja raportu".
+#
+# CZEGO TO NARZĘDZIE NIE ROBI — świadomie:
+#   - NIE liczy atrybutów bloków. Dotknięcie attributeIterator zatruwa sesję
+#     i wywala GstarCAD 2027 SP1 przy późniejszym entGet (ustalenie Z-24, 9
+#     przetestowanych wariantów). Wolimy przyznaną lukę niż wywalony program
+#     u klienta — dlatego raport mówi o tym WPROST, w wydruku i w pliku.
+#   - NIC NIE ZMIENIA w rysunku. Zero add/erase/set. To jest raport, nie
+#     naprawiacz. Wszystkie tabele otwierane są WYŁĄCZNIE do odczytu.
+#   - NIE zgaduje liczb. Jeżeli choć jednego pojemnika albo obiektu nie dało się
+#     odczytać, liczenie obiektów jest niepewne i narzędzie pisze „nie wiem"
+#     zamiast liczby. Fałszywa liczba w raporcie o warstwach jest gorsza niż jej
+#     brak — na jej podstawie ktoś kasuje warstwy.
+#
+# DLACZEGO try/finally przy KAŻDYM otwarciu tabeli (Z-25) — NIE UPRASZCZAĆ:
+#   tabela otwarta przez getLayerTable/getBlockTable MUSI zostać zamknięta na
+#   KAŻDEJ drodze wyjścia. Wyjątek albo wcześniejszy `return` między otwarciem
+#   a close() zostawia tabelę otwartą; GstarCAD nie zwalnia jej sam, a objaw
+#   (eWasOpenForWrite) wychodzi dopiero w NASTĘPNEJ komendzie, więc nikt nie
+#   wiąże go z tą. Tu otwieramy tylko do odczytu, ale wzorzec trzymamy ten sam:
+#   rekordy i iteratory też zamykamy w finally.
+#
+# Sposób użycia: APPLOAD tego pliku → komenda GSAI_WARSTWY. Raport leci na
+# ekran (skrót) i na Pulpit do pliku gsai_raport_warstw.txt (całość).
+
+# @KATALOG
+# nazwa: Raport warstw
+# komenda: GSAI_WARSTWY
+# komenda_en: GSAI_LAYERREPORT
+# branza: ogolne
+# opis: Pokazuje to, czego Menedżer warstw nie pokaże: warstwy puste, które GstarCAD mimo to uważa za używane (te, których PURGE nie sprząta), nazwy różniące się tylko wielkością liter i zderzone konwencje nazewnicze. Całość ląduje w pliku tekstowym, więc da się ją komuś wysłać. Niczego w rysunku nie zmienia.
+# przyklad: Przejęty po kimś rysunek z 300 warstwami — sprawdzenie, co da się posprzątać, zanim ktokolwiek zacznie kasować.
+
+from pygcad.core import *
+from pygcad.core.runtime import *
+from pygcad.pygrx import *
+import os
+import re
+
+NAZWA_PLIKU = "gsai_raport_warstw.txt"
+
+# Zbierane w trakcie przebiegu: cokolwiek, czego nie dało się odczytać.
+# Niepusta lista = liczby obiektów są NIEPEWNE i nie wolno ich podawać.
+_ostrzezenia = []
+_linie = []
+
+
+def _sciezka_raportu():
+    """Pulpit, nie %TEMP% — pliku w tempie nikt nie znajduje (nauczka z #30)."""
+    pulpit = os.path.join(os.path.expanduser("~"), "Desktop")
+    if not os.path.isdir(pulpit):
+        pulpit = os.path.expanduser("~")
+    return os.path.join(pulpit, NAZWA_PLIKU)
+
+
+def _do_pliku(msg):
+    """Zbiera linię do raportu. Zapis jednym strzałem na końcu — patrz _zapisz."""
+    _linie.append(msg)
+
+
+def _powiedz(msg):
+    """Na ekran I do pliku. Konsola urywa długie listy, plik nie."""
+    gcutPrintf("\n%s" % msg)
+    _do_pliku(msg)
+
+
+def _zapisz():
+    """Cały raport jednym zapisem, z fsync. Zwraca ścieżkę albo None."""
+    sciezka = _sciezka_raportu()
+    try:
+        with open(sciezka, "w", encoding="utf-8") as f:
+            f.write("\n".join(_linie) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+        return sciezka
+    except Exception as err:
+        gcutPrintf("\n[WARSTWY] Nie moge zapisac pliku %s (%s)." % (sciezka, err))
+        return None
+
+
+def _zbierz_warstwy(db):
+    """Nazwa warstwy -> jej stan. WYŁĄCZNIE odczyt.
+
+    Kształt wywołań (nauczka z BUG-06 — gcedGetReal wyglądał poprawnie, a miał
+    parametr wyjściowy i był bezużyteczny):
+      - getName() zwraca KROTKĘ (status, nazwa), nie parametr wyjściowy
+      - isInUse() to werdykt GstarCAD — drugie źródło prawdy dla rozjazdu
+      - isDependent() = warstwa pochodzi z XREF-a; NIE jest osobną pozycją
+        raportu (Menedżer warstw ma na to filtr), służy tylko do wyjaśnienia,
+        skąd wziął się rozjazd
+      - isRenamable() = czy wolno ją przemianować
+    """
+    out = {}
+    st, lt = db.getLayerTable(GcDb.kForRead)
+    if st != Gcad.eOk:
+        return None
+    # close() w finally — patrz nagłówek pliku. NIE upraszczać.
+    try:
+        st, it = lt.newIterator()
+        while not it.done():
+            st2, rec = it.getRecord(GcDb.kForRead)
+            if rec is None:
+                _ostrzezenia.append("nie dalo sie otworzyc rekordu warstwy")
+            else:
+                try:
+                    stn, nazwa = rec.getName()
+                    if stn == Gcad.eOk and nazwa:
+                        out[nazwa] = {
+                            "uzywana": rec.isInUse(),        # werdykt GstarCAD
+                            "z_xref": rec.isDependent(),
+                            "mozna_zmienic": rec.isRenamable(),
+                            "obiektow": 0,                   # policzymy sami
+                        }
+                    else:
+                        _ostrzezenia.append("rekord warstwy bez czytelnej nazwy")
+                finally:
+                    rec.close()
+            it.step()
+    finally:
+        lt.close()
+    return out
+
+
+def _policz_obiekty(db, warstwy):
+    """Ile obiektów siedzi na każdej warstwie — nasze własne, drugie źródło prawdy.
+
+    Przechodzimy WSZYSTKIE rekordy tabeli bloków: model space, wszystkie arkusze
+    i wszystkie definicje bloków. Dlatego „zero obiektów" znaczy tu naprawdę
+    „nie znaleźliśmy tej warstwy nigdzie w bazie" — a nie tylko „nie ma jej
+    w modelu". To jest dokładnie ta liczba, którą zestawiamy z isInUse().
+
+    Czego NIE obchodzimy: atrybutów bloków (attributeIterator zatruwa sesję,
+    Z-24). Obiekt z atrybutem policzy się jako wstawienie bloku, ale tekst
+    atrybutu siedzący na innej warstwie — nie. To jest znana, wpisana do raportu
+    dziura, nie przeoczenie.
+
+    Każdy nieudany odczyt ląduje w _ostrzezenia i unieważnia liczby.
+    """
+    przejrzane = 0
+    st, bt = db.getBlockTable(GcDb.kForRead)
+    if st != Gcad.eOk:
+        _ostrzezenia.append("nie dalo sie otworzyc tabeli blokow")
+        return przejrzane
+    # close() w finally — patrz nagłówek pliku. NIE upraszczać.
+    try:
+        st, bit = bt.newIterator()
+        while not bit.done():
+            st2, btr = bit.getRecord(GcDb.kForRead)
+            if btr is None:
+                _ostrzezenia.append("nie dalo sie otworzyc rekordu tabeli blokow")
+            else:
+                try:
+                    st3, eit = btr.newIterator()
+                    if st3 != Gcad.eOk or eit is None:
+                        _ostrzezenia.append("nie dalo sie przejsc zawartosci bloku")
+                    else:
+                        while not eit.done():
+                            st4, ent = eit.getEntity(GcDb.kForRead)
+                            if ent is None:
+                                _ostrzezenia.append("nie dalo sie otworzyc obiektu")
+                            else:
+                                try:
+                                    w = ent.layer()
+                                    if w in warstwy:
+                                        warstwy[w]["obiektow"] += 1
+                                    else:
+                                        # obiekt na warstwie, której nie ma
+                                        # w tabeli warstw — nie powinno się zdarzyć
+                                        _ostrzezenia.append(
+                                            "obiekt na nieznanej warstwie: %s" % w)
+                                    przejrzane += 1
+                                finally:
+                                    ent.close()
+                            eit.step()
+                finally:
+                    btr.close()
+            bit.step()
+    finally:
+        bt.close()
+    return przejrzane
+
+
+def _bliznieta(nazwy):
+    """Nazwy różniące się TYLKO wielkością liter albo białymi znakami.
+    Klasyk po scaleniu plików od kilku osób: 'Osie', 'OSIE', 'osie ' = trzy
+    warstwy, które człowiek czyta jako jedną."""
+    grupy = {}
+    for n in nazwy:
+        klucz = re.sub(r"\s+", "", n).lower()
+        grupy.setdefault(klucz, []).append(n)
+    return {k: v for k, v in grupy.items() if len(v) > 1}
+
+
+def _przedrostki(nazwy):
+    """Ile konwencji nazewniczych spotkało się w jednym rysunku (E-, INST_, A-…).
+    To nie jest „błąd" — to informacja, że rysunek powstawał w kilku biurach."""
+    pref = {}
+    for n in nazwy:
+        m = re.match(r"^([A-Za-z]{1,6})[-_]", n)
+        if m:
+            k = m.group(1).upper()
+            pref[k] = pref.get(k, 0) + 1
+    return sorted(pref.items(), key=lambda x: -x[1])
+
+
+@command(local_name='GSAI_WARSTWY', global_name='GSAI_LAYERREPORT', group_name='GSAI')
+def raport_warstw():
+    """Raport warstw: pokazuje to, czego Menedżer warstw nie pokazuje. Nic nie zmienia."""
+    try:
+        del _linie[:]
+        del _ostrzezenia[:]
+
+        _do_pliku("=" * 70)
+        _do_pliku("RAPORT WARSTW (GSAI_WARSTWY) — narzedzie tylko czyta, nic nie zmienia")
+        _do_pliku("=" * 70)
+
+        db = gcdbWorkingDatabase()
+        warstwy = _zbierz_warstwy(db)
+        if warstwy is None:
+            _powiedz("[WARSTWY] Nie moge otworzyc tabeli warstw. Raportu nie ma.")
+            return
+        if not warstwy:
+            _powiedz("[WARSTWY] Tabela warstw jest pusta — nie ma czego raportowac.")
+            return
+
+        przejrzane = _policz_obiekty(db, warstwy)
+        n = len(warstwy)
+        pewne = not _ostrzezenia   # czy wolno w ogóle podawać liczby obiektów
+
+        # Liczba warstw jest tu MIANOWNIKIEM, nie funkcją raportu — bez niej
+        # „7 rozjazdów" nic nie znaczy. Menedżer warstw pokazuje ją sam.
+        _powiedz("[WARSTWY] Warstw w rysunku: %d   (obiektow przejrzanych: %d)"
+                 % (n, przejrzane))
+
+        # ── 1. ROZJAZD — rdzeń raportu ────────────────────────────────────────
+        # Warstwa, na której NIE znaleźliśmy ani jednego obiektu (ani w modelu,
+        # ani w arkuszach, ani w definicjach bloków), a GstarCAD mimo to mówi
+        # „używana". Zestawienia tych dwóch źródeł nie robi żadne natywne okno.
+        if not pewne:
+            _powiedz("[WARSTWY] >>> ROZJAZD: NIE WIEM — liczenie obiektow bylo niepelne.")
+            _powiedz("          Powody nizej, w sekcji CZEGO TA WERSJA NIE WIE.")
+            _powiedz("          Zadnej liczby tu nie podaje, bo bylaby zmyslona.")
+        else:
+            puste = [k for k, v in warstwy.items() if v["obiektow"] == 0]
+            rozjazd = sorted(k for k in puste if warstwy[k]["uzywana"])
+            _powiedz("[WARSTWY] >>> ROZJAZD: warstw pustych wg nas, 'uzywanych' wg "
+                     "GstarCAD: %d  (%.0f%%)" % (len(rozjazd), 100.0 * len(rozjazd) / n))
+            if rozjazd:
+                _powiedz("          Nie znalezlismy na nich zadnego obiektu, a program")
+                _powiedz("          uwaza je za uzywane. Najczestsze przyczyny: warstwa")
+                _powiedz("          przychodzi z XREF-a, siedzi na niej ATRYBUT bloku")
+                _powiedz("          (ktorych NIE liczymy — patrz nizej), albo trzyma ja")
+                _powiedz("          obiekt spoza tabeli blokow. Zwykle to wlasnie te")
+                _powiedz("          warstwy, ktorych PURGE nie sprzata.")
+                _powiedz("          UWAGA: to lista DO SPRAWDZENIA, nie do skasowania.")
+                for k in rozjazd[:15]:
+                    zn = " (z XREF-a)" if warstwy[k]["z_xref"] else ""
+                    _powiedz("          -> %s%s" % (k, zn))
+                if len(rozjazd) > 15:
+                    _powiedz("          ... i %d dalszych — pelna lista w pliku."
+                             % (len(rozjazd) - 15))
+
+            # Rozjazd w drugą stronę: MY policzyliśmy obiekty, a GstarCAD mówi
+            # „nieużywana". To nie powinno się zdarzyć. Jeśli się zdarza, to nie
+            # jest odkrycie o rysunku, tylko sygnał, że nasze liczenie kłamie —
+            # i klient musi to wiedzieć, zanim cokolwiek na jego podstawie zrobi.
+            odwrotny = sorted(k for k, v in warstwy.items()
+                              if v["obiektow"] > 0 and not v["uzywana"])
+            if odwrotny:
+                _powiedz("[WARSTWY] ! Sprzecznosc odwrotna: %d warstw, na ktorych "
+                         "policzylismy obiekty," % len(odwrotny))
+                _powiedz("          a GstarCAD mowi 'nieuzywana'. To znaczy, ze NASZE")
+                _powiedz("          liczenie jest w tym rysunku niepewne — traktuj cala")
+                _powiedz("          sekcje ROZJAZD z ostroznoscia. Przyklady:")
+                for k in odwrotny[:5]:
+                    _powiedz("          -> %s (%d obiektow)" % (k, warstwy[k]["obiektow"]))
+
+        # ── 2. BLIŹNIAKI ──────────────────────────────────────────────────────
+        bl = _bliznieta(list(warstwy.keys()))
+        _powiedz("[WARSTWY] Nazwy rozniace sie tylko wielkoscia liter albo spacjami: "
+                 "%d grup" % len(bl))
+        if bl:
+            _powiedz("          Czlowiek czyta je jako jedna warstwe, program jako kilka.")
+            for v in list(bl.values())[:10]:
+                _powiedz("          -> %s" % " | ".join(v))
+            if len(bl) > 10:
+                _powiedz("          ... i %d dalszych grup — pelna lista w pliku."
+                         % (len(bl) - 10))
+
+        # ── 3. PRZEDROSTKI ────────────────────────────────────────────────────
+        top = _przedrostki(list(warstwy.keys()))
+        if top:
+            _powiedz("[WARSTWY] Konwencje nazewnicze, ktore sie tu spotkaly: %s"
+                     % ", ".join("%s=%d" % t for t in top[:8]))
+            if len(top) > 1:
+                _powiedz("          Kilka przedrostkow naraz = rysunek skladany z kilku")
+                _powiedz("          zrodel. Nie jest to blad, ale utrudnia filtrowanie.")
+        else:
+            _powiedz("[WARSTWY] Konwencje nazewnicze: brak czytelnego wzorca przedrostkow.")
+
+        # ── 4. NIE DO PRZEMIANOWANIA ──────────────────────────────────────────
+        # Cienka pozycja, ale natywnie nie ma zestawienia: RENAME mówi tylko
+        # ogólnie o „standard items". Wartość ma jako ostrzeżenie PRZED
+        # porządkowaniem nazw — żeby ktoś nie planował zmiany, która się nie uda.
+        zablok = sorted(k for k, v in warstwy.items() if not v["mozna_zmienic"])
+        _powiedz("[WARSTWY] Warstw, ktorych NIE da sie przemianowac: %d" % len(zablok))
+        if zablok:
+            _powiedz("          (zwykle warstwa 0, DEFPOINTS i warstwy z XREF-ow)")
+            for k in zablok[:10]:
+                _powiedz("          -> %s" % k)
+            if len(zablok) > 10:
+                _powiedz("          ... i %d dalszych — pelna lista w pliku."
+                         % (len(zablok) - 10))
+
+        # ── 5. CZEGO TA WERSJA NIE WIE — sekcja obowiązkowa ───────────────────
+        _do_pliku("")
+        _do_pliku("-" * 70)
+        _do_pliku("CZEGO TA WERSJA NIE WIE — przeczytaj, zanim cos skasujesz")
+        _do_pliku("-" * 70)
+        _powiedz("[WARSTWY] ATRYBUTY BLOKOW NIE SA LICZONE.")
+        _do_pliku("  Tekst atrybutu moze siedziec na innej warstwie niz blok, w ktorym")
+        _do_pliku("  jest osadzony. Nie zagladamy tam CELOWO: przejscie po atrybutach")
+        _do_pliku("  (attributeIterator) zatruwa sesje GstarCAD 2027 SP1 i wywala program")
+        _do_pliku("  przy pozniejszych operacjach. Wolimy przyznac luke, niz wywalic")
+        _do_pliku("  program na rysunku klienta.")
+        _do_pliku("  SKUTEK PRAKTYCZNY: warstwa uzywana WYLACZNIE przez atrybuty wyjdzie")
+        _do_pliku("  w tym raporcie jako ROZJAZD. To nie znaczy, ze jest do usuniecia.")
+        _do_pliku("")
+        _do_pliku("  Raport nie ocenia, czy rysunek jest POPRAWNY — pokazuje wylacznie")
+        _do_pliku("  rozbieznosci i nazwy. Decyzje, co usunac, podejmuje czlowiek.")
+
+        if _ostrzezenia:
+            # Bez dubli, w kolejności wystąpienia — 300 razy to samo nikomu nie pomoże.
+            widziane = []
+            for o in _ostrzezenia:
+                if o not in widziane:
+                    widziane.append(o)
+            _powiedz("[WARSTWY] ! Liczenie obiektow bylo NIEPELNE (%d potkniec, %d rodzajow)."
+                     % (len(_ostrzezenia), len(widziane)))
+            _do_pliku("  Dlatego liczby obiektow i rozjazd nie zostaly podane.")
+            for o in widziane[:10]:
+                _do_pliku("  - %s" % o)
+            if len(widziane) > 10:
+                _do_pliku("  - ... i %d innych rodzajow" % (len(widziane) - 10))
+
+        # ── 6. PEŁNA LISTA DO PLIKU ───────────────────────────────────────────
+        # Druga połowa rdzenia: natywnie wszystko jest oknem, jeden rysunek naraz,
+        # do oglądania. Plik da się wysłać, wkleić, porównać i przeszukać.
+        _do_pliku("")
+        _do_pliku("-" * 70)
+        if pewne:
+            _do_pliku("PELNA LISTA WARSTW (nazwa | obiektow | uzywana wg GstarCAD | "
+                      "z XREF | mozna przemianowac)")
+        else:
+            _do_pliku("PELNA LISTA WARSTW — kolumna 'obiektow' pominieta, bo liczenie")
+            _do_pliku("bylo niepelne. Zamiast liczby jest '?'.")
+        _do_pliku("-" * 70)
+        for k in sorted(warstwy, key=lambda x: (warstwy[x]["obiektow"], x.lower())):
+            v = warstwy[k]
+            ile = ("%6d" % v["obiektow"]) if pewne else "     ?"
+            _do_pliku("%-45s %s  uzyw=%-5s xref=%-5s rename=%s"
+                      % (k[:45], ile, v["uzywana"], v["z_xref"], v["mozna_zmienic"]))
+
+        if bl:
+            _do_pliku("")
+            _do_pliku("--- WSZYSTKIE GRUPY NAZW-BLIZNIAKOW ---")
+            for v in bl.values():
+                _do_pliku("  %s" % " | ".join(v))
+        if zablok:
+            _do_pliku("")
+            _do_pliku("--- WSZYSTKIE WARSTWY NIE DO PRZEMIANOWANIA ---")
+            for k in zablok:
+                _do_pliku("  %s" % k)
+
+        sciezka = _zapisz()
+        if sciezka:
+            gcutPrintf("\n[WARSTWY] Pelny raport zapisany: %s" % sciezka)
+        gcutPrintf("\n[WARSTWY] Rysunek nie zostal w zaden sposob zmieniony.")
+
+    except Exception as err:
+        # Raport, ktory sie wywalil w polowie, nie moze udawac kompletnego.
+        gcutPrintf("\n[WARSTWY BLAD] %s: %s" % (type(err).__name__, err))
+        gcutPrintf("\n[WARSTWY] Raport jest NIEPELNY — nie opieraj na nim decyzji.")
+        try:
+            _do_pliku("")
+            _do_pliku("!!! RAPORT PRZERWANY BLEDEM: %s: %s" % (type(err).__name__, err))
+            _do_pliku("!!! Powyzsze dane sa niepelne.")
+            _zapisz()
+        except Exception:
+            pass

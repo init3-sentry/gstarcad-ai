@@ -143,6 +143,16 @@ Zamyka **pozycję #11 z raportu Roberta** (Twój faworyt). Obiekty z Z≠0 są n
 |---|---|---|
 | `26_audit_z_axis.py` | `AUDYTZ` | Skanuje model (`newIterator` + `getGeomExtents`, uniwersalne bez per-klasa `elevation()`), **zaznacza** obiekty poza Z=0 (uchwyty) i raportuje typ + Z (`Z od..do` = obiekt prawdziwie 3D). Potem użytkownik: `FLATTEN` / obejrzyj / usuń. Detektor niezależny od typu encji 🟢 |
 
+### Raport warstw (28)
+
+**REGUŁA #0 (native-first) w akcji:** Menedżer warstw, `LAYWALK`, `SHOWLAYERUSAGE` i `PURGE` pokazują natywnie liczbę warstw, stany (wył./zamrożona/zablokowana/nie do wydruku), pochodzenie z XREF-a i werdykt „nieużywana" — w kolumnach, z sortowaniem. Tego **nie powtarzamy**. Zostało wyłącznie to, czego natywnie nie ma: **rozjazd** (warstwa pusta wg naszego liczenia, „używana" wg GstarCAD — zestawienie dwóch źródeł prawdy), **bliźniaki** nazw różniących się tylko wielkością liter/spacjami, **konwencje przedrostków**, **czego nie da się przemianować** i **całość do pliku tekstowego** (natywnie wszystko jest oknem, do oglądania).
+
+**Atrybuty bloków NIE są liczone — celowo.** `attributeIterator` zatruwa sesję GstarCAD 2027 SP1. Raport mówi o tej luce wprost, w wydruku i w pliku. Gdy jakiegokolwiek obiektu nie da się odczytać, narzędzie pisze **„nie wiem"** zamiast liczby — fałszywa liczba jest tu gorsza niż jej brak, bo ktoś na jej podstawie kasuje warstwy.
+
+| Plik | Komenda | Co robi |
+|---|---|---|
+| `28_layer_report.py` | `GSAI_WARSTWY` | Raport warstw wyłącznie z tego, czego Menedżer warstw nie pokazuje: rozjazd, bliźniaki nazw, przedrostki, warstwy nie do przemianowania + pełna lista do pliku na Pulpicie. **Tylko czyta, zero zmian w rysunku.** ⚠ **NAPISANE, NIETESTOWANE** — sprawdzona wyłącznie składnia, komenda nie była ani razu uruchomiona w GstarCAD |
+
 ## Jak ich używać
 
 Krok pierwszy — otwórz GstarCAD 2026 lub 2027.
