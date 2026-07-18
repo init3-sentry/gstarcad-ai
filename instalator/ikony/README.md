@@ -32,22 +32,20 @@ Zamawianie drugiego kompletu teraz to ryzyko, że trafi do kosza.
 formatu nie ma nawet na wewnętrznej liście obsługiwanych rozszerzeń. Katalog z plikami SVG istnieje
 wyłącznie w wersji macOS.
 
-**16 px to osobny rysunek, nie pomniejszony 32.** Producent rysuje mniejsze rozmiary od nowa,
-z mniejszą liczbą szczegółów. Przeskalowanie 64 → 16 daje papkę.
+## Nazewnictwo — nazwa pliku JEST mechanizmem
 
-Jeśli grafik pracuje w wektorach — dobrze, ale **eksport do tych sześciu rozmiarów musi być częścią
-zamówienia**, nie naszą robotą później.
+GstarCAD znajduje ikonę **wyłącznie po nazwie pliku**, razem z rozszerzeniem. Zła nazwa to przycisk
+bez ikony — bez żadnego komunikatu o błędzie.
 
-## Nazewnictwo
+Dla komendy `GSAI_IMPORTXYZ` pliki nazywają się:
 
-Nazwa pliku to **tożsamość ikony** — po niej GstarCAD ją znajduje. Dla narzędzia o komendzie
-`GSAI_IMPORTXYZ` nazwą jest **`GSAI_IMPORTXYZ`**, bez żadnych przedrostków.
+```
+GSAI_IMPORTXYZ_16.bmp
+GSAI_IMPORTXYZ_32.bmp
+```
 
-Przedrostek `RCDATA_16_` / `RCDATA_32_`, który widać w plikach producenta, **dokłada GstarCAD sam** —
-to jego sposób powiedzenia „weź rozmiar 16 z tej grupy". Grafik o tym nie musi wiedzieć; nazwy
-plików nadamy przy pakowaniu.
-
-Lista komend jest w `../komendy.json`.
+Uruchomienie `python3 gsai-cuix-gen.py` wypisuje, których plików brakuje — co do znaku. To jest
+lista robocza dla grafika, gotowa.
 
 ## Paleta i styl — bez zmian
 
