@@ -16,6 +16,14 @@
 #   - Referencja bloku = GcDbBlockReference(punkt_wstawienia_GcGePoint3d, block_id)
 #   - block_id pobieramy przez blockTable.getObjIdAt("nazwa_bloku")
 #
+# DLACZEGO try/finally przy tabeli bloków (2026-07-18, Z-25) — NIE UPRASZCZAĆ:
+# tabela otwarta przez getBlockTable(kForWrite) MUSI zostać zamknięta na KAŻDEJ
+# drodze wyjścia. GstarCAD nie zwalnia jej sam — po wyjątku między add() a close()
+# każda kolejna próba otwarcia tabeli bloków w tej sesji dostaje eWasOpenForWrite,
+# a objaw wychodzi dopiero w NASTĘPNEJ komendzie, więc nikt nie wiąże go z tą.
+# Tutaj okno było najszersze w całej bibliotece: tabela stała otwarta przez
+# add() i dwa appendGcDbEntity. Ten sam wzorzec: diag_warstwy.py, przykład 25.
+#
 # UWAGA (empirycznie 2026-07-09, GstarCAD 2027 Plus PL): blockTable.add(record)
 # zwraca GOŁY ErrorStatus, NIE tuple (status, id) — jak layerTable.add. Dlatego
 # NIE rozpakowujemy add(); id definicji pobieramy osobno przez getObjIdAt PO
@@ -37,43 +45,49 @@ def _ensureMarkerBlock(database):
         gcutPrintf("\n[BŁĄD] Nie można otworzyć tabeli bloków.")
         return None
 
-    if blockTable.has(BLOCK_NAME):
+    # close() w finally — patrz nagłówek pliku. NIE upraszczać do close() na końcu.
+    try:
+        if blockTable.has(BLOCK_NAME):
+            status, blockId = blockTable.getObjIdAt(BLOCK_NAME)
+            return blockId
+
+        # Definicja nowego bloku: nowy BlockTableRecord z dwiema liniami.
+        # add() zwraca goły status (NIE tuple) — nie rozpakowujemy.
+        blockDef = GcDbBlockTableRecord()
+        blockDef.setName(BLOCK_NAME)
+        blockTable.add(blockDef)
+
+        # Rekord bloku też zamykamy w finally — po add() należy do bazy,
+        # a appendGcDbEntity niżej może rzucić.
+        try:
+            # Dwie linie tworzące krzyżyk (poziomą i pionową) — dodajemy je
+            # DO REKORDU BLOKU, nie do model space.
+            lineH = GcDbLine(
+                GcGePoint3d(-MARKER_SIZE, 0.0, 0.0),
+                GcGePoint3d(MARKER_SIZE, 0.0, 0.0),
+            )
+            blockDef.appendGcDbEntity(lineH)
+            lineH.close()
+
+            lineV = GcDbLine(
+                GcGePoint3d(0.0, -MARKER_SIZE, 0.0),
+                GcGePoint3d(0.0, MARKER_SIZE, 0.0),
+            )
+            blockDef.appendGcDbEntity(lineV)
+            lineV.close()
+        finally:
+            blockDef.close()
+
+        # Id definicji bloku pobieramy osobno PO dodaniu (add nie zwraca id)
         status, blockId = blockTable.getObjIdAt(BLOCK_NAME)
-        blockTable.close()
+        if status != Gcad.eOk:
+            gcutPrintf("\n[BŁĄD] Nie można odczytać id nowo utworzonego bloku.")
+            return None
+
+        gcutPrintf(f"\nUtworzono nowy blok: {BLOCK_NAME}")
         return blockId
-
-    # Definicja nowego bloku: nowy BlockTableRecord z dwiema liniami.
-    # add() zwraca goły status (NIE tuple) — nie rozpakowujemy.
-    blockDef = GcDbBlockTableRecord()
-    blockDef.setName(BLOCK_NAME)
-    blockTable.add(blockDef)
-
-    # Dwie linie tworzące krzyżyk (poziomą i pionową) — dodajemy je
-    # DO REKORDU BLOKU, nie do model space.
-    lineH = GcDbLine(
-        GcGePoint3d(-MARKER_SIZE, 0.0, 0.0),
-        GcGePoint3d(MARKER_SIZE, 0.0, 0.0),
-    )
-    blockDef.appendGcDbEntity(lineH)
-    lineH.close()
-
-    lineV = GcDbLine(
-        GcGePoint3d(0.0, -MARKER_SIZE, 0.0),
-        GcGePoint3d(0.0, MARKER_SIZE, 0.0),
-    )
-    blockDef.appendGcDbEntity(lineV)
-    lineV.close()
-    blockDef.close()
-
-    # Id definicji bloku pobieramy osobno PO dodaniu (add nie zwraca id)
-    status, blockId = blockTable.getObjIdAt(BLOCK_NAME)
-    blockTable.close()
-    if status != Gcad.eOk:
-        gcutPrintf("\n[BŁĄD] Nie można odczytać id nowo utworzonego bloku.")
-        return None
-
-    gcutPrintf(f"\nUtworzono nowy blok: {BLOCK_NAME}")
-    return blockId
+    finally:
+        blockTable.close()
 
 
 @command(local_name='WSTAW_MARKER')

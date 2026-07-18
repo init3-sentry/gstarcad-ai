@@ -11,10 +11,22 @@
 # i rysuje na nich przykładowy schemat: linię na KONSTRUKCJI, dwa okręgi
 # na INSTALACJACH.
 #
+# DLACZEGO try/finally przy tabeli warstw (2026-07-18, Z-25) — NIE UPRASZCZAĆ:
+# tabela otwarta przez getLayerTable(kForWrite) MUSI zostać zamknięta na KAŻDEJ
+# drodze wyjścia. Wersja bez try/finally miała close() tylko na ścieżce sukcesu:
+# wyjątek między add() a close() (albo zwykły `return` w środku) zostawiał tabelę
+# otwartą do zapisu. GstarCAD nie zwalnia jej sam — od tego momentu każda kolejna
+# próba otwarcia tabeli warstw w tej sesji dostaje eWasOpenForWrite. Sesja jest
+# zatruta do restartu programu, a objaw wychodzi dopiero w NASTĘPNEJ komendzie,
+# więc nikt nie wiąże go z tą. Ten sam wzorzec: diag_warstwy.py, przykład 25.
+# Tu boli podwójnie: komenda woła _ensureLayerRGB DWA razy, więc drugie wywołanie
+# jest pierwszą ofiarą awarii pierwszego.
+#
 # Konwencje (v2 przewodnika + entity_in_layers.py):
 #   - GcCmColor.setRGB(r, g, b) — kolor pełny; setColorIndex(n) — kolor z palety
 #   - entity.setLayer("NAZWA") PO appendGcDbEntity (encja musi być już w bazie)
 #   - warstwa tworzona z linetype "CONTINUOUS" jako fallback
+#   - każda tabela/słownik otwarty do ZAPISU: close() w finally
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
@@ -26,20 +38,22 @@ def _ensureLayerRGB(database, name, r, g, b):
     if status != Gcad.eOk:
         gcutPrintf("\n[BŁĄD] Nie można otworzyć tabeli warstw.")
         return False
-    if layerTable.has(name):
-        layerTable.close()
+    # close() w finally — patrz nagłówek pliku. NIE upraszczać do close() na końcu.
+    try:
+        if layerTable.has(name):
+            return True
+        record = GcDbLayerTableRecord()
+        record.setName(name)
+        record.setIsLocked(0)
+        color = GcCmColor()
+        color.setRGB(r, g, b)
+        record.setColor(color)
+        layerTable.add(record)
+        record.close()
+        gcutPrintf(f"\nUtworzono warstwę: {name}")
         return True
-    record = GcDbLayerTableRecord()
-    record.setName(name)
-    record.setIsLocked(0)
-    color = GcCmColor()
-    color.setRGB(r, g, b)
-    record.setColor(color)
-    layerTable.add(record)
-    record.close()
-    layerTable.close()
-    gcutPrintf(f"\nUtworzono warstwę: {name}")
-    return True
+    finally:
+        layerTable.close()
 
 
 def _drawOnLayer(database, entity, layerName):

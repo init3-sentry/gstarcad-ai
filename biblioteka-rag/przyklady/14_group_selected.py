@@ -13,6 +13,10 @@
 # Konwencje (v2 przewodnika + groups.py):
 #   - GcDbGroup("nazwa_opisowa") — konstruktor z opisem
 #   - getGroupDictionary(GcDb.kForWrite) + setAt("KLUCZ", grupa) → (status, groupId)
+#   - słownik otwarty do ZAPISU zamykamy w finally (2026-07-18, Z-25) — NIE UPRASZCZAĆ:
+#     wyjątek przed close() zostawia słownik grup otwarty do zapisu na resztę sesji
+#     (eWasOpenForWrite przy każdej kolejnej próbie), a objaw wychodzi dopiero
+#     w następnej komendzie. Ten sam wzorzec: diag_warstwy.py, przykład 25.
 #   - grupa.append(entId) dla każdego ObjectId ze zbioru wyboru
 #   - selection set jak w entsel.py: gds_name + gcedSSGet + gcedSSFree
 
@@ -45,9 +49,12 @@ def groupSelectedEntities():
 
         # Klucz grupy musi być unikalny — bazujemy na liczbie już istniejących
         groupKey = f"GRUPA_TMSYS_{length}OBJ"
-        group = GcDbGroup(groupKey)
-        status, groupId = groupDict.setAt(groupKey, group)
-        groupDict.close()
+        # close() w finally — patrz nagłówek pliku. NIE upraszczać.
+        try:
+            group = GcDbGroup(groupKey)
+            status, groupId = groupDict.setAt(groupKey, group)
+        finally:
+            groupDict.close()
         if status != Gcad.eOk:
             group.close()
             gcedSSFree(sset)
