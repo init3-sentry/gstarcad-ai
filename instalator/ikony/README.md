@@ -1,41 +1,47 @@
 # Ikony — brief dla grafików
 
-**Nazwa pliku nie jest opisem. Nazwa pliku JEST mechanizmem.** GstarCAD wiąże ikonę
-z przyciskiem wyłącznie przez nazwę pliku. Zła nazwa = przycisk bez ikony, bez żadnego
-komunikatu o błędzie.
+**Wersja z 18.07.2026, po sprawdzeniu na Windows.** Poprzednia wersja opisywała mechanizm macOS
+i była w połowie błędna — nie używać.
 
-## Co dostarczyć
+## Co zamówić
 
-Na każde narzędzie **cztery pliki SVG**:
+**To jest pewne i nie zależy od tego, jak ostatecznie dostarczymy pliki do GstarCAD.**
 
-| Ścieżka | Kiedy widoczna |
+| | |
 |---|---|
-| `light/RCDATA_16_<KOMENDA>.svg` | motyw jasny, mały przycisk |
-| `light/RCDATA_32_<KOMENDA>.svg` | motyw jasny, duży przycisk |
-| `dark/RCDATA_16_<KOMENDA>.svg` | motyw ciemny, mały przycisk |
-| `dark/RCDATA_32_<KOMENDA>.svg` | motyw ciemny, duży przycisk |
+| Format | **rastry** — PNG albo BMP. ⛔ **NIE SVG** |
+| Rozmiary | **16, 24, 32, 40, 48, 64 px** — komplet, każdy osobno |
+| Głębia | **32 bity z kanałem alfa** (przezroczystość) |
+| Warianty | **dwa pełne komplety: jasny i ciemny** |
 
-`<KOMENDA>` bierzemy z `komendy.json`, na przykład `GSAI_IMPORTXYZ`. Wielkości liter
-nie zmieniamy.
+Czyli na jedno narzędzie: **12 plików** (6 rozmiarów × 2 warianty).
 
-Uruchomienie `python3 gsai-cuix-gen.py` wypisuje, których plików brakuje — co do znaku.
+**Dlaczego nie SVG:** na Windows GstarCAD nie obsługuje SVG w interfejsie w żadnym wariancie —
+formatu nie ma nawet na wewnętrznej liście obsługiwanych rozszerzeń. Katalog z plikami SVG istnieje
+wyłącznie w wersji macOS.
 
-## Gramatyka ich zestawu (zmierzona na 1705 ikonach)
+**16 px to osobny rysunek, nie pomniejszony 32.** Producent rysuje mniejsze rozmiary od nowa,
+z mniejszą liczbą szczegółów. Przeskalowanie 64 → 16 daje papkę.
+
+Jeśli grafik pracuje w wektorach — dobrze, ale **eksport do tych sześciu rozmiarów musi być częścią
+zamówienia**, nie naszą robotą później.
+
+## Nazewnictwo
+
+Nazwa pliku to **tożsamość ikony** — po niej GstarCAD ją znajduje. Dla narzędzia o komendzie
+`GSAI_IMPORTXYZ` nazwą jest **`GSAI_IMPORTXYZ`**, bez żadnych przedrostków.
+
+Przedrostek `RCDATA_16_` / `RCDATA_32_`, który widać w plikach producenta, **dokłada GstarCAD sam** —
+to jego sposób powiedzenia „weź rozmiar 16 z tej grupy". Grafik o tym nie musi wiedzieć; nazwy
+plików nadamy przy pakowaniu.
+
+Lista komend jest w `../komendy.json`.
+
+## Paleta i styl — bez zmian
 
 Ikony mają wyglądać jak część GstarCAD, nie jak wtyczka doklejona z boku.
 
-- **Rysunek 16×16 i 32×32 to dwa osobne rysunki.** Ich 16 nie jest pomniejszonym 32 —
-  ma mniej szczegółu. Przeskalowanie 32 do 16 daje papkę.
-- **Same wypełnienia, zero obrysów.** W całym ich zestawie nie ma ani jednego `stroke`.
-- **Margines 3 px** od krawędzi, zaokrąglenia `rx="1"`.
-- **Punkt** to zawsze `<rect width="3" height="3" rx="1"/>`.
-- **Ostatni element to przezroczysty prostokąt** na całość:
-  `<rect id="TPbg" fill="none" width="32" height="32"/>`.
-- Grupy nazywają `id="Gray"` i `id="Blue"`.
-
-### Paleta
-
-| Rola | Jasny | Ciemny | Ile razy u nich |
+| Rola | Jasny | Ciemny | Ile razy u producenta |
 |---|---|---|---|
 | Szary — geometria, tło, kontur | `#d5d5d5` | `#576273` | 1246 |
 | Niebieski — akcent, „co robi narzędzie" | `#1aa0ff` | `#1CA2F6` | 957 |
@@ -43,13 +49,36 @@ Ikony mają wyglądać jak część GstarCAD, nie jak wtyczka doklejona z boku.
 | Czerwony — kasowanie, błąd | `#e04d4d` | `#FF5252` | 112 |
 | Zielony — potwierdzenie | `#18ae55` | — | 75 |
 
-⚠️ **Ich własny zestaw dryfuje** — obok `#1aa0ff` występuje `#18a0ff` (17×), obok
-`#d5d5d5` jest `#d8d8d8`. To ich niedbałość, nie wzorzec. **My trzymamy się kolumny wyżej.**
-
 **Zasada czytania ikony:** szare = rzecz, na której działamy (dokument, obiekt, warstwa).
-Niebieskie = czynność. Dlatego jedno spojrzenie wystarcza — niebieski mówi „co to robi".
+Niebieskie = czynność. Dlatego jedno spojrzenie wystarcza.
 
-## Status
+Reszta gramatyki: same wypełnienia bez obrysów, margines ~3 px przy 32 px, zaokrąglenia 1 px,
+punkt jako kwadrat 3×3.
 
-**Pusto — czekamy na grafikę.** `.cuix` buduje się bez ikon i przyciski działają;
-są po prostu puste. To celowe: mechanizm ma być przetestowany, zanim grafika powstanie.
+⚠️ Zestaw producenta **dryfuje** — obok `#1aa0ff` bywa `#18a0ff`, obok `#d5d5d5` bywa `#d8d8d8`.
+To ich niedbałość, nie wzorzec. Trzymamy się kolumn wyżej.
+
+---
+
+## Dla nas, nie dla grafika — jak to trafia do GstarCAD
+
+**Droga pewna, przetarta przez producenta:** ikony jako zasoby w bibliotece `.dll`, para jasna
+i ciemna. Tak robi **wszystkie 17 nakładek** w tej instalacji, bez wyjątku.
+
+**Dwie drogi tańsze, nieprzetestowane** — jeśli któraś działa, wystarczy kopiować pliki:
+
+1. **`IconFilePath`** — ustawienie w profilu wskazujące katalog
+   `…\AppData\Roaming\Gstarsoft\GstarCAD\R27\pl-PL\Support\Icons`. **Katalog istnieje i jest pusty.**
+2. **Obrazki w środku paczki `.cuix`** — silnik interfejsu ma metody do wyjmowania bitmap z paczki
+   i zna rozszerzenia `bmp`, `png`, `ico`, `rle`.
+
+Obie do sprawdzenia jednym testem przy pulpicie. **Kolejność ma znaczenie ekonomiczne:** kopiowanie
+plików kontra dostarczanie podpisanej biblioteki dla każdej wersji GstarCAD to zupełnie inny koszt
+utrzymania.
+
+🔴 **Ryzyko, którego nie znaliśmy:** w manifeście nakładki producenta **biblioteka ikon nie jest
+w ogóle zadeklarowana** — wymieniony jest tylko moduł `.grx` i plik `.cuix`. Nie wiadomo, czy silnik
+sam przeszukuje wczytane moduły, czy to moduł rejestruje swoje zasoby. Jeśli to drugie, sama
+biblioteka położona obok `.cuix` może nie wystarczyć, **a modułu w C++ nie mamy**.
+
+Pełne ustalenia: `gstarcad-ai-wewnetrzne/referencje/` oraz raport `Z-13-ikony-windows.md`.
