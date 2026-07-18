@@ -5,16 +5,28 @@ i była w połowie błędna — nie używać.
 
 ## Co zamówić
 
-**To jest pewne i nie zależy od tego, jak ostatecznie dostarczymy pliki do GstarCAD.**
+**Sprawdzone empirycznie 18.07.2026 na GstarCAD 2027 Windows.**
 
 | | |
 |---|---|
-| Format | **rastry** — PNG albo BMP. ⛔ **NIE SVG** |
-| Rozmiary | **16, 24, 32, 40, 48, 64 px** — komplet, każdy osobno |
-| Głębia | **32 bity z kanałem alfa** (przezroczystość) |
-| Warianty | **dwa pełne komplety: jasny i ciemny** |
+| Format | **BMP, 32 bity z kanałem alfa**. ⛔ **NIE SVG** |
+| Rozmiary | **16 × 16** i **32 × 32** px |
+| Nazwy plików | `<KOMENDA>_16.bmp` i `<KOMENDA>_32.bmp`, np. `GSAI_IMPORTXYZ_16.bmp` |
+| Warianty | jasny — ciemny **wstrzymany**, patrz niżej |
 
-Czyli na jedno narzędzie: **12 plików** (6 rozmiarów × 2 warianty).
+Czyli na jedno narzędzie: **2 pliki**. Lista komend jest w `../komendy.json`.
+
+**16 px to osobny rysunek, nie pomniejszony 32.** Producent rysuje mniejszy rozmiar od nowa,
+z mniejszą liczbą szczegółów. Przeskalowanie daje papkę.
+
+Jeśli grafik pracuje w wektorach — dobrze, ale **eksport do BMP w obu rozmiarach musi być częścią
+zamówienia**, nie naszą robotą później.
+
+### ⏸️ Wariant ciemny — jeszcze nie zamawiać
+
+Producent robi motyw ciemny przez **podmianę całej biblioteki** (`undet.dll` / `undetDark.dll`).
+My mamy jedną paczkę i **nie wiemy jeszcze, jak wskazać wariant**. Do rozstrzygnięcia jednym testem.
+Zamawianie drugiego kompletu teraz to ryzyko, że trafi do kosza.
 
 **Dlaczego nie SVG:** na Windows GstarCAD nie obsługuje SVG w interfejsie w żadnym wariancie —
 formatu nie ma nawet na wewnętrznej liście obsługiwanych rozszerzeń. Katalog z plikami SVG istnieje
@@ -62,23 +74,22 @@ To ich niedbałość, nie wzorzec. Trzymamy się kolumn wyżej.
 
 ## Dla nas, nie dla grafika — jak to trafia do GstarCAD
 
-**Droga pewna, przetarta przez producenta:** ikony jako zasoby w bibliotece `.dll`, para jasna
-i ciemna. Tak robi **wszystkie 17 nakładek** w tej instalacji, bez wyjątku.
+✅ **Rozstrzygnięte: ikony jadą w środku pliku `.cuix`.** Generator pakuje je sam — kładziesz pliki
+w tym katalogu, uruchamiasz `python3 gsai-cuix-gen.py` i tyle.
 
-**Dwie drogi tańsze, nieprzetestowane** — jeśli któraś działa, wystarczy kopiować pliki:
+Przepis (sprawdzony, trzy warianty testowane naraz):
 
-1. **`IconFilePath`** — ustawienie w profilu wskazujące katalog
-   `…\AppData\Roaming\Gstarsoft\GstarCAD\R27\pl-PL\Support\Icons`. **Katalog istnieje i jest pusty.**
-2. **Obrazki w środku paczki `.cuix`** — silnik interfejsu ma metody do wyjmowania bitmap z paczki
-   i zna rozszerzenia `bmp`, `png`, `ico`, `rle`.
+1. Obrazek BMP w **korzeniu** paczki `.cuix` — podkatalog **nie działa**.
+2. W `MenuGroup.cui`: `<SmallImage Name="NAZWA_16.bmp" />` — **z rozszerzeniem**. Sama nazwa bez
+   rozszerzenia **nie działa**.
+3. W `[Content_Types].xml` wpis `<Default Extension="bmp" ContentType="image/bmp" />`.
 
-Obie do sprawdzenia jednym testem przy pulpicie. **Kolejność ma znaczenie ekonomiczne:** kopiowanie
-plików kontra dostarczanie podpisanej biblioteki dla każdej wersji GstarCAD to zupełnie inny koszt
-utrzymania.
+**Czego NIE robimy, a robi producent:** wszystkie 17 nakładek w instalacji dostarcza ikony przez
+skompilowaną bibliotekę `.dll`, osobno dla każdej wersji. Nam wystarczy jeden plik — bez kodu w C++,
+bez podpisywania, bez utrzymania przez lata.
 
-🔴 **Ryzyko, którego nie znaliśmy:** w manifeście nakładki producenta **biblioteka ikon nie jest
-w ogóle zadeklarowana** — wymieniony jest tylko moduł `.grx` i plik `.cuix`. Nie wiadomo, czy silnik
-sam przeszukuje wczytane moduły, czy to moduł rejestruje swoje zasoby. Jeśli to drugie, sama
-biblioteka położona obok `.cuix` może nie wystarczyć, **a modułu w C++ nie mamy**.
+Ślepe tropy, sprawdzone i odrzucone: ustawienie `IconFilePath` z katalogiem `Support\Icons`
+(katalog istnieje, jest pusty i **nic z niego nie jest czytane**) oraz ścieżka z podkatalogiem
+w paczce.
 
-Pełne ustalenia: `gstarcad-ai-wewnetrzne/referencje/` oraz raport `Z-13-ikony-windows.md`.
+Pełne ustalenia: `gstarcad-ai-wewnetrzne/referencje/cuix-anatomia.md` §6b.

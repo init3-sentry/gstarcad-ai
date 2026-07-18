@@ -119,6 +119,7 @@ PUSTE = [
 CONTENT_TYPES = (
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    '<Default Extension="bmp" ContentType="image/bmp" />'
     '<Default Extension="cui" ContentType="text/xml" />'
     '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />'
     '<Default Extension="xml" ContentType="text/xml" />'
@@ -191,7 +192,7 @@ def menu_group(d, kom):
                 quoteattr(uid("XLS", k["komenda"] + ":nazwa")), escape(k["nazwa"]),
                 PREFIKS_MAKRA, escape(k["komenda"]),
                 quoteattr(uid("XLS", k["komenda"] + ":opis")), escape(k["opis"]),
-                quoteattr("RCDATA_16_" + k["ikona"]), quoteattr("RCDATA_32_" + k["ikona"]),
+                quoteattr(k["ikona"] + "_16.bmp"), quoteattr(k["ikona"] + "_32.bmp"),
             ))
     return ('<?xml version="1.0"?>\n'
             '<MenuGroup %s Name=%s DisplayName=%s>\n'
@@ -334,11 +335,10 @@ def sprawdz_ikony(kom):
     """
     brak = []
     for k in kom:
-        for motyw in ("light", "dark"):
-            for rozmiar in (16, 32):
-                p = os.path.join(IKONY, motyw, "RCDATA_%d_%s.svg" % (rozmiar, k["ikona"]))
-                if not os.path.exists(p):
-                    brak.append(os.path.relpath(p, KATALOG))
+        for rozmiar in (16, 32):
+            p = os.path.join(IKONY, "%s_%d.bmp" % (k["ikona"], rozmiar))
+            if not os.path.exists(p):
+                brak.append(os.path.relpath(p, KATALOG))
     return brak
 
 
@@ -372,11 +372,26 @@ def main():
     czesci["Menu_Package_Info.xml"] = package_info(sorted(czesci.keys()) + ["Menu_Package_Info.xml"])
     czesci["[Content_Types].xml"] = CONTENT_TYPES
 
+    # Ikony wchodza DO paczki. Bierzemy te, ktore istnieja — brak nie jest bledem,
+    # GstarCAD wstawi wtedy swoje logo, co jest widoczne od razu.
+    spakowane = []
+    for k in kom:
+        for rozmiar in (16, 32):
+            plik = os.path.join(IKONY, "%s_%d.bmp" % (k["ikona"], rozmiar))
+            if os.path.exists(plik):
+                spakowane.append(plik)
+
     with zipfile.ZipFile(a.wyjscie, "w", zipfile.ZIP_DEFLATED) as z:
         for nazwa in sorted(czesci):
             zi = zipfile.ZipInfo(nazwa, DATA_ZIP)
             zi.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(zi, czesci[nazwa].encode("utf-8"))
+        # Ikony ida do KORZENIA paczki — podkatalog nie dziala (sprawdzone 2026-07-18).
+        for plik in sorted(spakowane):
+            zi = zipfile.ZipInfo(os.path.basename(plik), DATA_ZIP)
+            zi.compress_type = zipfile.ZIP_DEFLATED
+            with open(plik, "rb") as f:
+                z.writestr(zi, f.read())
 
     if a.wypakuj:
         if os.path.isdir(a.wypakuj):
@@ -396,7 +411,7 @@ def main():
             print("  - " + p)
         if len(brak) > 6:
             print("  ... i %d dalszych" % (len(brak) - 6))
-        print("Nazwa pliku JEST mechanizmem wiazania — musi zgadzac sie co do znaku.")
+        print("Nazwa pliku JEST mechanizmem wiazania — musi zgadzac sie co do znaku (z rozszerzeniem .bmp).")
 
 
 if __name__ == "__main__":
