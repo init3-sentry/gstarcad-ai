@@ -65,9 +65,9 @@ zanim cokolwiek powstanie. Łączy się bezpośrednio z wezwaniem do działania 
 
 **Sformułowanie do klienta jest w drugiej osobie, per „Państwo":**
 
-> Po tych doświadczeniach zmieniliśmy podejście. Dziś Państwa wnioski racjonalizatorskie
-> najpierw przechodzą dogłębną analizę naszego działu wsparcia, który dopiero zatwierdza
-> narzędzie do produkcji.
+> Po tych doświadczeniach zmieniliśmy podejście. Dziś Państwa pomysły i sugestie najpierw
+> przechodzą dogłębną analizę naszego działu wsparcia, który dopiero zatwierdza narzędzie
+> do produkcji.
 
 **Dwie rzeczy, które ta historia załatwia naraz:**
 
