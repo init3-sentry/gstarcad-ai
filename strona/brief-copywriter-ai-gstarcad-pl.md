@@ -36,17 +36,36 @@ pisania. Na stronie sprzedajemy **rozwiązane problemy**, nie technologię.
 Nie robimy z tego głównego magnesu — bo wtedy strona brzmi jak każdy inny landing z 2026 roku
 i obiecuje więcej, niż na starcie dowozimy.
 
-## 3. Mocny chwyt, którego nikt się nie spodziewa: „nie budujemy tego, co jest w pudełku"
+## 3. Mocny chwyt, którego nikt się nie spodziewa: proces z kontrolą jakości
 
-To jest nasz najlepszy materiał na zaufanie i **kosztuje zero**.
+To jest nasz najlepszy materiał na zaufanie i **kosztuje zero**. Ale trzeba go opowiedzieć
+całą historią, nie samą puentą — inaczej wychodzi na to, że budujemy na oślep.
 
-Zbudowaliśmy cztery narzędzia i **sami je skasowaliśmy**, bo GstarCAD ma te funkcje natywnie
-(zamiana tekstu, eksport i import atrybutów). Zdanie na stronę:
+**Cały łańcuch, w tej kolejności:**
+
+1. **Potrzeba.** Narzędzia nie wzięły się z powietrza. Powstały z maili od klientów i z tego,
+   co ludzie mówili podczas webinaru — z realnych problemów, które ktoś zgłosił.
+2. **Szybkość.** Dzięki AI zrobiliśmy z tego serię narzędzi w tempie, które wcześniej było
+   nie do pomyślenia.
+3. **Weryfikacja.** Zanim cokolwiek wyszło do klientów, przeszło przez nasz dział wsparcia.
+   I część narzędzi **nie przetrwała tego zderzenia** — support wskazał, że podobne funkcje
+   są w GstarCAD natywnie, część od lat.
+4. **Decyzja.** Wycofaliśmy je. Świadomie. Nie wypuszczamy czegoś, co klient już ma w programie.
+
+**Dwie rzeczy, które ta historia załatwia naraz:**
+
+- **Pokazuje proces, nie przypadek.** Szybka produkcja + twarda kontrola jakości = tak działa
+  poważny zespół, a nie ktoś, kto sypie narzędziami na pałę.
+- **Podkreśla kompetencje wsparcia.** Nasz support zna GstarCAD tak dobrze, że wyłapuje duplikat,
+  zanim trafi do klienta. To jest argument sam w sobie.
+
+Puenta, do której to wszystko prowadzi:
 
 > **Nie budujemy tego, co już masz w programie. Budujemy to, czego w nim brakuje.**
 
-Czytelnik wychodzi z realną wiedzą (często nie wie, że ma te funkcje od lat) i z poczuciem,
-że nie próbujemy mu wcisnąć zapełniacza. To działa mocniej niż jakikolwiek slajd o AI.
+⚠️ **Nie skracaj tego do samej puenty.** Bez łańcucha „potrzeba → szybko → weryfikacja → decyzja"
+zdanie o kasowaniu narzędzi brzmi jak przyznanie się do bałaganu. Z łańcuchem — brzmi jak
+dojrzały proces. Cała wartość jest w kolejności, nie w konkluzji.
 
 ## 4. Słownik — czego używać, czego unikać
 
