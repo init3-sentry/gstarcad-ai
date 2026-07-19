@@ -84,17 +84,16 @@ Puenta, do której to wszystko prowadzi:
 zdanie o kasowaniu narzędzi brzmi jak przyznanie się do bałaganu. Z łańcuchem — brzmi jak
 dojrzały proces. Cała wartość jest w kolejności, nie w konkluzji.
 
-## 4. Słownik — czego używać, czego unikać
+## 4. Słownik marki
 
-| ⛔ Nie pisz | ✅ Pisz |
-|---|---|
-| „skrypt" | „narzędzie" — zawsze. W świecie CAD „skrypt" to plik `.scr`, pomylisz czytelnika |
-| „kod", „kodujemy" | „narzędzie", „robimy". „Kod" zawęża odbiór do programistów, reszta przestaje czytać |
-| „GstarCAD-a", „w GstarCAD-zie" | **„GstarCAD"** — nazw CAD się NIE odmienia. Tak samo AutoCAD, ZWCAD |
-| „sztuczna inteligencja pisze program" | „narzędzia, które przygotowaliśmy" |
-| „rewolucyjny", „przełomowy", „killer feature" | konkret: co robi, co oszczędza |
+Terminy, których trzymamy się konsekwentnie w naszych materiałach:
 
-**Nazwy programów w formie podstawowej w każdym przypadku.** `GstarCAD`, nie `GstarCAD-em`.
+- **„narzędzie"** — nie „skrypt". W świecie CAD „skrypt" to plik `.scr`, czyli co innego.
+- **„budujemy" / „przygotowaliśmy"** — zamiast „AI pisze program".
+- **Nazwy programów w formie podstawowej, bez odmiany:** GstarCAD, AutoCAD, ZWCAD. Nie
+  „GstarCAD-a", nie „w GstarCAD-zie".
+- **Konkret zamiast przymiotnika.** Bez „rewolucyjny", „przełomowy", „killer feature" — mówimy,
+  co narzędzie robi i co oszczędza.
 
 ## 5. Ton
 
