@@ -51,6 +51,20 @@ całą historią, nie samą puentą — inaczej wychodzi na to, że budujemy na 
    I część narzędzi **nie przetrwała tego zderzenia** — support wskazał, że podobne funkcje
    są w GstarCAD natywnie, część od lat.
 4. **Decyzja.** Wycofaliśmy je. Świadomie. Nie wypuszczamy czegoś, co klient już ma w programie.
+5. **Wniosek na przyszłość.** Po tych błędach zmieniliśmy podejście. Dziś każdy pomysł
+   zgłoszony przez klienta najpierw trafia do dogłębnej analizy działu wsparcia — i dopiero
+   support zatwierdza narzędzie do ewentualnej produkcji. Kolejność jest odwrócona: najpierw
+   sprawdzamy, czy to ma sens i czy programu już tego nie robi, potem budujemy.
+
+To piąty punkt jest najważniejszy, bo **zamienia przyznanie się do błędu w opis dojrzałego
+procesu** — i wprost zaprasza czytelnika: zgłoś pomysł, a przejdzie przez ekspercką ocenę,
+zanim cokolwiek powstanie. Łączy się bezpośrednio z wezwaniem do działania (sekcja 8).
+
+**Sformułowanie do klienta jest w drugiej osobie, per „Państwo":**
+
+> Po tych doświadczeniach zmieniliśmy podejście. Dziś Państwa wnioski racjonalizatorskie
+> najpierw przechodzą dogłębną analizę naszego działu wsparcia, który dopiero zatwierdza
+> narzędzie do produkcji.
 
 **Dwie rzeczy, które ta historia załatwia naraz:**
 
