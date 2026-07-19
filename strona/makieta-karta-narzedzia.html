@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karta narzędzia — makieta dla grafików</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root{
+    --navy:#001E4D; --navy2:#010C39; --blue:#4070FF; --blue-d:#2f5ae0; --cyan:#00B7CD;
+    --green:#18ae55; --amber:#f7990c; --red:#e04d4d;
+    --page:#fff; --section:#F5F6F8; --ink:#23282D; --muted:#5b6470;
+    --card:#fff; --bd:#e7e9ee; --sh:0 10px 26px rgba(0,30,77,.06);
+    --hero:linear-gradient(180deg,#F2F2F2,#fff); --hink:#001E4D; --hsub:#4a5566;
+    --mono:#0a1a3d; --label:#9aa4b2;
+  }
+  :root[data-theme="dark"]{
+    --page:#001327; --section:#04102a; --ink:#e7eefb; --muted:#9fb0cc;
+    --card:#0a1a3d; --bd:rgba(255,255,255,.09); --sh:0 14px 30px rgba(0,0,0,.35);
+    --hero:linear-gradient(180deg,#001E4D,#010C39); --hink:#fff; --hsub:#c7d2e6;
+    --mono:#050f28; --label:#5f6f88;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--page);line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+  h1,h2,h3{font-weight:800;letter-spacing:-.02em;line-height:1.15}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:14px 26px;border-radius:32px;border:0;cursor:pointer;text-decoration:none;transition:.15s}
+  .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue-d)}
+  .btn-line{background:transparent;color:var(--ink);border:1.5px solid var(--bd)}
+
+  .topbar{background:var(--blue);color:#fff;text-align:center;font-size:13px;font-weight:600;padding:8px}
+  nav{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20}
+  .nav-in{display:flex;align-items:center;gap:14px;height:60px;font-size:18px;font-weight:800;color:#fff}
+  .nav-in .mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;font-size:14px}
+  .nav-in .tm{opacity:.55;font-weight:600;font-size:13px;border-right:1px solid rgba(255,255,255,.25);padding-right:10px}
+
+  /* pasek dla grafików */
+  .note{background:repeating-linear-gradient(45deg,#fff7e6,#fff7e6 12px,#fff0d0 12px,#fff0d0 24px);color:#7a5b12;font-size:13px;text-align:center;padding:10px;border-bottom:1px solid #f0d9a0}
+  :root[data-theme="dark"] .note{background:#241d0a;color:#e8c877;border-color:#3a2f12}
+
+  .crumb{color:var(--muted);font-size:13px;padding:22px 0 0}
+  .crumb b{color:var(--blue)}
+
+  /* nagłówek narzędzia */
+  .head{display:flex;gap:20px;align-items:flex-start;padding:16px 0 8px}
+  .tic{width:64px;height:64px;border-radius:16px;background:rgba(247,153,12,.14);display:grid;place-items:center;font-size:30px;flex:none}
+  .head h1{font-size:32px}
+  .cmd-chip{display:inline-block;font-family:"SF Mono",Menlo,monospace;font-size:13px;background:rgba(64,112,255,.12);color:var(--blue);padding:4px 10px;border-radius:6px;margin-top:8px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .bdg{font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px}
+  .bdg.cat{background:rgba(0,183,205,.14);color:#0698ac}
+  .bdg.free{background:rgba(24,174,85,.13);color:var(--green)}
+  .bdg.ver{background:var(--section);color:var(--muted);border:1px solid var(--bd)}
+  .bdg.new{background:rgba(64,112,255,.13);color:var(--blue)}
+
+  /* zona = blok z etykietą warstwy dla grafika */
+  .zone{position:relative;margin:30px 0}
+  .zlab{position:absolute;left:-118px;top:0;width:100px;text-align:right;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--label);text-transform:uppercase;line-height:1.3}
+  @media(max-width:1180px){.zlab{position:static;width:auto;text-align:left;margin-bottom:8px;color:var(--blue)}}
+
+  /* warstwa 1: film + skrót */
+  .h1grid{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:center}
+  .video{aspect-ratio:9/16;max-height:420px;border-radius:16px;background:linear-gradient(160deg,#0a1a3d,#001127);position:relative;overflow:hidden;box-shadow:var(--sh);display:grid;place-items:center;border:1px solid var(--bd)}
+  .video .play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:24px;color:#fff}
+  .video .tt{position:absolute;bottom:12px;left:12px;right:12px;color:#fff;font-size:12px;opacity:.85;display:flex;align-items:center;gap:6px}
+  .video .ph{position:absolute;top:12px;left:12px;font-size:11px;color:rgba(255,255,255,.5);font-weight:700}
+  .lead1{font-size:20px;font-weight:600;margin-bottom:14px}
+  .lead1 b{color:var(--blue)}
+  .h1cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .tiktok{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);text-decoration:none;font-weight:600}
+  .tiktok:hover{color:var(--ink)}
+
+  /* warstwa 2: przed/po suwak */
+  .ba{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--bd);box-shadow:var(--sh);aspect-ratio:16/8;background:var(--card)}
+  .ba .layer{position:absolute;inset:0}
+  .ba svg{width:100%;height:100%;display:block}
+  .ba .after{clip-path:inset(0 0 0 var(--split,50%))}
+  .ba .handle{position:absolute;top:0;bottom:0;left:var(--split,50%);width:2px;background:var(--blue);z-index:3}
+  .ba .handle::after{content:"⇆";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:15px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+  .ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:4;margin:0}
+  .ba .tag{position:absolute;top:10px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;z-index:2}
+  .ba .tag.l{left:10px}.ba .tag.r{right:10px}
+
+  /* opis rozwijany */
+  .desc p{font-size:17px;color:var(--ink);max-width:660px}
+  .more{margin-top:14px}
+  .more summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:15px;list-style:none}
+  .more summary::-webkit-details-marker{display:none}
+  .more summary::before{content:"▸ ";}
+  .more[open] summary::before{content:"▾ "}
+  .more .body{padding-top:14px;color:var(--muted);font-size:15px;max-width:680px}
+  .more .body ol{margin:10px 0 10px 20px}.more .body li{margin:5px 0}
+
+  /* komendy składowe + scr (mono) */
+  .tech{background:var(--mono);border:1px solid var(--bd);border-radius:12px;padding:20px 22px;font-family:"SF Mono",Menlo,monospace;font-size:13px;color:#a9c4ff;overflow:auto}
+  .tech .c{color:#5f77a8}
+  .tech .k{color:var(--cyan)}
+  .free-only{font-size:12px;color:var(--green);font-weight:700;margin-bottom:10px;display:inline-block}
+
+  /* geneza */
+  .gen{background:var(--section);border-left:3px solid var(--cyan);border-radius:0 12px 12px 0;padding:22px 26px}
+  .gen h3{font-size:18px;margin-bottom:10px}
+  .gen blockquote{font-size:16px;font-style:italic;color:var(--ink);margin:10px 0}
+  .gen cite{font-size:13px;color:var(--muted);font-style:normal}
+
+  /* powiązane */
+  .rel{display:flex;gap:12px;flex-wrap:wrap}
+  .rchip{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 16px;font-weight:600;font-size:14px;box-shadow:var(--sh)}
+  .rchip .i{width:32px;height:32px;border-radius:8px;background:rgba(64,112,255,.12);display:grid;place-items:center;font-size:16px}
+
+  /* podcast */
+  .pod{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 20px;box-shadow:var(--sh)}
+  .pod .cover{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--blue));display:grid;place-items:center;font-size:22px;color:#fff;flex:none}
+  .pod .t{font-weight:700}.pod .s{font-size:13px;color:var(--muted)}
+  .pod .go{margin-left:auto}
+
+  footer{background:var(--navy2);color:#8ea3c4;padding:30px 0;font-size:14px;margin-top:60px}
+
+  .theme{position:fixed;left:20px;bottom:20px;z-index:50;display:flex;gap:4px;background:var(--navy);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:5px}
+  .theme button{width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:#fff;cursor:pointer;font-size:15px;opacity:.5}
+  .theme button.on{background:var(--blue);opacity:1}
+
+  @media(max-width:720px){.h1grid{grid-template-columns:1fr}.video{max-width:280px;margin:0 auto}}
+</style>
+</head>
+<body>
+
+<div class="topbar">✨ GstarCAD·AI — narzędzia</div>
+<div class="note">📐 Makieta poglądowa dla grafików — pokazuje układ i strefy karty narzędzia. Etykiety z lewej (WARSTWA 1–4) są opisem struktury, nie elementem strony.</div>
+
+<nav><div class="wrap nav-in"><span class="tm">tmsys</span><span class="mark">◆</span> GstarCAD<span style="color:var(--cyan)">·AI</span></div></nav>
+
+<div class="wrap">
+  <div class="crumb">Narzędzia / <b>Porządek w rysunku</b> / Audyt osi Z</div>
+
+  <div class="head">
+    <div class="tic">⚠️</div>
+    <div>
+      <h1>Audyt osi Z</h1>
+      <span class="cmd-chip">GSAI_AUDYTZ</span>
+      <div class="badges">
+        <span class="bdg cat">Porządek w rysunku</span>
+        <span class="bdg free">Za darmo</span>
+        <span class="bdg ver">GstarCAD 2026+</span>
+        <span class="bdg new">Dodano 12 lipca</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- WARSTWA 1 -->
+  <div class="zone">
+    <div class="zlab">Warstwa 1<br>Skan · 10 s</div>
+    <div class="h1grid">
+      <div class="video">
+        <span class="ph">[ film 9:16 ]</span>
+        <div class="play">▶</div>
+        <div class="tt">▶ Narzędzie w akcji — 10 s, bez dźwięku, w pętli</div>
+      </div>
+      <div>
+        <p class="lead1">Znajduje obiekty leżące poza zerem, <b>zanim policzą Ci błędną powierzchnię</b>.</p>
+        <div class="h1cta">
+          <a class="btn btn-blue" href="#">⬇ Pobierz narzędzie</a>
+          <a class="btn btn-line" href="#">Jak wczytać</a>
+        </div>
+        <a class="tiktok" href="#">▶ Zobacz 10-sekundowy trik na TikToku →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- WARSTWA 2 -->
+  <div class="zone">
+    <div class="zlab">Warstwa 2<br>Dowód</div>
+    <div class="ba" id="ba">
+      <div class="layer before">
+        <svg viewBox="0 0 800 400"><rect width="800" height="400" fill="#eef1f6"/><g stroke="#8895aa" stroke-width="1.5" fill="none"><rect x="120" y="90" width="560" height="220"/><line x1="120" y1="200" x2="680" y2="200"/><line x1="400" y1="90" x2="400" y2="310"/></g><g fill="#e04d4d"><circle cx="250" cy="150" r="6"/><circle cx="520" cy="250" r="6"/><circle cx="600" cy="130" r="6"/><circle cx="180" cy="270" r="6"/></g><text x="30" y="380" fill="#e04d4d" font-family="monospace" font-size="15">4 obiekty poza Z=0 (czerwone)</text></svg>
+      </div>
+      <div class="layer after">
+        <svg viewBox="0 0 800 400"><rect width="800" height="400" fill="#eef1f6"/><g stroke="#8895aa" stroke-width="1.5" fill="none"><rect x="120" y="90" width="560" height="220"/><line x1="120" y1="200" x2="680" y2="200"/><line x1="400" y1="90" x2="400" y2="310"/></g><g fill="#18ae55"><circle cx="250" cy="150" r="6"/><circle cx="520" cy="250" r="6"/><circle cx="600" cy="130" r="6"/><circle cx="180" cy="270" r="6"/></g><text x="30" y="380" fill="#18ae55" font-family="monospace" font-size="15">wszystko na Z=0 — powierzchnia liczy się poprawnie</text></svg>
+      </div>
+      <span class="tag l">PRZED</span><span class="tag r">PO</span>
+      <div class="handle"></div>
+      <input type="range" min="0" max="100" value="50" oninput="document.getElementById('ba').style.setProperty('--split',this.value+'%')">
+    </div>
+  </div>
+
+  <!-- WARSTWA 2b: opis -->
+  <div class="zone desc">
+    <div class="zlab">Warstwa 2<br>Opis</div>
+    <p>Kursor łapie się obiektów wyniesionych ponad płaszczyznę, a program liczy wtedy błędną powierzchnię i długości. Audyt osi Z znajduje wszystkie takie obiekty i zaznacza je uchwytami — od razu widać, ile ich jest i gdzie siedzą.</p>
+    <details class="more">
+      <summary>Rozwiń pełny opis</summary>
+      <div class="body">
+        Narzędzie przechodzi cały rysunek i wyszukuje obiekty, których elewacja albo grubość jest różna od zera — także wewnątrz definicji bloków. Zaznaczone uchwytami można od ręki spłaszczyć natywnym poleceniem <code>FLATTEN</code>. Cała naprawa to dwie komendy.
+        <ol>
+          <li>Wczytujesz narzędzie: <b>APPLOAD</b> → <b>GSAI_AUDYTZ</b>.</li>
+          <li>Program zaznacza obiekty poza Z=0 i podaje ich liczbę.</li>
+          <li><b>FLATTEN</b> spłaszcza zaznaczone do zera.</li>
+        </ol>
+      </div>
+    </details>
+  </div>
+
+  <!-- WARSTWA 3: technika -->
+  <div class="zone">
+    <div class="zlab">Warstwa 3<br>Jak działa</div>
+    <span class="free-only">✓ Pełna jawność — narzędzie darmowe (dla płatnych: tylko opis, bez wnętrza)</span>
+    <div class="tech"><span class="c"># komendy składowe narzędzia</span><br>
+GSAI_AUDYTZ<br>
+&nbsp;&nbsp;├─ <span class="k">ssget</span> "X" — przejście po wszystkich obiektach rysunku<br>
+&nbsp;&nbsp;├─ sprawdzenie grupy 38 (elewacja) i 39 (grubość) ≠ 0<br>
+&nbsp;&nbsp;├─ rekurencja w definicje bloków (INSERT → ATTRIB)<br>
+&nbsp;&nbsp;└─ <span class="k">sssetfirst</span> — zaznaczenie uchwytami + licznik<br><br>
+<span class="c"># ikona wywołuje skrypt:</span> <span class="k">^C^C_GSAI_AUDYTZ</span>
+    </div>
+  </div>
+
+  <!-- WARSTWA 4: geneza -->
+  <div class="zone">
+    <div class="zlab">Warstwa 4<br>Geneza</div>
+    <div class="gen">
+      <h3>Dlaczego to zrobiliśmy</h3>
+      <p>Natywne spłaszczanie gubi precyzję — przyznaje to sam Autodesk w dokumentacji <code>FLATTEN</code>:</p>
+      <blockquote>„Some degradation of drawing precision might occur."</blockquote>
+      <cite>— dokumentacja AutoCAD, Express Tools · <a href="#">źródło</a></cite>
+      <p style="margin-top:12px;color:var(--muted);font-size:15px">Nasze narzędzie tylko <b>znajduje</b> problem, a do spłaszczenia oddaje sprawdzone <code>FLATTEN</code>. Dokładamy brakującą część, nie dublujemy tego, co działa.</p>
+    </div>
+  </div>
+
+  <!-- WARSTWA 4: powiązane -->
+  <div class="zone">
+    <div class="zlab">Warstwa 4<br>Powiązane</div>
+    <div class="rel">
+      <div class="rchip"><span class="i">📐</span> FLATTEN <span style="color:var(--muted);font-weight:400">· spłaszcza zaznaczone</span></div>
+      <div class="rchip"><span class="i">📍</span> Import współrzędnych <span style="color:var(--muted);font-weight:400">· użyte wcześniej</span></div>
+      <div class="rchip"><span class="i">🔁</span> Atrybuty ↔ arkusz</div>
+    </div>
+  </div>
+
+  <!-- WARSTWA 4: podcast -->
+  <div class="zone">
+    <div class="zlab">Warstwa 4<br>Posłuchaj</div>
+    <div class="pod">
+      <div class="cover">🎙</div>
+      <div><div class="t">Kreśląc w CADzie — odc. o porządkowaniu rysunków</div><div class="s">Robert Nowakowski o tym, skąd biorą się obiekty poza Z i jak nie liczyć błędnych pól</div></div>
+      <a class="btn btn-line go" href="#">Słuchaj</a>
+    </div>
+  </div>
+
+</div>
+
+<footer><div class="wrap">tmsys ◆ GstarCAD·AI · Część oferty TMSys · gstarcad.pl</div></footer>
+
+<div class="theme">
+  <button id="tL" class="on" onclick="st('light')">☀</button>
+  <button id="tD" onclick="st('dark')">☾</button>
+</div>
+<script>
+  function st(t){document.documentElement.setAttribute('data-theme',t);tL.classList.toggle('on',t=='light');tD.classList.toggle('on',t=='dark')}
+</script>
+</body>
+</html>
