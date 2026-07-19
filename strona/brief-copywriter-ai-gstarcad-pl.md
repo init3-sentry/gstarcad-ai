@@ -39,7 +39,7 @@ i obiecuje więcej, niż na starcie dowozimy.
 ## 3. Mocny chwyt, którego nikt się nie spodziewa: proces z kontrolą jakości
 
 To jest nasz najlepszy materiał na zaufanie i **kosztuje zero**. Ale trzeba go opowiedzieć
-całą historią, nie samą puentą — inaczej wychodzi na to, że budujemy na oślep.
+całą historią, nie samą puentą — inaczej wyszłoby na to, że początkowo budowaliśmy na oślep.
 
 **Cały łańcuch, w tej kolejności:**
 
