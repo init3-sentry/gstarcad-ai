@@ -43,8 +43,9 @@ całą historią, nie samą puentą — inaczej wychodzi na to, że budujemy na 
 
 **Cały łańcuch, w tej kolejności:**
 
-1. **Potrzeba.** Narzędzia nie wzięły się z powietrza. Powstały z maili od klientów i z tego,
-   co ludzie mówili podczas webinaru — z realnych problemów, które ktoś zgłosił.
+1. **Potrzeba.** Narzędzia nie wzięły się z powietrza. Powstały z bezpośrednich rozmów
+   z handlowcami, ze szkoleń produktowych i z webinarów — z realnych problemów, o których
+   klienci mówią wprost.
 2. **Szybkość.** Dzięki AI zrobiliśmy z tego serię narzędzi w tempie, które wcześniej było
    nie do pomyślenia.
 3. **Weryfikacja.** Zanim cokolwiek wyszło do klientów, przeszło przez nasz dział wsparcia.
