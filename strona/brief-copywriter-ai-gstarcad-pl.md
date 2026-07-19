@@ -55,7 +55,9 @@ całą historią, nie samą puentą — inaczej wyszłoby na to, że początkowo
 5. **Wniosek na przyszłość.** Po tych błędach zmieniliśmy podejście. Dziś każdy pomysł
    zgłoszony przez klienta najpierw trafia do dogłębnej analizy działu wsparcia — i dopiero
    support zatwierdza narzędzie do ewentualnej produkcji. Kolejność jest odwrócona: najpierw
-   sprawdzamy, czy to ma sens i czy programu już tego nie robi, potem budujemy.
+   sprawdzamy, czy pomysł ma głębszy sens — czy znajdzie zastosowanie u więcej niż jednego
+   z ponad 60 tysięcy użytkowników — a na końcu, czy GstarCAD przypadkiem już tego nie ma
+   natywnie. Dopiero potem budujemy.
 
 To piąty punkt jest najważniejszy, bo **zamienia przyznanie się do błędu w opis dojrzałego
 procesu** — i wprost zaprasza czytelnika: zgłoś pomysł, a przejdzie przez ekspercką ocenę,
