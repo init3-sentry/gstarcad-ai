@@ -144,7 +144,56 @@ Nie „zostaw maila". CTA brzmi:
 Zamienia odwiedziny w rozmowę i daje nam listę realnych narzędzi do zrobienia. Formularz krótki:
 problem + kontakt.
 
-## 9. Czego potrzebuję od Ciebie zwrotnie
+## 9. ⚠️ Najważniejsza zasada: ten brief to NIE jest treść strony
+
+Wszystko powyżej to **amunicja i kontekst dla Ciebie** — żebyś wiedział, co i dlaczego mówimy.
+Na stronę idzie z tego może jedna piąta. Reszta zostaje w Twojej głowie i wraca w rozmowie
+handlowej, nie na ekranie.
+
+**Ludzie czytają coraz mniej i gubią wątek przy piątym zdaniu.** Nasz odbiorca jest wyżej niż
+przeciętny, ale to nie znaczy, że przebrnie przez ścianę tekstu. Strona ma działać przy
+**przewijaniu i czytaniu samych nagłówków** — kto zatrzyma się na dłużej, dostaje detal pod
+spodem, ale zrozumienie całości nie może od tego detalu zależeć.
+
+### Budżet słów — trzymaj się twardo
+
+| Element | Limit |
+|---|---|
+| Nagłówek główny | **do 8 słów** |
+| Podtytuł pod nagłówkiem | 1 zdanie |
+| Dowolny blok tekstu | **maksymalnie 3 zdania** |
+| Opis narzędzia (karta) | 1 zdanie korzyści |
+| Sekcja, która potrzebuje akapitu, żeby się wytłumaczyć | należy do rozmowy handlowej, **nie na stronę** |
+
+### Historia native-first na stronie — przykład kompresji
+
+W tym briefie (sekcja 3) ma pięć kroków i kilka akapitów. **Na stronie to jest jeden nagłówek
+plus wizualna oś na cztery słowa:**
+
+> ### Budujemy tylko to, czego naprawdę brakuje
+> **Pomysł → Analiza → Decyzja → Narzędzie**
+> Zanim coś powstanie, nasz dział wsparcia sprawdza, czy GstarCAD już tego nie ma.
+
+Trzy linijki zamiast pięciu akapitów. Cała reszta łańcucha to Twoja wiedza, nie tekst na ekran.
+
+## 10. Szkielet strony — jeden ekran, jedna myśl
+
+Kolejność sekcji od góry. Każda mieści się mniej więcej w jednym „przewinięciu":
+
+1. **Hero** — nagłówek (jeden problem, do 8 słów) + jedno zdanie + przycisk. Bez akapitu.
+2. **Pasek zaufania** — jedna linia (np. skala bazy użytkowników). Opcjonalny.
+3. **Co dają narzędzia** — 3-4 **karty**, nie proza. Ikona + nazwa + jedno zdanie korzyści.
+   Siatka, którą skanuje się wzrokiem w pięć sekund.
+4. **„Budujemy to, czego brakuje"** — zaufanie, w formie z sekcji 9 (nagłówek + oś + jedno zdanie).
+5. **Dlaczego szybko** — rama o AI, dwa zdania, nie więcej.
+6. **Dla zespołu / biura** — argument dla decydenta, trzy zdania.
+7. **CTA** — „Powiedz, czego Ci brakuje" + krótki formularz.
+
+**Detal na żądanie.** Jeśli coś wymaga dłuższego wyjaśnienia (pełna historia, jak działa dane
+narzędzie), chowamy to za „czytaj więcej" albo na osobnej podstronie. Główny przewijany widok
+zostaje lekki.
+
+## 11. Czego potrzebuję od Ciebie zwrotnie
 
 Nie pisz wszystkiego naraz. Najpierw daj mi **nagłówek w trzech wersjach** i **jedną sekcję
 narzędzia** napisaną do końca. Zobaczę ton, dogadamy kierunek, potem reszta pójdzie szybko.
