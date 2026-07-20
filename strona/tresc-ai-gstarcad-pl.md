@@ -57,9 +57,9 @@ a brief zabrania obiecywać nieistniejące.
 
 **Nagłówek:** Dlaczego powstają tak szybko
 
-> GstarCAD jako jeden z nielicznych programów CAD pozwala oprogramować się nowoczesnymi
-> metodami. Dzięki temu, z pomocą sztucznej inteligencji, zamieniamy Wasze pomysły w gotowe
-> funkcje w tempie wcześniej nie do pomyślenia.
+> GstarCAD należy do nielicznych programów CAD, które można rozbudowywać własnymi narzędziami.
+> Dzięki temu, z pomocą sztucznej inteligencji, zamieniamy Wasze pomysły w gotowe funkcje
+> szybciej, niż było to możliwe wcześniej.
 
 ---
 
