@@ -126,8 +126,15 @@ def _zbierz_warstwy(db):
                 try:
                     stn, nazwa = rec.getName()
                     if stn == Gcad.eOk and nazwa:
+                        # isInUse() jest na GcDbLayerTableRecord (podklasa), a iterator
+                        # tabeli warstw oddaje rekord jako GcDbSymbolTableRecord (baza) —
+                        # na bazie tej metody NIE MA (stąd AttributeError, Z-26). Rzutujemy
+                        # na typ warstwy. getName/isDependent/isRenamable zostają na bazie.
+                        lrec = GcDbLayerTableRecord.cast(rec)
+                        if lrec is None:
+                            _ostrzezenia.append("nie dalo sie rzutowac rekordu na warstwe (%s)" % nazwa)
                         out[nazwa] = {
-                            "uzywana": rec.isInUse(),        # werdykt GstarCAD
+                            "uzywana": lrec.isInUse() if lrec is not None else False,
                             "z_xref": rec.isDependent(),
                             "mozna_zmienic": rec.isRenamable(),
                             "obiektow": 0,                   # policzymy sami
