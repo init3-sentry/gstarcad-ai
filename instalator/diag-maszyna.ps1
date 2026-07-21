@@ -16,8 +16,11 @@ function Get-PEBitness($path){
 $py=(& python -c "import sys;print(sys.base_prefix)" 2>$null); if($py){ $py=$py.Trim() }
 $pyExe = if($py){ Join-Path $py 'python.exe' }     else { $null }
 $pyDll = if($py){ Join-Path $py 'python311.dll' }  else { $null }
-$g = Get-ChildItem 'C:\Program Files\Gstarsoft','C:\Program Files (x86)\Gstarsoft' `
-     -Recurse -Filter gcad.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+# Pod Gstarsoft bywa kilka gcad.exe (DWG FastView itd.) — wtyczka Python jest w GstarCAD 2027.
+$allGcad = Get-ChildItem 'C:\Program Files\Gstarsoft','C:\Program Files (x86)\Gstarsoft' `
+           -Recurse -Filter gcad.exe -ErrorAction SilentlyContinue
+$g = $allGcad | Where-Object { $_.FullName -match 'GstarCAD' } | Select-Object -First 1
+if (-not $g) { $g = $allGcad | Select-Object -First 1 }
 $inPath = if($py){ [Environment]::GetEnvironmentVariable('Path','Machine') -like "*$py*" } else { $false }
 ""
 "====== RAPORT MASZYNY (gstarcad-ai) ======"
@@ -25,6 +28,7 @@ $inPath = if($py){ [Environment]::GetEnvironmentVariable('Path','Machine') -like
 "python.exe bit     : $(if($pyExe){ Get-PEBitness $pyExe } else { 'BRAK PYTHONA' })"
 "python311.dll jest : $(if($pyDll){ Test-Path $pyDll } else { '-' })"
 "GstarCAD (gcad.exe): $($g.FullName)"
+"wszystkie gcad.exe : $(($allGcad.FullName) -join '  |  ')"
 "gcad.exe bit       : $(if($g){ Get-PEBitness $g.FullName } else { 'NIE ZNALEZIONO' })"
 "dll obok gcad.exe  : $(if($g){ Test-Path (Join-Path $g.DirectoryName 'python311.dll') } else { '-' })"
 "VCRUNTIME140       : $(Test-Path C:\Windows\System32\vcruntime140.dll) | 140_1: $(Test-Path C:\Windows\System32\vcruntime140_1.dll)"

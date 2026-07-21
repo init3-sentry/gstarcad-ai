@@ -36,8 +36,12 @@ $pyDll = Join-Path $pyHome 'python311.dll'
 Write-Host "  Python 3.11.8: $pyHome"
 
 # --- 2. Znajdź gcad.exe (folder instalacji GstarCAD) ---
-$gcad = Get-ChildItem 'C:\Program Files\Gstarsoft','C:\Program Files (x86)\Gstarsoft' `
-        -Recurse -Filter gcad.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+# UWAGA: pod Gstarsoft bywa kilka gcad.exe (np. DWG FastView) — wtyczka Python jest w GstarCAD 2027.
+# Preferuj sciezke zawierajaca "GstarCAD", dopiero potem fallback na pierwszy z brzegu.
+$allGcad = Get-ChildItem 'C:\Program Files\Gstarsoft','C:\Program Files (x86)\Gstarsoft' `
+           -Recurse -Filter gcad.exe -ErrorAction SilentlyContinue
+$gcad = $allGcad | Where-Object { $_.FullName -match 'GstarCAD' } | Select-Object -First 1
+if (-not $gcad) { $gcad = $allGcad | Select-Object -First 1 }
 if (-not $gcad) {
     Write-Host "[BLAD] Nie znaleziono gcad.exe w C:\Program Files\Gstarsoft."
     Write-Host "       Podaj ścieżkę instalacji GstarCAD — poprawię skrypt."
