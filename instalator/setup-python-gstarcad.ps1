@@ -14,6 +14,15 @@
 $ErrorActionPreference = 'Stop'
 Write-Host "== gstarcad-ai: konfiguracja Python dla GstarCAD =="
 
+function Get-PEBitness($path){
+    if(-not $path -or -not (Test-Path $path)){ return $null }
+    try{
+        $fs=[IO.File]::OpenRead($path); $br=New-Object IO.BinaryReader($fs)
+        $fs.Position=0x3C; $peOff=$br.ReadInt32(); $fs.Position=$peOff+4
+        $m=$br.ReadUInt16(); $br.Close(); $fs.Close(); return $m
+    }catch{ return $null }
+}
+
 # --- 1. Wykryj Pythona 3.11.8 (przez sys.base_prefix — działa nawet gdy folder nie jest w PATH) ---
 try   { $pyHome = (& python -c "import sys; print(sys.base_prefix)" 2>$null).Trim() }
 catch { $pyHome = $null }
@@ -36,6 +45,21 @@ if (-not $gcad) {
 }
 $gcadDir = $gcad.DirectoryName
 Write-Host "  GstarCAD:      $gcadDir"
+
+# --- 2b. STRAZNIK ARCHITEKTURY: gcad.exe i python311.dll musza byc oba 64-bit ---
+#     Wtyczka pygrx jest x64-only (pygrx.gcp: Platform="x64"). Niezgodnosc = pewne code:126.
+$gcadBit = Get-PEBitness $gcad.FullName
+$pyBit   = Get-PEBitness $pyDll
+if ($gcadBit -ne 0x8664) {
+    Write-Host "[BLAD] gcad.exe nie jest 64-bit (0x$('{0:X}' -f $gcadBit)). Wtyczka Python wymaga GstarCAD x64."
+    exit 1
+}
+if ($pyBit -ne 0x8664) {
+    Write-Host "[BLAD] python311.dll nie jest 64-bit (0x$('{0:X}' -f $pyBit))."
+    Write-Host "       Zainstaluj Python 3.11.x w wersji 64-bit (Windows installer amd64) i powtorz."
+    exit 1
+}
+Write-Host "  Architektura:  gcad.exe = x64, python311.dll = x64 (zgodne)"
 
 # --- 3A. Metoda natychmiastowa: python311.dll obok gcad.exe ---
 Copy-Item $pyDll -Destination $gcadDir -Force
