@@ -1,6 +1,6 @@
 # Katalog narzędzi GstarCAD (TMSys)
 
-> Narzędzia rozszerzające GstarCAD o funkcje przydatne w codziennej pracy. Każde: komenda, krótki opis i przykład zastosowania. Liczba narzędzi: **3**.
+> Narzędzia rozszerzające GstarCAD o funkcje przydatne w codziennej pracy. Każde: komenda, krótki opis i przykład zastosowania. Liczba narzędzi: **5**.
 
 
 ## Geodezja
@@ -20,3 +20,5 @@
 | Komenda (PL / EN) | Narzędzie | Co robi | Przykład |
 |---|---|---|---|
 | `GSAI_AUDYTZ` / `GSAI_AUDITZ` | Audyt osi Z | Znajduje i zaznacza obiekty, które „uciekły" w trzeci wymiar (Z≠0) i psują pomiary w płaskim rysunku — niewidoczne z góry, inaczej nie do znalezienia. Potem prostuje się je poleceniem FLATTEN. | Wykrycie linii z niezerowym Z, które zawyżały pole powierzchni. |
+| `GSAI_CASTPROBE` | Sonda cast (diagnostyka crashu) |  |  |
+| `GSAI_DLUGOSC` | Suma długości |  |  |
