@@ -178,7 +178,12 @@ def _policz_obiekty(db, warstwy):
                 _ostrzezenia.append("nie dalo sie otworzyc rekordu tabeli blokow")
             else:
                 try:
-                    st3, eit = btr.newIterator()
+                    # Iterator tabeli bloków oddaje rekord jako bazowy GcDbSymbolTableRecord;
+                    # newIterator() jest na podklasie GcDbBlockTableRecord — bez rzutowania leci
+                    # AttributeError i GstarCAD wywala się „po chwili" (Tomasz 21.07). Rzutujemy,
+                    # tak jak dla warstw (isInUse). None z casta = traktujemy jak pusty rekord.
+                    brec = GcDbBlockTableRecord.cast(btr)
+                    st3, eit = brec.newIterator() if brec is not None else (Gcad.eOk, None)
                     if st3 != Gcad.eOk or eit is None:
                         _ostrzezenia.append("nie dalo sie przejsc zawartosci bloku")
                     else:
