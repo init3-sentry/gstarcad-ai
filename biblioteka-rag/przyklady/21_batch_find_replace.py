@@ -66,11 +66,18 @@ def _text_handles():
         s, ent = it.getEntity()
         if s == Gcad.eOk and ent is not None:
             try:
-                cls = ent.isA().name()
-                if "Text" in cls and "Attribute" not in cls:
-                    ok, hx = ent.getGcDbHandle().getIntoAsciiBuffer()
-                    if ok:
-                        out.append(hx)
+                # Identyfikacja przez DXF typ (grupa 0) = "TEXT"/"MTEXT" — jednoznaczne i
+                # niezalezne od nazwy klasy. Wczesniej isA().name() + '"Text" in cls' gubilo
+                # jednowierszowy TEXT (Jakub 21.07: 0 trafien na TEXT, dzialalo tylko MTEXT).
+                ok, hx = ent.getGcDbHandle().getIntoAsciiBuffer()
+                if ok:
+                    en = gds_name()
+                    if gcdbHandEnt(hx, en) == RTNORM:
+                        rb = gcdbEntGet(en)
+                        typ = _rstr(_grp(rb, 0))
+                        _free(rb)
+                        if typ in ("TEXT", "MTEXT"):
+                            out.append(hx)
             except Exception:
                 pass
             ent.close()
