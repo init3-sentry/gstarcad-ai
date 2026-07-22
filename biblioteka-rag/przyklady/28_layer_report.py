@@ -160,51 +160,46 @@ def _nazwy_warstw(db):
 
 
 def _wlasciwosci_warstw(db, warstwy):
-    """Wypełnia isInUse / xref (isDependent) / rename (isRenamable) PER WARSTWA.
+    """Wypełnia isInUse / xref (isDependent) / rename (isRenamable) PER WARSTWA — CAST-FREE.
 
-    URUCHAMIANE JAKO OSTATNIE czytanie bazy — bo cast+isInUse zatruwa sesję dla
-    późniejszego dostępu do ENCJI (patrz _nazwy_warstw). Sama pętla po tabeli
-    warstw z isInUse kończy się bez crasha; problem jest dopiero z późniejszym
-    getEntity. Dlatego liczymy obiekty PRZED, a te właściwości PO — po nich już
-    NIC z bazy nie czytamy (zostaje tylko formatowanie raportu i zapis pliku).
+    KLUCZOWA ZMIANA (22.07, dowód Tomasza + nasze badania): NIE iterujemy tabeli
+    i NIE castujemy. Split test dowiódł, że trucizna sesji (WARSTWY dziala, ale
+    następna akcja w GstarCAD wywala program) siedzi w tej fazie. Główny podejrzany:
+    `.cast()` — WARSTWY było jedyną komendą z castem i jedyną, która wywalała GS
+    (patrz nagłówek GSAI_DLUGOSC — celowo napisany bez castu z tego powodu).
+
+    Zamiast iterator+cast: otwieram każdą warstwę PO NAZWIE przez `getAt()`, który
+    wg stubów zwraca od razu `GcDbLayerTableRecord` (typ warstwy) — więc
+    isInUse/isDependent/isRenamable działają BEZ rzutowania. Plus `generateUsageData()`
+    przed isInUse (Z-24 §5.1 — bez tego werdykt bywa nieświeży). Uruchamiane JAKO
+    OSTATNIE czytanie bazy: gdyby mimo wszystko truło, po nim nie ma odczytu encji.
     """
-    _ck("wlasciwosci warstw: start (isInUse) — po policz")
+    _ck("wlasciwosci: getLayerTable")
     st, lt = db.getLayerTable(GcDb.kForRead)
     if st != Gcad.eOk:
         _ostrzezenia.append("nie dalo sie ponownie otworzyc tabeli warstw")
         return
     try:
-        st, it = lt.newIterator()
         try:
-            it.start()
+            lt.generateUsageData()   # Z-24 §5.1 — przelicz dane uzycia PRZED isInUse
         except Exception:
             pass
-        while not it.done():
-            st2, rec = it.getRecord(GcDb.kForRead)
-            if rec is not None:
-                try:
-                    stn, nazwa = rec.getName()
-                    if stn == Gcad.eOk and nazwa in warstwy:
-                        # isInUse() jest na GcDbLayerTableRecord (podklasa); iterator oddaje
-                        # bazowy GcDbSymbolTableRecord, więc rzutujemy (Z-26). xref/rename na bazie.
-                        # ── DIAGNOSTYKA 22.07 (izolacja poisonu) ──────────────────
-                        # Objaw: WARSTWY dziala, ale KOLEJNE dzialanie w GstarCAD wywala
-                        # program (poison persystuje w sesji). Podejrzany #1: isInUse().
-                        # Ta wersja ROBI cast + isDependent + isRenamable, ale NIE wola
-                        # isInUse(). Jesli po niej GstarCAD nie pada -> winowajca = isInUse.
-                        # Jesli pada -> to cast albo isDependent/isRenamable.
-                        lrec = GcDbLayerTableRecord.cast(rec)
-                        if lrec is None:
-                            _ostrzezenia.append("nie dalo sie rzutowac rekordu na warstwe (%s)" % nazwa)
-                        warstwy[nazwa]["uzywana"] = None   # isInUse POMINIETE (diagnostyka)
-                        warstwy[nazwa]["z_xref"] = rec.isDependent()
-                        warstwy[nazwa]["mozna_zmienic"] = rec.isRenamable()
-                finally:
-                    rec.close()
-            it.step()
+        for nazwa in list(warstwy.keys()):
+            _ck("wlasciwosci: getAt '%s'" % nazwa)
+            sst, lrec = lt.getAt(nazwa, GcDb.kForRead)   # TYPOWANY rekord warstwy — BEZ cast
+            if sst != Gcad.eOk or lrec is None:
+                continue
+            try:
+                warstwy[nazwa]["uzywana"] = lrec.isInUse()
+                warstwy[nazwa]["z_xref"] = lrec.isDependent()
+                warstwy[nazwa]["mozna_zmienic"] = lrec.isRenamable()
+            except Exception as e:
+                _ostrzezenia.append("wlasciwosci warstwy %s: %s" % (nazwa, e))
+            finally:
+                lrec.close()
     finally:
         lt.close()
-    _ck("wlasciwosci warstw: koniec")
+    _ck("wlasciwosci: koniec")
 
 
 def _policz_obiekty(db, warstwy):
@@ -330,11 +325,9 @@ def raport_warstw():
             return
 
         przejrzane = _policz_obiekty(db, warstwy)
-        # DIAGNOSTYKA #3 (split): CAŁA faza właściwości warstw WYŁĄCZONA (cast/isDependent/
-        # isRenamable). isInUse-skip dalej truł → sprawdzamy, czy trucizna jest w tych
-        # wywołaniach (wtedy po tej wersji GstarCAD NIE padnie na następnej akcji), czy w
-        # nazwach/liczeniu obiektów (wtedy dalej padnie). To przepoławia zakres szukania.
-        # _wlasciwosci_warstw(db, warstwy)   # WYŁĄCZONE w tej wersji diagnostycznej
+        # Split test (Tomasz 22.07) dowiódł: trucizna była w tej fazie. Wersja CAST-FREE
+        # (getAt zamiast iterator+cast) — test, czy usunięcie castu zdejmuje poison.
+        _wlasciwosci_warstw(db, warstwy)   # OSTATNI odczyt bazy
         n = len(warstwy)
         pewne = not _ostrzezenia   # czy wolno w ogóle podawać liczby obiektów
 
