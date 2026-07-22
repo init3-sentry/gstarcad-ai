@@ -115,20 +115,19 @@ def _zapisz():
         return None
 
 
-def _zbierz_warstwy(db):
-    """Nazwa warstwy -> jej stan. WYŁĄCZNIE odczyt.
+def _nazwy_warstw(db):
+    """SAME NAZWY warstw — getName, BEZ cast/isInUse/isDependent/isRenamable.
 
-    Kształt wywołań (nauczka z BUG-06 — gcedGetReal wyglądał poprawnie, a miał
-    parametr wyjściowy i był bezużyteczny):
-      - getName() zwraca KROTKĘ (status, nazwa), nie parametr wyjściowy
-      - isInUse() to werdykt GstarCAD — drugie źródło prawdy dla rozjazdu
-      - isDependent() = warstwa pochodzi z XREF-a; NIE jest osobną pozycją
-        raportu (Menedżer warstw ma na to filtr), służy tylko do wyjaśnienia,
-        skąd wziął się rozjazd
-      - isRenamable() = czy wolno ją przemianować
+    DLACZEGO tylko nazwy i dlaczego to pierwszy krok (dowód Tomasz 22.07):
+    `cast`+`isInUse` na rekordach warstw NIE crashuje samo w sobie (pętla po
+    tabeli warstw kończy się), ale ZATRUWA sesję tak, że KOLEJNY odczyt ENCJI
+    (`getEntity` w liczeniu obiektów) wywala GstarCAD natywnie. `GSAI_ZAMIEN_TEKST`
+    na tym samym rysunku działa — bo NIE robi wcześniej isInUse. Wzorzec Z-24.
+    Dlatego: najpierw same nazwy (nietrujące), potem liczenie obiektów na czystej
+    sesji, a isInUse/xref/rename dopiero NA KOŃCU (patrz _wlasciwosci_warstw).
     """
     out = {}
-    _ck("zbieram warstwy: otwieram tabele warstw")
+    _ck("nazwy warstw: otwieram tabele")
     st, lt = db.getLayerTable(GcDb.kForRead)
     if st != Gcad.eOk:
         return None
@@ -136,7 +135,7 @@ def _zbierz_warstwy(db):
     try:
         st, it = lt.newIterator()
         try:
-            it.start()   # proven idiom (wzorzec 21) — bez tego iterator bywa w zlym stanie
+            it.start()
         except Exception:
             pass
         while not it.done():
@@ -147,20 +146,8 @@ def _zbierz_warstwy(db):
                 try:
                     stn, nazwa = rec.getName()
                     if stn == Gcad.eOk and nazwa:
-                        _ck("warstwa '%s' -> cast + isInUse" % nazwa)
-                        # isInUse() jest na GcDbLayerTableRecord (podklasa), a iterator
-                        # tabeli warstw oddaje rekord jako GcDbSymbolTableRecord (baza) —
-                        # na bazie tej metody NIE MA (stąd AttributeError, Z-26). Rzutujemy
-                        # na typ warstwy. getName/isDependent/isRenamable zostają na bazie.
-                        lrec = GcDbLayerTableRecord.cast(rec)
-                        if lrec is None:
-                            _ostrzezenia.append("nie dalo sie rzutowac rekordu na warstwe (%s)" % nazwa)
-                        out[nazwa] = {
-                            "uzywana": lrec.isInUse() if lrec is not None else False,
-                            "z_xref": rec.isDependent(),
-                            "mozna_zmienic": rec.isRenamable(),
-                            "obiektow": 0,                   # policzymy sami
-                        }
+                        out[nazwa] = {"uzywana": None, "z_xref": None,
+                                      "mozna_zmienic": None, "obiektow": 0}
                     else:
                         _ostrzezenia.append("rekord warstwy bez czytelnej nazwy")
                 finally:
@@ -168,8 +155,50 @@ def _zbierz_warstwy(db):
             it.step()
     finally:
         lt.close()
-    _ck("zbieram warstwy: koniec (%d warstw)" % len(out))
+    _ck("nazwy warstw: koniec (%d warstw)" % len(out))
     return out
+
+
+def _wlasciwosci_warstw(db, warstwy):
+    """Wypełnia isInUse / xref (isDependent) / rename (isRenamable) PER WARSTWA.
+
+    URUCHAMIANE JAKO OSTATNIE czytanie bazy — bo cast+isInUse zatruwa sesję dla
+    późniejszego dostępu do ENCJI (patrz _nazwy_warstw). Sama pętla po tabeli
+    warstw z isInUse kończy się bez crasha; problem jest dopiero z późniejszym
+    getEntity. Dlatego liczymy obiekty PRZED, a te właściwości PO — po nich już
+    NIC z bazy nie czytamy (zostaje tylko formatowanie raportu i zapis pliku).
+    """
+    _ck("wlasciwosci warstw: start (isInUse) — po policz")
+    st, lt = db.getLayerTable(GcDb.kForRead)
+    if st != Gcad.eOk:
+        _ostrzezenia.append("nie dalo sie ponownie otworzyc tabeli warstw")
+        return
+    try:
+        st, it = lt.newIterator()
+        try:
+            it.start()
+        except Exception:
+            pass
+        while not it.done():
+            st2, rec = it.getRecord(GcDb.kForRead)
+            if rec is not None:
+                try:
+                    stn, nazwa = rec.getName()
+                    if stn == Gcad.eOk and nazwa in warstwy:
+                        # isInUse() jest na GcDbLayerTableRecord (podklasa); iterator oddaje
+                        # bazowy GcDbSymbolTableRecord, więc rzutujemy (Z-26). xref/rename na bazie.
+                        lrec = GcDbLayerTableRecord.cast(rec)
+                        if lrec is None:
+                            _ostrzezenia.append("nie dalo sie rzutowac rekordu na warstwe (%s)" % nazwa)
+                        warstwy[nazwa]["uzywana"] = lrec.isInUse() if lrec is not None else False
+                        warstwy[nazwa]["z_xref"] = rec.isDependent()
+                        warstwy[nazwa]["mozna_zmienic"] = rec.isRenamable()
+                finally:
+                    rec.close()
+            it.step()
+    finally:
+        lt.close()
+    _ck("wlasciwosci warstw: koniec")
 
 
 def _policz_obiekty(db, warstwy):
@@ -283,7 +312,10 @@ def raport_warstw():
         _do_pliku("=" * 70)
 
         db = gcdbWorkingDatabase()
-        warstwy = _zbierz_warstwy(db)
+        # KOLEJNOŚĆ MA ZNACZENIE (Tomasz 22.07): isInUse zatruwa sesję dla późniejszego
+        # odczytu encji, więc: 1) same nazwy, 2) liczenie obiektów na czystej sesji,
+        # 3) isInUse/xref/rename NA KOŃCU — po nich już nie czytamy encji.
+        warstwy = _nazwy_warstw(db)
         if warstwy is None:
             _powiedz("[WARSTWY] Nie moge otworzyc tabeli warstw. Raportu nie ma.")
             return
@@ -292,6 +324,7 @@ def raport_warstw():
             return
 
         przejrzane = _policz_obiekty(db, warstwy)
+        _wlasciwosci_warstw(db, warstwy)   # OSTATNI odczyt bazy — patrz komentarz wyżej
         n = len(warstwy)
         pewne = not _ostrzezenia   # czy wolno w ogóle podawać liczby obiektów
 
