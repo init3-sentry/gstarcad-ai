@@ -187,10 +187,16 @@ def _wlasciwosci_warstw(db, warstwy):
                     if stn == Gcad.eOk and nazwa in warstwy:
                         # isInUse() jest na GcDbLayerTableRecord (podklasa); iterator oddaje
                         # bazowy GcDbSymbolTableRecord, więc rzutujemy (Z-26). xref/rename na bazie.
+                        # ── DIAGNOSTYKA 22.07 (izolacja poisonu) ──────────────────
+                        # Objaw: WARSTWY dziala, ale KOLEJNE dzialanie w GstarCAD wywala
+                        # program (poison persystuje w sesji). Podejrzany #1: isInUse().
+                        # Ta wersja ROBI cast + isDependent + isRenamable, ale NIE wola
+                        # isInUse(). Jesli po niej GstarCAD nie pada -> winowajca = isInUse.
+                        # Jesli pada -> to cast albo isDependent/isRenamable.
                         lrec = GcDbLayerTableRecord.cast(rec)
                         if lrec is None:
                             _ostrzezenia.append("nie dalo sie rzutowac rekordu na warstwe (%s)" % nazwa)
-                        warstwy[nazwa]["uzywana"] = lrec.isInUse() if lrec is not None else False
+                        warstwy[nazwa]["uzywana"] = None   # isInUse POMINIETE (diagnostyka)
                         warstwy[nazwa]["z_xref"] = rec.isDependent()
                         warstwy[nazwa]["mozna_zmienic"] = rec.isRenamable()
                 finally:
