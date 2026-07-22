@@ -59,6 +59,7 @@ import os
 import re
 
 NAZWA_PLIKU = "gsai_raport_warstw.txt"
+DEBUG_PLIKU = "gsai_warstwy_debug.txt"   # checkpoint diagnostyczny — patrz _ck()
 
 # Zbierane w trakcie przebiegu: cokolwiek, czego nie dało się odczytać.
 # Niepusta lista = liczby obiektów są NIEPEWNE i nie wolno ich podawać.
@@ -72,6 +73,21 @@ def _sciezka_raportu():
     if not os.path.isdir(pulpit):
         pulpit = os.path.expanduser("~")
     return os.path.join(pulpit, NAZWA_PLIKU)
+
+
+def _ck(msg):
+    """Checkpoint diagnostyczny: NADPISUJE plik debug ostatnim krokiem + fsync.
+    Crash natywny (GCAD abnormal exit) omija try/except Pythona i nie zostawia
+    tracebacku — ale plik debug trzyma OSTATNIE wywolanie zapisane przed faultem,
+    czyli winowajce. Po naprawie tor diagnostyczny sie usuwa."""
+    try:
+        p = os.path.join(os.path.dirname(_sciezka_raportu()), DEBUG_PLIKU)
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(msg + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+    except Exception:
+        pass
 
 
 def _do_pliku(msg):
@@ -112,6 +128,7 @@ def _zbierz_warstwy(db):
       - isRenamable() = czy wolno ją przemianować
     """
     out = {}
+    _ck("zbieram warstwy: otwieram tabele warstw")
     st, lt = db.getLayerTable(GcDb.kForRead)
     if st != Gcad.eOk:
         return None
@@ -126,6 +143,7 @@ def _zbierz_warstwy(db):
                 try:
                     stn, nazwa = rec.getName()
                     if stn == Gcad.eOk and nazwa:
+                        _ck("warstwa '%s' -> cast + isInUse" % nazwa)
                         # isInUse() jest na GcDbLayerTableRecord (podklasa), a iterator
                         # tabeli warstw oddaje rekord jako GcDbSymbolTableRecord (baza) —
                         # na bazie tej metody NIE MA (stąd AttributeError, Z-26). Rzutujemy
@@ -146,6 +164,7 @@ def _zbierz_warstwy(db):
             it.step()
     finally:
         lt.close()
+    _ck("zbieram warstwy: koniec (%d warstw)" % len(out))
     return out
 
 
@@ -165,6 +184,7 @@ def _policz_obiekty(db, warstwy):
     Każdy nieudany odczyt ląduje w _ostrzezenia i unieważnia liczby.
     """
     przejrzane = 0
+    _ck("policz: otwieram tabele blokow")
     st, bt = db.getBlockTable(GcDb.kForRead)
     if st != Gcad.eOk:
         _ostrzezenia.append("nie dalo sie otworzyc tabeli blokow")
@@ -172,7 +192,9 @@ def _policz_obiekty(db, warstwy):
     # close() w finally — patrz nagłówek pliku. NIE upraszczać.
     try:
         st, bit = bt.newIterator()
+        idx = 0
         while not bit.done():
+            idx += 1
             st2, btr = bit.getRecord(GcDb.kForRead)
             if btr is None:
                 _ostrzezenia.append("nie dalo sie otworzyc rekordu tabeli blokow")
@@ -180,36 +202,63 @@ def _policz_obiekty(db, warstwy):
                 try:
                     # Iterator tabeli bloków oddaje rekord jako bazowy GcDbSymbolTableRecord;
                     # newIterator() jest na podklasie GcDbBlockTableRecord — bez rzutowania leci
-                    # AttributeError i GstarCAD wywala się „po chwili" (Tomasz 21.07). Rzutujemy,
-                    # tak jak dla warstw (isInUse). None z casta = traktujemy jak pusty rekord.
+                    # AttributeError. Rzutujemy, tak jak dla warstw. None z casta = pusty rekord.
                     brec = GcDbBlockTableRecord.cast(btr)
-                    st3, eit = brec.newIterator() if brec is not None else (Gcad.eOk, None)
-                    if st3 != Gcad.eOk or eit is None:
-                        _ostrzezenia.append("nie dalo sie przejsc zawartosci bloku")
+                    if brec is None:
+                        _ostrzezenia.append("nie dalo sie rzutowac rekordu tabeli blokow")
                     else:
-                        while not eit.done():
-                            st4, ent = eit.getEntity(GcDb.kForRead)
-                            if ent is None:
-                                _ostrzezenia.append("nie dalo sie otworzyc obiektu")
+                        # Nazwa bloku do checkpointu (best-effort, przed ryzykownym I/O).
+                        try:
+                            stn, bname = brec.getName()
+                        except Exception:
+                            bname = "?"
+                        # ── FIX 22.07 (Tomasz, GCAD abnormal exit) ────────────────
+                        # NIE iterujemy zawartosci rekordow XREF / niezaladowanych.
+                        # Iteracja bloku z odnosnika zewnetrznego (zwlaszcza unloaded)
+                        # faultuje NATYWNIE i wywala GstarCAD — try/except tego nie lapie,
+                        # bo to nie wyjatek Pythona. Metody zweryfikowane w stubach:
+                        # isFromExternalReference / isFromOverlayReference / isUnloaded.
+                        # Semantycznie tez poprawne: obiekty xref-a to nie wlasne obiekty
+                        # rysunku (warstwy z xref-a raportujemy osobno jako z_xref).
+                        pomin = False
+                        try:
+                            if (brec.isFromExternalReference()
+                                    or brec.isFromOverlayReference()
+                                    or brec.isUnloaded()):
+                                pomin = True
+                        except Exception:
+                            pomin = True   # nie wiem, czy bezpieczny = nie ruszam
+                        _ck("blok #%d '%s' -> %s"
+                            % (idx, bname, "POMIJAM (xref/unloaded)" if pomin else "newIterator"))
+                        if not pomin:
+                            st3, eit = brec.newIterator()
+                            if st3 != Gcad.eOk or eit is None:
+                                _ostrzezenia.append("nie dalo sie przejsc zawartosci bloku")
                             else:
-                                try:
-                                    w = ent.layer()
-                                    if w in warstwy:
-                                        warstwy[w]["obiektow"] += 1
+                                while not eit.done():
+                                    st4, ent = eit.getEntity(GcDb.kForRead)
+                                    if ent is None:
+                                        _ostrzezenia.append("nie dalo sie otworzyc obiektu")
                                     else:
-                                        # obiekt na warstwie, której nie ma
-                                        # w tabeli warstw — nie powinno się zdarzyć
-                                        _ostrzezenia.append(
-                                            "obiekt na nieznanej warstwie: %s" % w)
-                                    przejrzane += 1
-                                finally:
-                                    ent.close()
-                            eit.step()
+                                        try:
+                                            w = ent.layer()
+                                            if w in warstwy:
+                                                warstwy[w]["obiektow"] += 1
+                                            else:
+                                                # obiekt na warstwie, której nie ma
+                                                # w tabeli warstw — nie powinno się zdarzyć
+                                                _ostrzezenia.append(
+                                                    "obiekt na nieznanej warstwie: %s" % w)
+                                            przejrzane += 1
+                                        finally:
+                                            ent.close()
+                                    eit.step()
                 finally:
                     btr.close()
             bit.step()
     finally:
         bt.close()
+    _ck("policz: koniec (przejrzane=%d)" % przejrzane)
     return przejrzane
 
 
