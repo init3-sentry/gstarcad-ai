@@ -192,7 +192,11 @@ def _wlasciwosci_warstw(db, warstwy):
             try:
                 warstwy[nazwa]["uzywana"] = lrec.isInUse()
                 warstwy[nazwa]["z_xref"] = lrec.isDependent()
-                warstwy[nazwa]["mozna_zmienic"] = lrec.isRenamable()
+                # isRenamable() jest NIEWIARYGODNE w GS 2027 SP1: zwraca True dla warstwy "0"
+                # (Tomasz 22.07: rename=True dla "0", a "0" jest ZAWSZE nieprzemianowalna).
+                # Liczymy heurystyką (pewna): "0"/"Defpoints" i warstwy z xref sa nieprzemianowalne.
+                _specjalna = nazwa.upper() in ("0", "DEFPOINTS")
+                warstwy[nazwa]["mozna_zmienic"] = not (_specjalna or warstwy[nazwa]["z_xref"])
             except Exception as e:
                 _ostrzezenia.append("wlasciwosci warstwy %s: %s" % (nazwa, e))
             finally:
