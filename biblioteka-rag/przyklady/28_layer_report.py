@@ -205,24 +205,25 @@ def _wlasciwosci_warstw(db, warstwy):
 def _policz_obiekty(db, warstwy):
     """Ile obiektów siedzi na każdej warstwie — nasze własne, drugie źródło prawdy.
 
-    Skanujemy MODEL SPACE + PAPER SPACE (bieżący arkusz) dokładnie tym idiomem,
-    który jest zwalidowany w produkcji (wzorzec 21 `_insert_handles`):
+    Otwieramy każdy rekord PO NAZWIE przez getAt (cast-free — cast truje sesję, BUG-07):
         bt.getAt(NAZWA) -> newIterator() -> start() -> getEntity() -> layer().
 
-    DLACZEGO NIE iterujemy całej tabeli bloków (zmiana 22.07): pobieranie rekordów
-    z iteratora tabeli bloków, rzutowanie i `newIterator()` na nich WYWALAŁO
-    GstarCAD NATYWNIE — i to już na pierwszym rekordzie, samym model space
-    (debug Tomasza: „blok #1 '*Model_Space' -> newIterator"). Ten sam model space
-    otwarty przez getAt(MODEL_SPACE) + start() działa bez zarzutu. Native crash
-    omija try/except, więc jedyna obrona to NIE wykonać felernego wywołania.
+    DLACZEGO getAt-po-nazwie, a NIE cast (zmiana 22.07): pierwsza wersja castowała
+    rekordy z iteratora (`GcDbBlockTableRecord.cast(btr).newIterator()`) i to ZATRUWAŁO
+    sesję — crash na pierwszym model space, a potem na dowolnej akcji usera (BUG-07,
+    debug Tomasza: „blok #1 '*Model_Space' -> newIterator"). Tu iterujemy tabelę bloków
+    TYLKO po NAZWY (getName na bazie, bez cast), a potem każdy rekord otwieramy przez
+    getAt(nazwa), który zwraca typ wprost — zero castu, zero trucizny.
 
-    SKUTEK DLA RAPORTU: liczymy obiekty w przestrzeni modelu i arkusza, NIE
-    wchodzimy do wnętrza definicji bloków. Warstwa używana wyłącznie wewnątrz
-    definicji bloku (nie przez samo wstawienie) wyjdzie więc jako ROZJAZD — to
-    znana, wpisana do raportu dziura, nie przeoczenie.
+    ZAKRES (rozszerzony 22.07, cast-free): model space + WSZYSTKIE arkusze + WSZYSTKIE
+    definicje bloków. Bo pełna tabela bloków zawiera *Model_Space, *Paper_Space*, każdą
+    nazwaną definicję i XREF-y (Z-24 §5.2). Definicje liczymy jako DEFINICJE, nie wystąpienia
+    (blok wstawiony 200× = +1 do warstwy) — to właściwa semantyka dla „czy warstwa pusta /
+    blokery PURGE". Pomijamy tylko XREF / niezaładowane (ich encje to nie własne obiekty).
 
-    Czego NIE obchodzimy dodatkowo: atrybutów bloków (attributeIterator zatruwa
-    sesję, Z-24). Każdy nieudany odczyt ląduje w _ostrzezenia i unieważnia liczby.
+    Czego NIE obchodzimy: atrybutów bloków (attributeIterator zatruwa sesję, Z-24) — więc
+    warstwa używana WYŁĄCZNIE przez atrybut wyjdzie jako ROZJAZD (zadeklarowane w raporcie).
+    Każdy nieudany odczyt ląduje w _ostrzezenia i unieważnia liczby.
     """
     przejrzane = 0
     st, bt = db.getBlockTable(GcDb.kForRead)
@@ -231,47 +232,63 @@ def _policz_obiekty(db, warstwy):
         return przejrzane
     # close() w finally — patrz nagłówek pliku. NIE upraszczać.
     try:
-        for space_name in (GCDB_MODEL_SPACE, GCDB_PAPER_SPACE):
-            _ck("policz: %s -> getAt" % space_name)
-            sst, sp = bt.getAt(space_name, GcDb.kForRead)
-            _ck("policz: %s getAt OK st=%s" % (space_name, sst))
-            if sst != Gcad.eOk or sp is None:
-                if space_name == GCDB_MODEL_SPACE:
-                    _ostrzezenia.append("nie dalo sie otworzyc model space")
-                # brak paper space nie jest bledem — rysunek moze go nie miec
+        # 1) Zbierz NAZWY wszystkich rekordów tabeli bloków — getName na bazie, BEZ cast
+        #    (cast truje sesję, BUG-07; ten sam bezpieczny wzorzec co _nazwy_warstw).
+        nazwy = []
+        st, bit = bt.newIterator()
+        try:
+            bit.start()
+        except Exception:
+            pass
+        while not bit.done():
+            st2, btr = bit.getRecord(GcDb.kForRead)
+            if btr is not None:
+                try:
+                    stn, bn = btr.getName()
+                    if stn == Gcad.eOk and bn:
+                        nazwy.append(bn)
+                finally:
+                    btr.close()
+            bit.step()
+        _ck("policz: %d rekordow blokow do przejrzenia" % len(nazwy))
+
+        # 2) Każdy rekord otwarty PO NAZWIE przez getAt -> TYPOWANY GcDbBlockTableRecord (bez cast).
+        for bn in nazwy:
+            _ck("policz: getAt '%s'" % bn)
+            sst, brec = bt.getAt(bn, GcDb.kForRead)
+            if sst != Gcad.eOk or brec is None:
                 continue
             try:
-                _ck("policz: %s -> newIterator" % space_name)
-                ist, it = sp.newIterator()
-                _ck("policz: %s newIterator OK st=%s" % (space_name, ist))
+                # Pomijamy XREF / niezaładowane (encje z odnośnika = nie własne obiekty rysunku;
+                # iteracja niezaładowanego xref-a bywa też niebezpieczna).
+                try:
+                    if (brec.isFromExternalReference()
+                            or brec.isFromOverlayReference()
+                            or brec.isUnloaded()):
+                        continue
+                except Exception:
+                    continue   # nie wiem, czy bezpieczny = nie ruszam
+                ist, it = brec.newIterator()
                 if ist != Gcad.eOk or it is None:
-                    _ostrzezenia.append("nie dalo sie przejsc %s" % space_name)
-                else:
-                    _ck("policz: %s -> start" % space_name)
-                    it.start()   # KONIECZNE dla iteratora zawartosci (wzorzec 21)
-                    _ck("policz: %s start OK, wchodze w petle" % space_name)
-                    k = 0
-                    while not it.done():
-                        k += 1
-                        _ck("policz: %s obiekt #%d -> getEntity" % (space_name, k))
-                        est, ent = it.getEntity()   # bez kForRead — jak we wzorcu 21
-                        if ent is None:
-                            _ostrzezenia.append("nie dalo sie otworzyc obiektu")
-                        else:
-                            try:
-                                w = ent.layer()
-                                if w in warstwy:
-                                    warstwy[w]["obiektow"] += 1
-                                else:
-                                    # obiekt na warstwie spoza tabeli warstw — rzadkie
-                                    _ostrzezenia.append("obiekt na nieznanej warstwie: %s" % w)
-                                przejrzane += 1
-                            finally:
-                                ent.close()
-                        it.step()
-                    _ck("policz: %s petla skonczona (%d obiektow)" % (space_name, k))
+                    continue
+                it.start()
+                while not it.done():
+                    est, ent = it.getEntity()   # bez kForRead — jak we wzorcu 21
+                    if ent is None:
+                        _ostrzezenia.append("nie dalo sie otworzyc obiektu w '%s'" % bn)
+                    else:
+                        try:
+                            w = ent.layer()
+                            if w in warstwy:
+                                warstwy[w]["obiektow"] += 1
+                            else:
+                                _ostrzezenia.append("obiekt na nieznanej warstwie: %s" % w)
+                            przejrzane += 1
+                        finally:
+                            ent.close()
+                    it.step()
             finally:
-                sp.close()
+                brec.close()
     finally:
         bt.close()
     _ck("policz: koniec (przejrzane=%d)" % przejrzane)
@@ -350,12 +367,12 @@ def raport_warstw():
             _powiedz("[WARSTWY] >>> ROZJAZD: warstw pustych wg nas, 'uzywanych' wg "
                      "GstarCAD: %d  (%.0f%%)" % (len(rozjazd), 100.0 * len(rozjazd) / n))
             if rozjazd:
-                _powiedz("          Nie znalezlismy na nich zadnego obiektu, a program")
-                _powiedz("          uwaza je za uzywane. Najczestsze przyczyny: warstwa")
-                _powiedz("          przychodzi z XREF-a, siedzi na niej ATRYBUT bloku")
-                _powiedz("          (ktorych NIE liczymy), jest uzyta tylko WEWNATRZ")
-                _powiedz("          definicji bloku albo na innym arkuszu (tego nie")
-                _powiedz("          skanujemy). Zwykle to wlasnie te")
+                _powiedz("          Nie znalezlismy na nich zadnego obiektu (przeszlismy")
+                _powiedz("          model, arkusze I definicje blokow), a program uwaza je")
+                _powiedz("          za uzywane. Najczestsze przyczyny: warstwa z XREF-a,")
+                _powiedz("          siedzi na niej ATRYBUT bloku (ktorych NIE liczymy), albo")
+                _powiedz("          trzyma ja obiekt NIE bedacy encja (zamrozenie per-rzutnia,")
+                _powiedz("          stan warstwy, styl, slownik). Zwykle to wlasnie te")
                 _powiedz("          warstwy, ktorych PURGE nie sprzata.")
                 _powiedz("          UWAGA: to lista DO SPRAWDZENIA, nie do skasowania.")
                 for k in rozjazd[:15]:
