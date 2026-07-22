@@ -330,7 +330,11 @@ def raport_warstw():
             return
 
         przejrzane = _policz_obiekty(db, warstwy)
-        _wlasciwosci_warstw(db, warstwy)   # OSTATNI odczyt bazy — patrz komentarz wyżej
+        # DIAGNOSTYKA #3 (split): CAŁA faza właściwości warstw WYŁĄCZONA (cast/isDependent/
+        # isRenamable). isInUse-skip dalej truł → sprawdzamy, czy trucizna jest w tych
+        # wywołaniach (wtedy po tej wersji GstarCAD NIE padnie na następnej akcji), czy w
+        # nazwach/liczeniu obiektów (wtedy dalej padnie). To przepoławia zakres szukania.
+        # _wlasciwosci_warstw(db, warstwy)   # WYŁĄCZONE w tej wersji diagnostycznej
         n = len(warstwy)
         pewne = not _ostrzezenia   # czy wolno w ogóle podawać liczby obiektów
 
