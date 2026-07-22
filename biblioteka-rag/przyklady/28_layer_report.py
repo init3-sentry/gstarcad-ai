@@ -135,6 +135,10 @@ def _zbierz_warstwy(db):
     # close() w finally — patrz nagłówek pliku. NIE upraszczać.
     try:
         st, it = lt.newIterator()
+        try:
+            it.start()   # proven idiom (wzorzec 21) — bez tego iterator bywa w zlym stanie
+        except Exception:
+            pass
         while not it.done():
             st2, rec = it.getRecord(GcDb.kForRead)
             if rec is None:
@@ -198,20 +202,28 @@ def _policz_obiekty(db, warstwy):
     # close() w finally — patrz nagłówek pliku. NIE upraszczać.
     try:
         for space_name in (GCDB_MODEL_SPACE, GCDB_PAPER_SPACE):
-            _ck("policz: otwieram %s" % space_name)
+            _ck("policz: %s -> getAt" % space_name)
             sst, sp = bt.getAt(space_name, GcDb.kForRead)
+            _ck("policz: %s getAt OK st=%s" % (space_name, sst))
             if sst != Gcad.eOk or sp is None:
                 if space_name == GCDB_MODEL_SPACE:
                     _ostrzezenia.append("nie dalo sie otworzyc model space")
                 # brak paper space nie jest bledem — rysunek moze go nie miec
                 continue
             try:
+                _ck("policz: %s -> newIterator" % space_name)
                 ist, it = sp.newIterator()
+                _ck("policz: %s newIterator OK st=%s" % (space_name, ist))
                 if ist != Gcad.eOk or it is None:
                     _ostrzezenia.append("nie dalo sie przejsc %s" % space_name)
                 else:
+                    _ck("policz: %s -> start" % space_name)
                     it.start()   # KONIECZNE dla iteratora zawartosci (wzorzec 21)
+                    _ck("policz: %s start OK, wchodze w petle" % space_name)
+                    k = 0
                     while not it.done():
+                        k += 1
+                        _ck("policz: %s obiekt #%d -> getEntity" % (space_name, k))
                         est, ent = it.getEntity()   # bez kForRead — jak we wzorcu 21
                         if ent is None:
                             _ostrzezenia.append("nie dalo sie otworzyc obiektu")
@@ -227,6 +239,7 @@ def _policz_obiekty(db, warstwy):
                             finally:
                                 ent.close()
                         it.step()
+                    _ck("policz: %s petla skonczona (%d obiektow)" % (space_name, k))
             finally:
                 sp.close()
     finally:
