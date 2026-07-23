@@ -17,6 +17,7 @@
 
 from pygcad.core.runtime import *
 from pygcad.pygrx import *
+import os
 
 
 def _obwod(entity):
@@ -49,6 +50,36 @@ def _pole(entity):
     return None
 
 
+def _wybierz_plik_csv():
+    """Natywne okno "Zapisz jako" (tkinter, stdlib). Prosili Rafal i Tomasz (23.07):
+    wpisywanie sciezki reczne jest uciazliwe. Natywne gcedGetFileD ma parametr wyjsciowy
+    resbuf (nieuzywalny z Pythona, jak gcedGetReal/BUG-06), wiec tkinter.
+    Zwraca: sciezke (str) / "" (user anulowal okno) / None (okno niedostepne -> fallback do linii polecen).
+    tkinter importowany LENIWIE (nie przy APPLOAD)."""
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+    except Exception:
+        return None
+    try:
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes("-topmost", True)
+        pulpit = os.path.join(os.path.expanduser("~"), "Desktop")
+        if not os.path.isdir(pulpit):
+            pulpit = os.path.expanduser("~")
+        p = filedialog.asksaveasfilename(
+            title="Zapisz przedmiar jako",
+            defaultextension=".csv",
+            initialfile="przedmiar.csv",
+            initialdir=pulpit,
+            filetypes=[("Plik CSV", "*.csv"), ("Wszystkie pliki", "*.*")])
+        root.destroy()
+        return p          # "" gdy anulowano okno
+    except Exception:
+        return None       # okno padlo -> fallback
+
+
 @command(local_name='GSAI_PRZEDMIAR')
 def przedmiar():
     """Zaznacz zamkniete obiekty -> CSV z polem, obwodem i suma."""
@@ -63,12 +94,25 @@ def przedmiar():
             gcutPrintf("\nNic nie wybrano. Operacja anulowana.")
             return
 
-        status, sciezka = gcedGetString(1, "\nSciezka pliku CSV <C:/przedmiar.csv>: ")
-        if status != RTNORM:
+        # 1) natywne okno "Zapisz jako" (tkinter); 2) fallback -> pytanie w linii polecen.
+        # Domyslnie Pulpit, NIE C:\ root (chroniony do zapisu -> PermissionError, Rafal 23.07).
+        _pulpit = os.path.join(os.path.expanduser("~"), "Desktop")
+        if not os.path.isdir(_pulpit):
+            _pulpit = os.path.expanduser("~")
+        _domyslny = os.path.join(_pulpit, "przedmiar.csv")
+        sciezka = _wybierz_plik_csv()
+        if sciezka == "":
             gcedSSFree(sset)
-            gcutPrintf("\nAnulowano.")
+            gcutPrintf("\nAnulowano (zamknieto okno zapisu).")
             return
-        sciezka = (sciezka or "").strip() or "C:/przedmiar.csv"
+        if sciezka is None:
+            # okno niedostepne -> stary sposob: pytanie w linii polecen
+            status, sciezka = gcedGetString(1, "\nSciezka pliku CSV <%s>: " % _domyslny)
+            if status != RTNORM:
+                gcedSSFree(sset)
+                gcutPrintf("\nAnulowano.")
+                return
+            sciezka = (sciezka or "").strip() or _domyslny
 
         wiersze = []
         sumaPola = 0.0
