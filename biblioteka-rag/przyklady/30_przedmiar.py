@@ -165,7 +165,7 @@ def przedmiar():
         def n(x):
             return ("%.4f" % x).replace(".", ",")
 
-        linie = ["Lp;Warstwa;Typ;Powierzchnia;Obwod"]   # Tomasz 24.07: Pole -> Powierzchnia
+        linie = ["Lp;Warstwa;Typ;Powierzchnia;Obwód"]   # Tomasz 24.07: Pole->Powierzchnia, Obwod->Obwód
         for lp, w, t, p, o in wiersze:
             linie.append("%d;%s;%s;%s;%s" % (lp, w, t, n(p), n(o)))
         linie.append("SUMA;;;%s;%s" % (n(sumaPola), n(sumaObw)))
