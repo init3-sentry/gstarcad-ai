@@ -39,7 +39,15 @@ def _nazwa_typu(ent):
 
 
 def _obwod(entity):
-    """Obwod (dlugosc krzywej zamknietej) BEZ .cast(). Zwraca float albo None."""
+    """Obwod (dlugosc krzywej zamknietej / obwod regionu) BEZ .cast(). Zwraca float albo None."""
+    # Regiony i obszary maja getPerimeter() (NIE getEndParam/length) — Tomasz 24.07:
+    # dla Regionow obwod nie byl odkladany, bo probowalismy tylko metod krzywej.
+    try:
+        st, p = entity.getPerimeter()
+        if st == Gcad.eOk:
+            return p
+    except (AttributeError, TypeError):
+        pass
     try:
         st, ep = entity.getEndParam()
         if st == Gcad.eOk:
