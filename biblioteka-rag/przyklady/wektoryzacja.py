@@ -228,7 +228,67 @@ def rdp(punkty, eps):
     return [tuple(p) for p in P[zostaw]]
 
 
-def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8):
+def domknij_konce(polilinie, tol=15.0):
+    """Snapuje bliskie KONCE lancuchow do wspolnego punktu (centroid klastra).
+    Zamyka szpary i ostrzy narozniki: szkielet urywa lancuch na wezle 1-2 px od sasiada
+    i zaokragla rogi (ukos zamiast ostrego kata), wiec konce w rogu/skrzyzowaniu sa
+    rozjechane. Klastrujemy konce w promieniu tol i sciagamy do jednego punktu.
+    Rusza TYLKO konce (nie srodkowe wierzcholki) i tylko klastry >=2 (samotny koniec zostaje).
+    UWAGA: zbyt duze tol moze sciagnac konce dwoch bliskich rownoleglych linii — tol dobrany
+    empirycznie (~pol grubosci kreski); dla bardzo gestych rysunkow zmniejsz."""
+    if not polilinie:
+        return polilinie
+    konce = []                                   # [pl_idx, wierzch_idx, x, y]
+    for i, pl in enumerate(polilinie):
+        if len(pl) >= 1:
+            konce.append([i, 0, pl[0][0], pl[0][1]])
+            konce.append([i, len(pl) - 1, pl[-1][0], pl[-1][1]])
+    n = len(konce)
+    parent = list(range(n))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    t2 = tol * tol
+    for a in range(n):
+        for b in range(a + 1, n):
+            dx = konce[a][2] - konce[b][2]
+            dy = konce[a][3] - konce[b][3]
+            if dx * dx + dy * dy <= t2:
+                parent[find(a)] = find(b)
+
+    grupy = {}
+    for k in range(n):
+        r = find(k)
+        if r not in grupy:
+            grupy[r] = []
+        grupy[r].append(k)
+
+    pl2 = [list(p) for p in polilinie]
+    for _, idxs in grupy.items():
+        if len(idxs) < 2:                        # samotny koniec — nie ruszamy
+            continue
+        cx = sum(konce[k][2] for k in idxs) / len(idxs)
+        cy = sum(konce[k][3] for k in idxs) / len(idxs)
+        for k in idxs:
+            pl2[konce[k][0]][konce[k][1]] = (cx, cy)
+
+    # sprzataj zdegenerowane: usun kolejne identyczne wierzcholki, odrzuc polilinie < 2 pkt
+    wynik = []
+    for p in pl2:
+        czysta = [p[0]]
+        for v in p[1:]:
+            if v != czysta[-1]:
+                czysta.append(v)
+        if len(czysta) >= 2:
+            wynik.append([tuple(v) for v in czysta])
+    return wynik
+
+
+def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol_domk=15.0):
     """Obraz w skali szarosci (uint8) -> lista polilinii [(x, y), ...] w pikselach.
     UWAGA: zwraca x=kolumna, y=wiersz. Zamiana na uklad rysunku jest po stronie CAD.
 
@@ -252,6 +312,8 @@ def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8):
         pkt = rdp([(x, y) for (y, x) in lan], eps)   # (wiersz,kol) -> (x,y)
         if len(pkt) >= 2:
             polilinie.append(pkt)
+    if domykaj:                                       # zamknij szpary + ostrzej narozniki
+        polilinie = domknij_konce(polilinie, tol=tol_domk)
     return polilinie, prog, int(szk.sum())
 
 
