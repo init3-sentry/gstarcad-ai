@@ -228,19 +228,32 @@ def rdp(punkty, eps):
     return [tuple(p) for p in P[zostaw]]
 
 
-def domknij_konce(polilinie, tol=15.0):
+def _dlugosc_lamanej(p):
+    """Suma dlugosci segmentow lamanej (w pikselach)."""
+    s = 0.0
+    for i in range(len(p) - 1):
+        s += ((p[i + 1][0] - p[i][0]) ** 2 + (p[i + 1][1] - p[i][1]) ** 2) ** 0.5
+    return s
+
+
+def domknij_konce(polilinie, tol=14.0, max_klaster=3, min_dlugosc_linii=40.0):
     """Snapuje bliskie KONCE lancuchow do wspolnego punktu (centroid klastra).
     Zamyka szpary i ostrzy narozniki: szkielet urywa lancuch na wezle 1-2 px od sasiada
-    i zaokragla rogi (ukos zamiast ostrego kata), wiec konce w rogu/skrzyzowaniu sa
-    rozjechane. Klastrujemy konce w promieniu tol i sciagamy do jednego punktu.
-    Rusza TYLKO konce (nie srodkowe wierzcholki) i tylko klastry >=2 (samotny koniec zostaje).
-    UWAGA: zbyt duze tol moze sciagnac konce dwoch bliskich rownoleglych linii — tol dobrany
-    empirycznie (~pol grubosci kreski); dla bardzo gestych rysunkow zmniejsz."""
+    i zaokragla rogi (ukos zamiast ostrego kata), wiec konce w rogu/skrzyzowaniu sa rozjechane.
+
+    ZABEZPIECZENIA (empiryczne, po tescie na realnym skanie geodezyjnym 2026-07-24 — bez nich
+    domykanie robilo promieniste "gwiazdy" na gestych punktach pomiarowych i zlewalo linie):
+      - `min_dlugosc_linii` — w domykaniu bierze udzial TYLKO koniec dlugiej linii; krotkie
+        lamane (opisy, cyfry, szum) sa pomijane, wiec sie nie zlewaja.
+      - `max_klaster` — snapujemy tylko MALE skupiska koncow (rog/T/X = 2-3 konce); geste
+        skupisko (>max_klaster) zostawiamy nietkniete, zeby nie robic gwiazdy.
+      - `tol` umiarkowany (~pol grubosci kreski).
+    Rusza TYLKO konce (nie srodkowe wierzcholki) i tylko skupiska 2..max_klaster."""
     if not polilinie:
         return polilinie
     konce = []                                   # [pl_idx, wierzch_idx, x, y]
     for i, pl in enumerate(polilinie):
-        if len(pl) >= 1:
+        if len(pl) >= 2 and _dlugosc_lamanej(pl) >= min_dlugosc_linii:
             konce.append([i, 0, pl[0][0], pl[0][1]])
             konce.append([i, len(pl) - 1, pl[-1][0], pl[-1][1]])
     n = len(konce)
@@ -269,7 +282,7 @@ def domknij_konce(polilinie, tol=15.0):
 
     pl2 = [list(p) for p in polilinie]
     for _, idxs in grupy.items():
-        if len(idxs) < 2:                        # samotny koniec — nie ruszamy
+        if len(idxs) < 2 or len(idxs) > max_klaster:   # samotny lub geste skupisko — zostaw
             continue
         cx = sum(konce[k][2] for k in idxs) / len(idxs)
         cy = sum(konce[k][3] for k in idxs) / len(idxs)
@@ -288,7 +301,7 @@ def domknij_konce(polilinie, tol=15.0):
     return wynik
 
 
-def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol_domk=15.0):
+def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol_domk=14.0):
     """Obraz w skali szarosci (uint8) -> lista polilinii [(x, y), ...] w pikselach.
     UWAGA: zwraca x=kolumna, y=wiersz. Zamiana na uklad rysunku jest po stronie CAD.
 
