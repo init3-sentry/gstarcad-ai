@@ -66,15 +66,16 @@ def _obwod(entity):
 
 
 def _pole(entity):
-    """Pole obiektu. Zwraca float albo None (obiekt bez pola / otwarty).
-    DIAG (Tomasz 24.07 — Region nie liczy pola): wypisuje przyczyne, gdy getArea zawiedzie."""
+    """Pole obiektu. Zwraca float albo None.
+    None gdy: obiekt otwarty (bez pola) LUB typ nieobslugiwany przez API pygcad.
+    UWAGA BUG-09: Region otwiera sie jako bazowe GcDbEntity (bez getArea) — pygcad
+    nie downcastuje do GcDbRegion, a jedyna droga (.cast) truje sesje (BUG-07)."""
     try:
         st, a = entity.getArea()
         if st == Gcad.eOk:
             return a
-        gcutPrintf("\n  [diag] getArea status=%s (%s)" % (st, type(entity).__name__))
-    except (AttributeError, TypeError) as e:
-        gcutPrintf("\n  [diag] getArea wyjatek: %s: %s (%s)" % (type(e).__name__, e, type(entity).__name__))
+    except (AttributeError, TypeError):
+        pass
     return None
 
 
@@ -147,6 +148,7 @@ def przedmiar():
         sumaObw = 0.0
         liczone = 0
         pominiete = 0
+        pominiete_typy = {}   # typ -> ile (obiekty bez odczytu pola przez API, np. Region/BUG-09)
 
         entName = gds_name()
         entId = GcDbObjectId()
@@ -171,6 +173,7 @@ def przedmiar():
                     ent.close()
                 if pole is None:
                     pominiete += 1
+                    pominiete_typy[typ] = pominiete_typy.get(typ, 0) + 1
                     continue
                 sumaPola += pole
                 if obw is not None:
@@ -184,7 +187,11 @@ def przedmiar():
         gcedSSFree(sset)
 
         if liczone == 0:
-            gcutPrintf("\nZaden wskazany obiekt nie ma pola. Anulowano.")
+            gcutPrintf("\nZaden obiekt nie mial odczytywalnego pola. Anulowano.")
+            if pominiete_typy:
+                opis = ", ".join("%s x%d" % (t, c) for t, c in pominiete_typy.items())
+                gcutPrintf("\nTypy bez odczytu pola przez API: %s" % opis)
+                gcutPrintf("\n(Region: pygcad nie udostepnia pola bez castu — zamien na polilinie komenda BOUNDARY.)")
             return
 
         # Zbuduj CSV w pamieci PRZED otwarciem pliku (ochrona przed truncate przy bledzie formatowania)
@@ -202,6 +209,9 @@ def przedmiar():
 
         gcutPrintf("\n=== PRZEDMIAR ===")
         gcutPrintf("\nObiektow policzono: %d   (pominieto bez pola/blad: %d)" % (liczone, pominiete))
+        if pominiete_typy:
+            opis = ", ".join("%s x%d" % (t, c) for t, c in pominiete_typy.items())
+            gcutPrintf("\nBez odczytu pola przez API (np. Region): %s" % opis)
         gcutPrintf("\nSuma pola: %s   Suma obwodu: %s" % (n(sumaPola), n(sumaObw)))
         gcutPrintf("\nZapisano CSV: %s" % sciezka)
 
