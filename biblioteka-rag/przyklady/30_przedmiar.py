@@ -135,6 +135,8 @@ def przedmiar():
                     pole = _pole(ent)
                     obw = _obwod(ent)
                     typ = type(ent).__name__
+                    if typ.startswith("GcDb"):     # Tomasz 24.07: bez przedrostka GcDb w CSV
+                        typ = typ[4:]
                     try:
                         warstwa = ent.layer()
                     except Exception:
@@ -163,7 +165,7 @@ def przedmiar():
         def n(x):
             return ("%.4f" % x).replace(".", ",")
 
-        linie = ["Lp;Warstwa;Typ;Pole;Obwod"]
+        linie = ["Lp;Warstwa;Typ;Powierzchnia;Obwod"]   # Tomasz 24.07: Pole -> Powierzchnia
         for lp, w, t, p, o in wiersze:
             linie.append("%d;%s;%s;%s;%s" % (lp, w, t, n(p), n(o)))
         linie.append("SUMA;;;%s;%s" % (n(sumaPola), n(sumaObw)))
