@@ -19,6 +19,24 @@ from pygcad.core.runtime import *
 from pygcad.pygrx import *
 import os
 
+# Tomasz 24.07: polskie nazwy typów w CSV (polska wersja GstarCAD).
+# Klucz = nazwa klasy pygcad bez przedrostka GcDb. Nieznany typ -> nazwa bez GcDb.
+_TYPY_PL = {
+    "Polyline": "Polilinia", "Polyline2d": "Polilinia", "2dPolyline": "Polilinia",
+    "Line": "Linia", "Circle": "Okrąg", "Arc": "Łuk", "Ellipse": "Elipsa",
+    "Spline": "Splajn", "Region": "Region", "Hatch": "Kreskowanie",
+    "Face": "Powierzchnia 3D", "Solid": "Bryła", "Solid3d": "Bryła 3D",
+    "MText": "Tekst wielowierszowy", "Text": "Tekst", "BlockReference": "Blok",
+}
+
+
+def _nazwa_typu(ent):
+    """Nazwa typu obiektu po polsku, bez przedrostka GcDb."""
+    t = type(ent).__name__
+    if t.startswith("GcDb"):
+        t = t[4:]
+    return _TYPY_PL.get(t, t)
+
 
 def _obwod(entity):
     """Obwod (dlugosc krzywej zamknietej) BEZ .cast(). Zwraca float albo None."""
@@ -134,9 +152,7 @@ def przedmiar():
                 try:
                     pole = _pole(ent)
                     obw = _obwod(ent)
-                    typ = type(ent).__name__
-                    if typ.startswith("GcDb"):     # Tomasz 24.07: bez przedrostka GcDb w CSV
-                        typ = typ[4:]
+                    typ = _nazwa_typu(ent)     # Tomasz 24.07: polska nazwa typu, bez GcDb
                     try:
                         warstwa = ent.layer()
                     except Exception:
