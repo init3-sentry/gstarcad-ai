@@ -66,13 +66,15 @@ def _obwod(entity):
 
 
 def _pole(entity):
-    """Pole obiektu. Zwraca float albo None (obiekt bez pola / otwarty)."""
+    """Pole obiektu. Zwraca float albo None (obiekt bez pola / otwarty).
+    DIAG (Tomasz 24.07 — Region nie liczy pola): wypisuje przyczyne, gdy getArea zawiedzie."""
     try:
         st, a = entity.getArea()
         if st == Gcad.eOk:
             return a
-    except (AttributeError, TypeError):
-        pass
+        gcutPrintf("\n  [diag] getArea status=%s (%s)" % (st, type(entity).__name__))
+    except (AttributeError, TypeError) as e:
+        gcutPrintf("\n  [diag] getArea wyjatek: %s: %s (%s)" % (type(e).__name__, e, type(entity).__name__))
     return None
 
 
@@ -189,7 +191,7 @@ def przedmiar():
         def n(x):
             return ("%.4f" % x).replace(".", ",")
 
-        linie = ["Lp;Warstwa;Typ;Powierzchnia;Długość (Obwód)"]   # Tomasz 24.07: Pole->Powierzchnia, obwód->Długość (Obwód)
+        linie = ["Lp;Warstwa;Typ;Obszar;Długość (Obwód)"]   # Tomasz 24.07: Pole->Obszar, obwód->Długość (Obwód)
         for lp, w, t, p, o in wiersze:
             linie.append("%d;%s;%s;%s;%s" % (lp, w, t, n(p), n(o)))
         linie.append("SUMA;;;%s;%s" % (n(sumaPola), n(sumaObw)))
