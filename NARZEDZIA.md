@@ -23,6 +23,10 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 
 | Komenda | Co robi | Plik | Stan |
 |---|---|---|---|
+| **`GSAI_PRZEDMIAR`** | Pole + obwód wskazanych obiektów → CSV (otwiera się w Excelu). | [30_przedmiar.py](biblioteka-rag/przyklady/30_przedmiar.py) | Szlif pod Tomasza (07-24). **Region nieliczony — BUG-09.** Decyzja COM vs `BOUNDARY`: [robert#7](https://github.com/init3-sentry/gstarcad-ai-robert/issues/7). |
+| **`GSAI_DLUGOSC`** / **`GSAI_DLUGOSC_OPIS`** | Suma długości zaznaczonych obiektów; wariant `_OPIS` dokłada etykietę z przedrostkiem na rysunku. | [GSAI_DLUGOSC.py](biblioteka-rag/przyklady/GSAI_DLUGOSC.py) · [29_dlugosc_opis.py](biblioteka-rag/przyklady/29_dlugosc_opis.py) | U Roberta do oceny ([robert#6](https://github.com/init3-sentry/gstarcad-ai-robert/issues/6)). |
+| **`GSAI_RENAME_WARSTWY`** | Hurtowa zmiana nazw warstw wzorcem, z obsługą kolizji (natywnie GstarCAD tego nie ma — ADR 08). | [31_rename_warstw_wzorcem.py](biblioteka-rag/przyklady/31_rename_warstw_wzorcem.py) | Do testu na realnym rysunku. |
+| **`GSAI_WEKTORYZUJ`** *(prototyp)* | Skan rastrowy → polilinie w rysunku, całość lokalnie. | [wektoryzacja.py](biblioteka-rag/przyklady/wektoryzacja.py) | Prototyp; oddzielanie tekstu do walidacji u Jakuba. OCR = v2.0 (ADR 05). |
 | **`GSAI_CHROPOWATOSC`** | Symbol struktury geometrycznej powierzchni (chropowatość) wg ISO 1302. | [27_surface_roughness.py](biblioteka-rag/przyklady/27_surface_roughness.py) | Czeka na normę **PN-EN ISO 21920-1** (zastąpiła ISO 1302) — nie zgadujemy geometrii. |
 
 ## ⛔ Wycofane — bo GstarCAD ma to natywnie
@@ -42,7 +46,7 @@ Warto też znać: **`FLATTEN`** (prostowanie do płaszczyzny), **`TCOUNT`** (num
 
 ## 🧪 Biblioteka wzorców
 
-W [`biblioteka-rag/przyklady/`](biblioteka-rag/przyklady/) leży **27 przykładów wzorcowych**. Powstały jako materiał uczący sztuczną inteligencję, jak poprawnie pisać kod dla GstarCAD. **Działają** i bywają przydatne, ale to pomoce warsztatowe, nie produkty — dlatego **nie mają przedrostka `GSAI_`**.
+W [`biblioteka-rag/przyklady/`](biblioteka-rag/przyklady/) leży ~30 plików. Numerowane **01–24** to **przykłady wzorcowe** — materiał uczący sztuczną inteligencję, jak poprawnie pisać kod dla GstarCAD; **działają** i bywają przydatne, ale to pomoce warsztatowe, nie produkty (dlatego bez przedrostka `GSAI_`). Pliki od **25 wzwyż** oraz `GSAI_*.py` to **implementacje narzędzi** skatalogowane w sekcjach wyżej (✅/🟡). `GSAI_CASTPROBE.py` to skrypt diagnostyczny SDK.
 
 Kilka użytecznych z brzegu:
 
