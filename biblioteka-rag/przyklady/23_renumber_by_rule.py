@@ -147,7 +147,7 @@ def renumberByRule():
         state = {"cur": start, "count": 0}
 
         def rule(atag, aval, set_value):
-            if atag == tag:
+            if atag.strip().upper() == tag.strip().upper():
                 set_value(f"{prefix}{str(state['cur']).zfill(pad)}")
                 state["cur"] += step
                 state["count"] += 1
