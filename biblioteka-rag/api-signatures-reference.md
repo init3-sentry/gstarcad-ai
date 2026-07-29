@@ -190,7 +190,7 @@ Zgrepane w `pygrx.pyi` 2026-07-29, jeszcze nie odpalone — pierwszy skrypt, kt�
 | `GcDbCircle` | `GcDbCircle(cntr: GcGePoint3d, nrm: GcGeVector3d, radius: float)` — normalna zwykle `GcGeVector3d(0,0,1)` |
 | `GcDbEllipse` | `GcDbEllipse(center, unitNormal: GcGeVector3d, majorAxis: GcGeVector3d, radiusRatio: float[, startAngle, endAngle])` |
 
-> Dopóki 🟡: kształty okrągłe rysuj dwoma pół-łukami `GcDbArc(c, r, 0, π)` + `GcDbArc(c, r, π, 2π)` (prymityw już 🟢). Pełny okrąg jednym `GcDbArc(c,r,0,2π)` bywa zerowej długości — nie używać.
+> **Kształty okrągłe — idiom 🟢 (potwierdzony na LC 2026-07-29, `GSAI_MEBLE` stół okrągły):** rysuj koło dwoma pół-łukami `GcDbArc(c, r, 0, π)` + `GcDbArc(c, r, π, 2π)` (prymityw `GcDbArc` już 🟢). Renderuje pełny okrąg, przetrwa obrót (dodaj `rot` do obu kątów). Pełny okrąg jednym `GcDbArc(c,r,0,2π)` bywa zerowej długości — nie używać. `GcDbCircle`/`GcDbEllipse` (niżej) nadal 🟡 — wejdą, gdy jakiś skrypt będzie potrzebował prawdziwej elipsy.
 
 ### ⛔ ZAKAZANE — z bezpieczną alternatywą (rejestr bólu)
 
