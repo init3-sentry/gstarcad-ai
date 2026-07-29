@@ -123,3 +123,84 @@ The stubs confirm these are absent in pygcad — do not generate them:
 
 ---
 
+## Warstwa ZWERYFIKOWANA NA ŻYWO (🟢) — generatywne rysowanie
+
+> **Ta sekcja rośnie z każdym narzędziem.** Reguła żywej bazy: gdy skrypt przejdzie test **na LC / w GstarCAD** (nie tylko walidator), jego zweryfikowane kształty wywołań lądują tu z 🟢 i datą. Stub (`pygrx.pyi`) mówi *„metoda istnieje"* — NIE mówi *„tak się ją woła i to działa"* (patrz BUG-06/07/10 niżej). Ta warstwa to jedyne, czemu można ufać w 100%.
+>
+> **Legenda źródła:** 🟢 uruchomione na żywo w GstarCAD · 🟡 w stubie, nie odpalone end-to-end · ⛔ zakazane (truje sesję / nieużywalne z Pythona).
+
+### 🟢 Konstruktory encji (geometria) — potwierdzone na LC
+
+Źródło: `GSAI_SCHODY` (RZUT/ŁUK/PRZEKRÓJ) — 3/3 tryby narysowane na żywo, GstarCAD 2027, 2026-07-29.
+
+| Encja | Konstruktor (działa) | Uwagi |
+|---|---|---|
+| `GcDbLine` | `GcDbLine(GcGePoint3d, GcGePoint3d)` | dwa punkty świata |
+| `GcDbPolyline` | `GcDbPolyline()` + `addVertexAt(i, GcGePoint2d, bulge, startW, endW)` | wierzchołki 2D; `bulge=0` = prosto; domknij powtarzając pierwszy punkt |
+| `GcDbArc` | `GcDbArc(center: GcGePoint3d, radius: float, startAngle: float, endAngle: float)` | rysuje **CCW** od start do end; kąty w radianach |
+| `GcDbText` | `GcDbText(GcGePoint3d, str)` + `setHeight(float)` | tekst upright; wysokość osobnym setterem |
+
+Wspólny finał każdej encji (potwierdzony):
+
+```python
+ent.setLayer("NAZWA_WARSTWY")            # 🟢 str, nie ObjectId
+st, _id = ms.appendGcDbEntity(ent)       # 🟢 zwraca (status, GcDbObjectId) — rozpakuj
+# ... a potem ZAWSZE:
+ent.close()                              # w finally
+```
+
+### 🟢 Warstwa i przestrzeń modelu — BEZ castu
+
+Źródło: `GSAI_SCHODY` live. To jest wzorzec „utwórz warstwę, otwórz model space" który nie truje sesji (kontra BUG-07).
+
+```python
+# Warstwa (idempotentnie) — GcDbLayerTableRecord przez add(), zero .cast():
+st, tabela = db.getLayerTable(GcDb.kForWrite)      # 🟢
+if not tabela.has(nazwa):
+    rec = GcDbLayerTableRecord()                   # 🟢
+    rec.setName(nazwa)
+    kolor = GcCmColor(); kolor.setColorIndex(idx)  # 🟢 kolor przez GcCmColor, NIE przez rekord
+    rec.setColor(kolor)
+    tabela.add(rec); rec.close()
+tabela.close()                                     # w finally
+
+# Model space — getAt zwraca od razu typowaną podklasę, cast zbędny:
+st, bt = db.getBlockTable(GcDb.kForRead)           # 🟢
+st, ms = bt.getAt(GCDB_MODEL_SPACE, GcDb.kForWrite)# 🟢 typowane, bez .cast()
+bt.close()
+```
+
+### 🟢 Wejście użytkownika — potwierdzone kształty (live)
+
+```python
+st, txt = gcedGetString(0, "\nPytanie <domyślne>: ")   # 🟢 (st, str). cronly=1 pozwala spacje
+pt = GcGePoint3d()
+st = gcedGetPoint(None, "\nWskaż punkt:", pt)           # 🟢 param WYJŚCIOWY pt, status w return
+if st == RTNORM: ...                                    # input funkcje -> RTNORM (nie Gcad.eOk!)
+```
+
+> **Liczby: NIE `gcedGetReal`.** Pytaj `gcedGetString` i parsuj `float`/`int` sam (obsłuż `,`→`.` i Enter→domyślna). Powód niżej (BUG-06).
+
+### 🟡 Gotowe do promocji (w stubie, wejdą z najbliższym narzędziem)
+
+Zgrepane w `pygrx.pyi` 2026-07-29, jeszcze nie odpalone — pierwszy skrypt, który ich użyje, przenosi je do 🟢:
+
+| Encja | Konstruktor (stub) |
+|---|---|
+| `GcDbCircle` | `GcDbCircle(cntr: GcGePoint3d, nrm: GcGeVector3d, radius: float)` — normalna zwykle `GcGeVector3d(0,0,1)` |
+| `GcDbEllipse` | `GcDbEllipse(center, unitNormal: GcGeVector3d, majorAxis: GcGeVector3d, radiusRatio: float[, startAngle, endAngle])` |
+
+> Dopóki 🟡: kształty okrągłe rysuj dwoma pół-łukami `GcDbArc(c, r, 0, π)` + `GcDbArc(c, r, π, 2π)` (prymityw już 🟢). Pełny okrąg jednym `GcDbArc(c,r,0,2π)` bywa zerowej długości — nie używać.
+
+### ⛔ ZAKAZANE — z bezpieczną alternatywą (rejestr bólu)
+
+| API | Dlaczego ⛔ | Zamiast tego |
+|---|---|---|
+| `.cast()` (np. `GcDbLayerTableRecord.cast(rec)`) | **BUG-07** — nie crashuje od razu, **truje sesję**: następny dostęp do bazy / akcja usera wywala GstarCAD | otwórz rekord typowany wprost: `getAt(nazwa, mode)` zwraca podklasę |
+| `gcedGetReal(prompt, result)` | **BUG-06** — parametr wyjściowy typu prostego, z Pythona nieużywalny | `gcedGetString` + parsowanie float |
+| czytanie geometrii **wczytanych** encji (`getArea`, `getDistAtParam`, `length` na encji z DWG) | **BUG-10** — pygcad nie robi downcastu, encja otwiera się jako bazowy `GcDbEntity`, metody pochodne niedostępne → pada na plikach po ponownym otwarciu | narzędzia **generatywne** (twórz geometrię, nie czytaj cudzej). `getGeomExtents`/`layer()` = metody bazowe, bezpieczne |
+
+> **Reguła projektowa, którą to wymusza:** domyślny kształt narzędzia GSAI = **generatywny** (rysuje nową geometrię). To automatycznie omija BUG-10 i większość pułapek odczytu. Odczyt cudzych encji tylko gdy narzędzie naprawdę o to jest, i wtedy tylko metodami bazowymi.
+
+---
+
