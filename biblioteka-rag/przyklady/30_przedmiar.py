@@ -14,6 +14,11 @@
 #   Punkty 1 i 5 MODYFIKUJA rysunek -> OPCJA [T/N], domyslnie N (zachowanie read-only jak v1).
 #   API zweryfikowane w stubach 2026-07-27 (getGeomExtents/GcDbText 2-arg/setColorIndex/getPointAtDist).
 #
+# WERSJA v2.1 (2026-07-29) — UX: jednostka + numery/kolor w JEDNYM oknie (idiom _panel z geoportalu:
+#   tk.StringVar/IntVar + Radiobutton/Checkbutton + OK/Anuluj, fallback na linie polecen). Dwa pytania
+#   z linii polecen -> jedno okno + Anuluj (ktorego dotad nie bylo). Sciezka CSV zostaje na natywnym
+#   "Zapisz jako". Zero nowego API (czysty tkinter stdlib), nie tyka encji -> BUG-10-safe.
+#
 # WYJSCIE: CSV (utf-8-sig, separator ";", przecinek dziesietny) — polski Excel czyta z polskimi znakami.
 # Uzycie: APPLOAD, komenda GSAI_PRZEDMIAR.
 # STATUS v2: API zweryfikowane offline; warstwa zapisu (numery/kolor) = pierwsza walidacja zespolu.
@@ -141,6 +146,57 @@ def _pytaj_jednostke():
     return j, _JEDNOSTKI[j]
 
 
+def _panel_opcje():
+    """Jedno okno: jednostka rysunku (radio) + numery/kolor (checkbox) + OK/Anuluj.
+    Zwraca dict {ok, jednostka, adnotuj}. Fallback na linie polecen gdy tkinter niedostepny.
+    Wzorzec: _panel() z geoportal.py (sprawdzony na LC). Zero API pygcad w oknie -> BUG-10-safe."""
+    try:
+        import tkinter as tk
+        res = {"ok": False, "jednostka": "cm", "adnotuj": False}
+        root = tk.Tk()
+        root.title("GSAI Przedmiar")
+        try:
+            root.attributes("-topmost", True)
+        except Exception:
+            pass
+        vj = tk.StringVar(value="cm")
+        va = tk.IntVar(value=0)
+        tk.Label(root, text="Jednostka rysunku (wynik zawsze w m / m2):",
+                 font=("Segoe UI", 10, "bold")).pack(anchor="w", padx=12, pady=(12, 4))
+        fr_j = tk.Frame(root)
+        fr_j.pack(anchor="w", padx=18)
+        for kod, opis in (("mm", "milimetry"), ("cm", "centymetry"), ("m", "metry")):
+            tk.Radiobutton(fr_j, text="%s  (%s)" % (kod, opis), variable=vj, value=kod).pack(anchor="w")
+        tk.Label(root, text="Zapis do rysunku:",
+                 font=("Segoe UI", 10, "bold")).pack(anchor="w", padx=12, pady=(10, 4))
+        tk.Checkbutton(root, text="Wstaw numery + koloruj (policzone=szary, niepoliczone=czerwony)",
+                       variable=va).pack(anchor="w", padx=18)
+        tk.Label(root, text="Domyslnie rysunek nietkniety (tylko CSV). Cofniesz jednym Undo.",
+                 fg="#666").pack(anchor="w", padx=18, pady=(0, 4))
+
+        def _ok():
+            res["ok"] = True
+            res["jednostka"] = vj.get()
+            res["adnotuj"] = bool(va.get())
+            root.destroy()
+
+        fr = tk.Frame(root)
+        fr.pack(pady=12, padx=12)
+        tk.Button(fr, text="OK", width=10, command=_ok).pack(side="left", padx=6)
+        tk.Button(fr, text="Anuluj", width=10, command=root.destroy).pack(side="left", padx=6)
+        root.update()
+        root.mainloop()
+        return res
+    except Exception as ex:
+        gcutPrintf("\n[Panel] tkinter niedostepny (%s) — pytania z linii polecen." % type(ex).__name__)
+        jedn, _ = _pytaj_jednostke()
+        adn = False
+        st, tt = gcedGetString(0, "\nWstawic numery i zaznaczyc kolorem policzone/niepoliczone? [T/N] <N>: ")
+        if st == RTNORM and (tt or "").strip().lower() in ("t", "tak", "y", "yes"):
+            adn = True
+        return {"ok": True, "jednostka": jedn, "adnotuj": adn}
+
+
 def _open_ms_write():
     db = gcdbWorkingDatabase()
     st, bt = db.getBlockTable(GcDb.kForRead)
@@ -165,13 +221,15 @@ def przedmiar():
             gcutPrintf("\nNic nie wybrano. Operacja anulowana.")
             return
 
-        jedn, (dziel_dl, dziel_pole) = _pytaj_jednostke()
-
-        # Poprawka #1/#5: opcjonalne wpisanie do rysunku (numery + kolor). Domyslnie NIE (read-only).
-        adnotuj = False
-        st, tt = gcedGetString(0, "\nWstawic numery i zaznaczyc kolorem policzone/niepoliczone? [T/N] <N>: ")
-        if st == RTNORM and (tt or "").strip().lower() in ("t", "tak", "y", "yes"):
-            adnotuj = True
+        # v2.1: jednostka + adnotacja w jednym oknie (idiom _panel), Anuluj konczy komende.
+        opcje = _panel_opcje()
+        if not opcje.get("ok"):
+            gcedSSFree(sset)
+            gcutPrintf("\nAnulowano.")
+            return
+        jedn = opcje.get("jednostka") if opcje.get("jednostka") in _JEDNOSTKI else "cm"
+        dziel_dl, dziel_pole = _JEDNOSTKI[jedn]
+        adnotuj = bool(opcje.get("adnotuj"))
 
         # sciezka pliku (okno tkinter -> fallback linia polecen)
         _pulpit = os.path.join(os.path.expanduser("~"), "Desktop")
