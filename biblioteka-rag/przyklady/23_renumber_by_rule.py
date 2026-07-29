@@ -124,9 +124,27 @@ def for_each_attribute(fn):
 
 # ── Komenda ───────────────────────────────────────────────────────────────────────────
 
+def _num_to_alpha(n):
+    """1->A, 26->Z, 27->AA, 28->AB ... (styl kolumn Excela, 1-indeksowane)."""
+    s = ""
+    while n > 0:
+        n, r = divmod(n - 1, 26)
+        s = chr(65 + r) + s
+    return s
+
+
+def _alpha_to_num(s):
+    """A->1, Z->26, AA->27 ... (odwrotnosc _num_to_alpha)."""
+    n = 0
+    for ch in s.upper():
+        n = n * 26 + (ord(ch) - 64)
+    return n
+
+
 @command(local_name='GSAI_RENUMERUJ', global_name='GSAI_RENUMBER', group_name='GSAI')
 def renumberByRule():
-    """Nadaje kolejne numery (prefiks+start+krok) atrybutom o wskazanym tagu — zapis przez DXF."""
+    """Nadaje kolejne numery atrybutom o wskazanym tagu: liczbowo (1,2,3) ALBO literowo
+    (A,B,C ... Z,AA,AB). Prefiks + start + krok. Zapis przez DXF. Tag bez wielkosci liter."""
     try:
         status, tag = gcedGetString(0, "\nTag atrybutu do renumeracji (np. NUMER): ")
         if status != RTNORM or not tag:
@@ -135,25 +153,44 @@ def renumberByRule():
         status, prefix = gcedGetString(1, "\nPrefiks (np. P-, Enter = brak): ")
         if status != RTNORM:
             prefix = ""
-        status, start = gcedGetInt("\nNumer startowy: ")
-        if status != RTNORM:
+        status, start = gcedGetString(0, "\nStart — liczba (np. 1) albo litera (np. A): ")
+        if status != RTNORM or not start:
             gcutPrintf("\nAnulowano.")
             return
-        status, step = gcedGetInt("\nKrok: ")
-        if status != RTNORM or step == 0:
+        start = start.strip()
+        if start.isdigit():
+            alpha = False
+            cur0 = int(start)
+        elif start.isalpha():
+            alpha = True
+            cur0 = _alpha_to_num(start)
+        else:
+            gcutPrintf("\nStart musi byc liczba (np. 1) albo litera (np. A). Anulowano.")
+            return
+
+        status, step_s = gcedGetString(1, "\nKrok (Enter = 1): ")
+        try:
+            step = int(step_s.strip()) if (status == RTNORM and step_s.strip()) else 1
+        except ValueError:
+            step = 1
+        if step == 0:
             step = 1
 
         pad = 3
-        state = {"cur": start, "count": 0}
+
+        def fmt(n):
+            return f"{prefix}{_num_to_alpha(n)}" if alpha else f"{prefix}{str(n).zfill(pad)}"
+
+        state = {"cur": cur0, "count": 0}
 
         def rule(atag, aval, set_value):
             if atag.strip().upper() == tag.strip().upper():
-                set_value(f"{prefix}{str(state['cur']).zfill(pad)}")
+                set_value(fmt(state["cur"]))
                 state["cur"] += step
                 state["count"] += 1
 
         written = for_each_attribute(rule)
-        gcutPrintf(f"\nZrenumerowano {written} atrybutow '{tag}' (od {prefix}{str(start).zfill(pad)}, krok {step}).")
+        gcutPrintf(f"\nZrenumerowano {written} atrybutow '{tag}' (od {fmt(cur0)}, krok {step}).")
 
     except Exception as err:
         gcutPrintf(f"\n[BŁĄD] przy renumeracji: {err}")
