@@ -48,7 +48,7 @@ gstarcad-ai/
 │   ├── oficjalne-materialy-gstarcad-2027/ ← official pygcad samples + manual (from the GstarCAD 2027 installation)
 │   └── przyklady/                     ← working .py example commands (5 today, target 20+ by end of July — built up by the support team; see folder README)
 ├── poc-plugin-askai/                  ← ASKAI plugin proof of concept (plugin + working FastAPI backend)
-├── web-app/                           ← the ai.gstarcad.pl web service (planned — backend will grow out of poc-plugin-askai/backend)
+├── web-app/                           ← ai.gstarcad.pl — strona-POBIERALNIA narzędzi (plan; NIE czat-za-tokeny — ten model parked, patrz PLAN.md rew. 2.0)
 │   ├── backend/                       ← FastAPI server, SQLite, Anthropic API
 │   └── frontend/                      ← user-facing Polish form
 ├── dla-pomocy-technicznej/            ← onboarding pack for the support team
