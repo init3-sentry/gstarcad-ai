@@ -5,6 +5,27 @@ Autor: Dawid Jakubowski (PM produktu GstarCAD nationwide, TMSys) + Claude (Anthr
 
 Dokument jest naszym wewnętrznym kompasem strategicznym. Pokazuje co, kiedy i w jakiej kolejności robimy. Zmieniany jest świadomie i z datą — żeby było widać, kiedy coś się przesunęło i dlaczego. Każda kolejna wersja jest pełnym przepisaniem z aktualną datą.
 
+## ⚠️ REWIZJA 2.0 — 2026-07-30 (WIĄŻĄCA; sekcje v1.0 niżej = tło historyczne)
+
+> Model monetyzacji i rola aplikacji zmieniły się względem v1.0 (30.06). **Gdzie v1.0 mówi inaczej — obowiązuje TA sekcja.** Wiążące decyzje źródłowe: `produkt-i-badania/dodatek-gstarcad/06-kierunek-skala-dystrybucja-2026-07-16.md` + `09-dystrybucja-lock-nakladek-2026-07-24.md`. (Pełne przepisanie planu wg konwencji „każda wersja = pełne przepisanie" — do zrobienia; ta sekcja jest wiążącym mostkiem.)
+
+**Pozycjonowanie:** AI po NASZEJ stronie, nie w rękach klienta. Klient dostaje **gotowe narzędzia, nie przycisk AI**. Dowód empiryczny: 0/53 pytań o AI na webinarze 2027. Hook: „te narzędzia napisała AI, my je sprawdziliśmy" / „AI dało skrzydła — aplikacje piszemy w tygodnie, nie lata".
+
+**Monetyzacja — PIVOT vs v1.0:**
+- **Darmowe narzędzia `GSAI_*` = TO JEST produkt** (nie „warstwa adopcyjna"). Różnicownik „czemu GstarCAD, nie ZWCAD" → napędza sprzedaż **licencji** (639-959 EUR). Kopiowalność = atut (martwy `.py` bez GstarCAD = wirusowe demo). Jeden kreślarz wybierający nas ≈ 8 lat abonamentu geo.
+- **Płatny = JEDEN pakiet premium**, framowany **po FUNKCJI nie zawodzie** (georeferencja / import-eksport punktów / obrysy działek / mapy / warstwice — geodeta *i* architekt), przez **WŁASNY klucz aktywacyjny** (niezależny od mechanizmu licencyjnego GstarCAD — entitlement terytorialny zaszyfrowany, zbadane na .240). Odpowiedź na prezesa Tomasza (chciał płatnej subskrypcji). Dźwignia dodatkowa: **lock na najnowszą wersję / wymuszone aktualizacje**.
+- ⛔ **ASKAI-za-tokeny (Etap 2 i 3.5 w v1.0) = NIE ścieżka przychodu.** Zdjęte ze strony (06 §5: odwraca wygraną ramę, generuje zły kod → „GstarCAD nie działa", koszt bez sufitu). **Parked, nie zabite.** NIE mylić z premierą.
+
+**`ai.gstarcad.pl` = strona-POBIERALNIA narzędzi** (Pobierz + 3 zdania + 20-sek film; bez „AI" na wejściu, bez rejestracji, bez linku do repo) — **NIE** czat-aplikacja za tokeny z v1.0.
+
+**Ścieżka krytyczna do premiery (2. poł. września):** darmowe narzędzia (mamy dużo) + **INSTALATOR** (cichy Python + Zestaw Startowy + menu CUI) + strona-pobieralnia + narracja AI. Płatny pakiet premium + własny klucz = drugi tor.
+
+**Co to robi z etapami v1.0 niżej:** Etap 2 (aplikacja-czat za tokeny) i Etap 3.5 (ASKAI jako płatny element kliencki) — **zdezaktualizowane jako ścieżka przychodu**; ASKAI parked. Etap 1 (biblioteka wiedzy) i Etap 3 (galeria narzędzi) — **aktualne**, ale narzędzia to PRODUKT, nie warstwa adopcyjna.
+
+**Kolejność (06 §7):** IMPORTXYZ → WARSTWY → **INSTALATOR** → strona-pobieralnia → zliczanie/tabelki → (geodezja / wektoryzacja / ASKAI = parked).
+
+---
+
 ## Cele projektu
 
 Krótko: **uczynić GstarCAD-a najbardziej rozpoznawalnym systemem CAD w segmencie cenowym, który jako pierwszy w Polsce buduje produkcyjne wsparcie sztucznej inteligencji dla swoich klientów**. Z tego celu wynikają cztery konkretne mierzalne wskaźniki sukcesu, do których będziemy dążyć:
