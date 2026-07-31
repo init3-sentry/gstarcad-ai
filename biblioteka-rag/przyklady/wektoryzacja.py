@@ -17,11 +17,21 @@
 #   - moj prog Otsu vs scikit-image: identyczny
 #   - syntetyczny rzut 7 scian z szumem: 0,13 s, sciana 598 px -> 2 wierzcholki
 #   - skan A1 @ 300 DPI (69 Mpx): 5,0 s
+#   - adaptacyjne prostowanie: 3 realne skany klienta (survey/mapa/kataster), narzut ~0 s;
+#     syntetyki: prosta-z-szumem 129->2 wierzch., nar, ostry; luk R=800 17->17 (NIE splaszcza)
 #
 # Ograniczenia, o ktorych trzeba wiedziec:
 #   - to CENTERLINE: kreska staje sie JEDNA linia wzdluz osi. Grubosc kreski GINIE.
 #   - luki i okregi wychodza jako lamane (dopasowanie lukow to nastepny etap)
-#   - tekst na rysunku zostanie potraktowany jak geometria (to normalne na tym etapie)
+#   - PROSTOWANIE (prostuj=True, domyslnie): rozpoznaje dlugie proste przebiegi mimo szumu i
+#     splaszcza je do jednego odcinka; zakrety, luki i detal zostaja NIETKNIETE jak RDP(eps).
+#     Na odrecznych skanach zysk jest umiarkowany (linie faluja u zrodla), na kreslonych
+#     linijka/maszynowo — duzy. Wylaczenie: wektoryzuj(..., prostuj=False).
+#   - tekst: OPCJA pomijaj_tekst (w komendzie pytanie [T/N], domyslnie N) wycina skupiska
+#     opisow/cyfr, ZOSTAWIAJAC geometrie (krzyzyki/strzalki/znaczniki/linie/ramki). Lapie opisy
+#     inline (tez OBROCONE), naglowki, TABELE i wieloliniowe AKAPITY (rozklad skupiska na
+#     gesto-wypelnione wiersze). Zdegradowany druk OK. Pojedyncze, osamotnione etykiety moga
+#     zostac (bezpieczny kierunek bledu). OCR = wersja 2.0 (osobny segment, decyzja — ADR 05).
 #   - kolor: obraz jest splaszczany do szarosci. Mapy kolorowe = osobny temat
 
 from pygcad.core import *
@@ -228,6 +238,218 @@ def rdp(punkty, eps):
     return [tuple(p) for p in P[zostaw]]
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Adaptacyjne prostowanie (wynik #32 — zbilansuj proste vs detal na NIEROWNYCH skanach)
+#
+# Problem: RDP ma jeden globalny prog. Podnosisz -> proste gladkie, ale gina detale.
+# Obnizasz -> detale zyja, ale proste sa poszarpane. Jednym pokretlem nie da sie obu naraz.
+# Globalne wygladzanie i prosty greedy zawiodly (marginalne albo psuly detal — 2026-07-24).
+#
+# Rozwiazanie wielo-skalowe: rozpoznaj, GDZIE linia jest lokalnie prosta MIMO szumu (prostuj),
+# a gdzie realnie zakreca (zostaw detal). Klucz — residuum dopasowania prostej (TLS) liczone
+# na SUROWYCH pikselach: szum na prostej ma male, znoszace sie odchylki (residuum NIE rosnie
+# ze skala); prawdziwy zakret/luk -> residuum ROSNIE i przebieg sie urywa. Do rozroznienia
+# "szum na prostej" vs "lagodny luk" usredniamy odchylke: szum wygasa, garb luku przetrwa.
+#
+# Wlasnosc bezpieczenstwa: ruszamy TYLKO to, co udowodnimy jako dluga prosta. Zakrety, luki,
+# drobne symbole -> bit-w-bit jak RDP(eps). Zero ryzyka utraty detalu.
+def _rdp_indices(P, eps):
+    """Jak rdp(), ale zwraca POSORTOWANE indeksy zachowanych punktow w P (nie punkty).
+    Potrzebne, zeby zmapowac wierzcholek na pozycje w gestym lancuchu."""
+    n = len(P)
+    if n < 3:
+        return list(range(n))
+    zostaw = np.zeros(n, dtype=bool)
+    zostaw[0] = zostaw[-1] = True
+    stos = [(0, n - 1)]
+    while stos:
+        i, j = stos.pop()
+        if j <= i + 1:
+            continue
+        a, b = P[i], P[j]
+        ab = b - a
+        norma = np.hypot(*ab)
+        seg = P[i + 1:j]
+        if norma < 1e-9:
+            d = np.hypot(*(seg - a).T)
+        else:
+            v = seg - a
+            d = np.abs(ab[0] * v[:, 1] - ab[1] * v[:, 0]) / norma
+        k = int(np.argmax(d))
+        if d[k] > eps:
+            k += i + 1
+            zostaw[k] = True
+            stos.append((i, k))
+            stos.append((k, j))
+    return np.nonzero(zostaw)[0].tolist()
+
+
+def _prefiksy(P):
+    """Sumy prefiksowe x,y,xx,yy,xy (z wiodacym zerem) -> TLS na dowolnym zakresie w O(1)."""
+    x = P[:, 0]
+    y = P[:, 1]
+    z = np.zeros(1)
+    return {"x": np.concatenate([z, np.cumsum(x)]),
+            "y": np.concatenate([z, np.cumsum(y)]),
+            "xx": np.concatenate([z, np.cumsum(x * x)]),
+            "yy": np.concatenate([z, np.cumsum(y * y)]),
+            "xy": np.concatenate([z, np.cumsum(x * y)])}
+
+
+def _tls_zakres(pref, i, j):
+    """TLS (PCA) po pikselach [i..j] wlacznie z sum prefiksowych. O(1).
+    Zwraca (cx,cy,dx,dy,rms_perp): centroid, kierunek jednostkowy, RMS odleglosci prostopadlej."""
+    n = j - i + 1
+    if n < 2:
+        return None
+    sx = pref["x"][j + 1] - pref["x"][i]
+    sy = pref["y"][j + 1] - pref["y"][i]
+    cx = sx / n
+    cy = sy / n
+    cxx = (pref["xx"][j + 1] - pref["xx"][i]) - n * cx * cx
+    cyy = (pref["yy"][j + 1] - pref["yy"][i]) - n * cy * cy
+    cxy = (pref["xy"][j + 1] - pref["xy"][i]) - n * cx * cy
+    tr = cxx + cyy
+    det = cxx * cyy - cxy * cxy
+    disc = max(0.0, (0.5 * tr) ** 2 - det)
+    s = disc ** 0.5
+    l1 = 0.5 * tr + s        # wariancja WZDLUZ linii (wieksza)
+    l2 = 0.5 * tr - s        # wariancja PROSTOPADLA (mniejsza) = residuum^2 * n
+    if abs(cxy) > 1e-12:
+        dx, dy = l1 - cyy, cxy
+    else:
+        dx, dy = (1.0, 0.0) if cxx >= cyy else (0.0, 1.0)
+    nrm = (dx * dx + dy * dy) ** 0.5
+    if nrm < 1e-12:
+        dx, dy = 1.0, 0.0
+    else:
+        dx, dy = dx / nrm, dy / nrm
+    return cx, cy, dx, dy, (max(0.0, l2) / n) ** 0.5
+
+
+def _maxdev(P, i, j, cx, cy, dx, dy):
+    """Maksymalna odleglosc PROSTOPADLA pikseli [i..j] od prostej (punkt c, kierunek d)."""
+    seg = P[i:j + 1]
+    return float(np.abs((seg[:, 0] - cx) * dy - (seg[:, 1] - cy) * dx).max())
+
+
+def _prosta_a_nie_luk(P, i, j, lin, flat_abs=1.3, okno=9):
+    """Czy [i..j] to PROSTA z szumem (splaszczyc) czy realny LUK (zostawic detal)?
+    Rozdzielamy skladowa strukturalna (nisko-czest.) od szumu (wysoko-czest.) w odchylce
+    prostopadlej: szum usredniamy oknem -> gasnie; garb luku przetrwa usrednienie.
+    Splaszczam, gdy po wygladzeniu max |odchylka| <= flat_abs (garbu nie ma -> to byl szum)."""
+    cx, cy, dx, dy = lin
+    seg = P[i:j + 1]
+    s = (seg[:, 0] - cx) * dy - (seg[:, 1] - cy) * dx      # signed perp = vx*dy - vy*dx
+    m = len(s)
+    if m < 3:
+        return True
+    k = min(okno, m if m % 2 else m - 1)
+    if k < 3:
+        return float(np.abs(s).max()) <= flat_abs
+    gl = np.convolve(s, np.ones(k) / k, mode="valid")
+    return float(np.abs(gl).max()) <= flat_abs
+
+
+def _przeciecie(l1, l2):
+    """Punkt przeciecia dwoch prostych (cx,cy,dx,dy). None gdy prawie rownolegle."""
+    cx1, cy1, dx1, dy1 = l1
+    cx2, cy2, dx2, dy2 = l2
+    den = dx1 * dy2 - dy1 * dx2
+    if abs(den) < 1e-6:
+        return None
+    t = ((cx2 - cx1) * dy2 - (cy2 - cy1) * dx2) / den
+    return (cx1 + t * dx1, cy1 + t * dy1)
+
+
+def _rzut(px, py, lin):
+    """Rzut prostopadly punktu (px,py) na prosta lin=(cx,cy,dx,dy)."""
+    cx, cy, dx, dy = lin
+    t = (px - cx) * dx + (py - cy) * dy
+    return (cx + t * dx, cy + t * dy)
+
+
+def prostuj_lancuch(chain_xy, eps=1.5, tol=2.5, min_prosta=25.0, min_wierzch=3):
+    """Adaptacyjne prostowanie POJEDYNCZEGO lancucha (gesta lista pikseli (x,y)) -> polilinia.
+      1. RDP(eps) daje wierzcholki bazowe (detale zachowane 1:1 jak dotad).
+      2. Rosniemy maksymalne "proste przebiegi": zakres pikseli dopasowywalny JEDNA prosta (TLS)
+         z RMS <= tol i maxdev <= 1.6*tol. Luk -> residuum rosnie -> przebieg sie urywa.
+      3. Dlugi prosty przebieg (>= min_prosta px, wchlonal >= min_wierzch wierzch. RDP i przeszedl
+         test prosta-nie-luk) -> JEDEN odcinek = rzut na dopasowana prosta (znika poszarpanie).
+         Krotki/zakrzywiony -> wierzcholki RDP NIETKNIETE (detal zyje).
+      4. Narozniki: dwie proste -> wspolny wierzcholek = ICH PRZECIECIE (ostry rog)."""
+    if len(chain_xy) < 4:
+        return [tuple(map(float, p)) for p in chain_xy]
+    P = np.asarray(chain_xy, dtype=np.float64)
+    idx = _rdp_indices(P, eps)
+    if len(idx) < 3:
+        return [tuple(P[k]) for k in idx]
+    pref = _prefiksy(P)
+
+    def arclen(i, j):
+        d = np.diff(P[i:j + 1], axis=0)
+        return float(np.hypot(d[:, 0], d[:, 1]).sum())
+
+    tol_max = 1.6 * tol
+    runs = []                                            # (i_pocz, i_kon, 'prosta'/'detal', lin|None)
+    v = 0
+    while v < len(idx) - 1:
+        a = idx[v]
+        w = v + 1
+        best = None
+        while w < len(idx):
+            b = idx[w]
+            lin = _tls_zakres(pref, a, b)
+            if lin is None:
+                break
+            cx, cy, dx, dy, rms = lin
+            if rms <= tol and _maxdev(P, a, b, cx, cy, dx, dy) <= tol_max:
+                best = (w, (cx, cy, dx, dy))
+                w += 1
+            else:
+                break
+        prosta = (best is not None
+                  and (best[0] - v) >= min_wierzch
+                  and arclen(a, idx[best[0]]) >= min_prosta
+                  and _prosta_a_nie_luk(P, a, idx[best[0]], best[1]))
+        if prosta:
+            runs.append((a, idx[best[0]], "prosta", best[1]))
+            v = best[0]
+        else:
+            runs.append((a, idx[v + 1], "detal", None))
+            v += 1
+
+    m = len(runs)
+    bv = [None] * (m + 1)
+
+    def linia(k):
+        return runs[k][3] if runs[k][2] == "prosta" else None
+
+    l0 = linia(0)
+    bv[0] = _rzut(P[runs[0][0], 0], P[runs[0][0], 1], l0) if l0 else tuple(P[runs[0][0]])
+    lN = linia(m - 1)
+    bv[m] = _rzut(P[runs[-1][1], 0], P[runs[-1][1], 1], lN) if lN else tuple(P[runs[-1][1]])
+    for k in range(1, m):
+        lp, ln = linia(k - 1), linia(k)
+        gi = runs[k][0]
+        gp = (float(P[gi, 0]), float(P[gi, 1]))
+        if lp and ln:
+            pkt = _przeciecie(lp, ln)
+            bv[k] = pkt if pkt is not None else _rzut(gp[0], gp[1], lp)
+        elif lp:
+            bv[k] = _rzut(gp[0], gp[1], lp)
+        elif ln:
+            bv[k] = _rzut(gp[0], gp[1], ln)
+        else:
+            bv[k] = gp
+
+    out = [bv[0]]
+    for k in range(m):
+        if bv[k + 1] != out[-1]:
+            out.append(bv[k + 1])
+    return out
+
+
 def _dlugosc_lamanej(p):
     """Suma dlugosci segmentow lamanej (w pikselach)."""
     s = 0.0
@@ -301,7 +523,193 @@ def domknij_konce(polilinie, tol=14.0, max_klaster=3, min_dlugosc_linii=40.0):
     return wynik
 
 
-def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol_domk=14.0):
+# ─────────────────────────────────────────────────────────────────────────────
+# Oddzielanie tekstu od linii — OPCJA (pomijaj_tekst), BEZ OCR (OCR = wersja 2.0, decyzja Dawida)
+#
+# Kryteria Jakuba (#32): ZOSTAJE geometria — linie, krzyzyki punktow, strzalki, znaczniki
+# geodezyjne, drobne symbole; POMIJAMY tylko skupiska cyfr/opisow (numery, wartosci, etykiety).
+#
+# Metoda: skladowe spojne (CC) ORYGINALU (nie rozmazanego — bo tekst na skanie czesto DOTYKA
+# linii i rozmazanie zlepiloby je z siatka linii). Znaki to CC wielkosci litery, skupiaja sie
+# w slowa. Klasyfikacja po SKUPISKU: wiele glifow wielkosci znaku ulozonych w CIENKIE PASMO
+# (wiersz, dowolny kat) -> TEKST. Krzyzyk/strzalka/pojedynczy znacznik oraz kreskowany krzyzyk
+# (rozpada sie na kropki mniejsze od znaku) -> ZOSTAJE. Odpornosc na zdegradowany DRUK: dolny
+# prog glifu niski, a przed zlepkiem chroni ksztalt skupiska (PCA) + wymog realnej wysokosci znaku.
+#
+# STAN: dziala na inline-owych opisach/cyfrach (tez obroconych). ZNANE LUKI (nastepna iteracja):
+# tekst w komorkach TABEL i wieloliniowe AKAPITY czesto zostaja (glify dotykaja ramek / blok 2D
+# jest swiadomie omijany, zeby nie ruszyc pol znacznikow). Domyslnie WYLACZONE.
+def _etykietuj_cc(bw):
+    """Skladowe spojne (8-spojnosc) — scanline union-find na pikselach maski. Czysty numpy+py.
+    Zwraca (lab HxW int32, liczba_CC). 0 = tlo."""
+    H, W = bw.shape
+    idx = np.full((H, W), -1, dtype=np.int64)
+    ink = np.flatnonzero(bw)
+    idx.flat[ink] = np.arange(len(ink))
+    K = len(ink)
+    if K == 0:
+        return np.zeros((H, W), dtype=np.int32), 0
+    parent = np.arange(K, dtype=np.int64)
+
+    def find(a):
+        root = a
+        while parent[root] != root:
+            root = parent[root]
+        while parent[a] != root:
+            parent[a], a = root, parent[a]
+        return root
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[max(ra, rb)] = min(ra, rb)
+
+    a = idx[:, :]
+    pary = []                                       # krawedzie do juz-odwiedzonych sasiadow: W,N,NW,NE
+    m = (a[:, 1:] >= 0) & (a[:, :-1] >= 0); pary.append((a[:, 1:][m], a[:, :-1][m]))
+    m = (a[1:, :] >= 0) & (a[:-1, :] >= 0); pary.append((a[1:, :][m], a[:-1, :][m]))
+    m = (a[1:, 1:] >= 0) & (a[:-1, :-1] >= 0); pary.append((a[1:, 1:][m], a[:-1, :-1][m]))
+    m = (a[1:, :-1] >= 0) & (a[:-1, 1:] >= 0); pary.append((a[1:, :-1][m], a[:-1, 1:][m]))
+    for u, v in pary:
+        for p, q in zip(u.tolist(), v.tolist()):
+            union(p, q)
+
+    root = np.array([find(i) for i in range(K)], dtype=np.int64)
+    uniq, inv = np.unique(root, return_inverse=True)
+    lab = np.zeros((H, W), dtype=np.int32)
+    lab.flat[ink] = inv.astype(np.int32) + 1
+    return lab, len(uniq)
+
+
+def _staty_cc(lab, ncc):
+    """Per-CC: area, bbox, srodek, wys, szer, przekatna."""
+    H, W = lab.shape
+    ys, xs = np.nonzero(lab)
+    ids = lab[ys, xs] - 1
+    area = np.bincount(ids, minlength=ncc)
+    rmin = np.full(ncc, H, np.int32); rmax = np.zeros(ncc, np.int32)
+    cmin = np.full(ncc, W, np.int32); cmax = np.zeros(ncc, np.int32)
+    np.minimum.at(rmin, ids, ys); np.maximum.at(rmax, ids, ys)
+    np.minimum.at(cmin, ids, xs); np.maximum.at(cmax, ids, xs)
+    h = (rmax - rmin + 1).astype(np.float64)
+    w = (cmax - cmin + 1).astype(np.float64)
+    return dict(area=area, h=h, w=w, cy=(rmin + rmax) / 2.0, cx=(cmin + cmax) / 2.0,
+                diag=np.hypot(h, w))
+
+
+def maska_tekstu(bw, glif_px=None, min_glifow=3, promien_k=None):
+    """Maska bool (HxW) pikseli uznanych za TEKST (do usuniecia). Patrz naglowek sekcji.
+    glif_px auto = min(H,W)/90; promien_k auto = 2.2*glif_px (odstepy w slowie)."""
+    from collections import defaultdict
+    H, W = bw.shape
+    if glif_px is None:
+        glif_px = max(8.0, min(H, W) / 90.0)
+    if promien_k is None:
+        promien_k = 2.2 * glif_px
+
+    lab, ncc = _etykietuj_cc(bw)
+    if ncc == 0:
+        return np.zeros((H, W), dtype=bool)
+    s = _staty_cc(lab, ncc)
+
+    # kandydat na glif: skladowa wielkosci znaku. Dolny prog niski (fragmenty degradacji),
+    # przed kropka/kreska chroni pozniej ksztalt skupiska + wymog realnej wysokosci znaku.
+    wyp = s["area"] / np.maximum(1.0, s["h"] * s["w"])
+    glif = ((s["h"] <= 1.25 * glif_px) & (s["w"] <= 1.25 * glif_px)
+            & (s["diag"] <= 1.8 * glif_px)
+            & (s["h"] >= 0.22 * glif_px) & (s["w"] >= 0.12 * glif_px)
+            & (s["area"] >= max(8.0, 0.04 * glif_px * glif_px))
+            & (wyp <= 0.93))
+    gi = np.flatnonzero(glif)
+    if len(gi) < min_glifow:
+        return np.zeros((H, W), dtype=bool)
+
+    cx = s["cx"][gi]; cy = s["cy"][gi]; gh = s["h"][gi]
+    gx = np.floor(cx / promien_k).astype(np.int64)
+    gyy = np.floor(cy / promien_k).astype(np.int64)
+    komorki = defaultdict(list)
+    for k in range(len(gi)):
+        komorki[(gyy[k], gx[k])].append(k)
+
+    par = list(range(len(gi)))
+    def f(a):
+        while par[a] != a:
+            par[a] = par[par[a]]; a = par[a]
+        return a
+    r2 = promien_k * promien_k
+    for (yy, xx), lst in komorki.items():
+        sas = []
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                sas += komorki.get((yy + dy, xx + dx), [])
+        for a in lst:
+            for b in sas:
+                if b <= a:
+                    continue
+                if (cx[a]-cx[b])**2 + (cy[a]-cy[b])**2 <= r2:
+                    ra, rb = f(a), f(b)
+                    if ra != rb:
+                        par[max(ra, rb)] = min(ra, rb)
+
+    grupy = defaultdict(list)
+    for k in range(len(gi)):
+        grupy[f(k)].append(k)
+
+    def geste_wiersze(czl):
+        """Rozklad skupiska 2D na poziome WIERSZE; zwraca glify z wierszy GESTO wypelnionych
+        znakami (tabela/akapit). Rzadki wiersz (pole znacznikow) odpada -> geometria zostaje."""
+        order = czl[np.argsort(cy[czl])]
+        pasma = []; cur = [order[0]]
+        for k in order[1:]:
+            if cy[k] - cy[cur[-1]] <= 0.7 * glif_px:    # ta sama linia bazowa
+                cur.append(k)
+            else:
+                pasma.append(cur); cur = [k]
+        pasma.append(cur)
+        out = []
+        for b in pasma:
+            b = np.array(b)
+            if len(b) < min_glifow or gh[b].max() < 0.5 * glif_px:
+                continue
+            gaps = np.diff(np.sort(cx[b]))
+            if len(gaps) and np.median(gaps) <= 1.8 * glif_px:   # gesto upakowany wiersz = tekst
+                out.append(b)
+        return out
+
+    tekst_cc = []
+    for _, czl in grupy.items():
+        if len(czl) < min_glifow:
+            continue
+        czl = np.array(czl)
+        if gh[czl].max() < 0.5 * glif_px:               # same drobinki (kropki krzyzyka) -> nie tekst
+            continue
+        # ksztalt skupiska (PCA srodkow). Cienkie PASMO pod dowolnym katem -> tekst (inline, obrocone).
+        px = cx[czl]; py = cy[czl]
+        mx = px.mean(); my = py.mean()
+        dxx = float(((px-mx)**2).mean()); dyy = float(((py-my)**2).mean())
+        dxy = float(((px-mx)*(py-my)).mean())
+        tr = dxx + dyy; det = dxx*dyy - dxy*dxy
+        disc = max(0.0, (0.5*tr)**2 - det) ** 0.5
+        minor = max(0.0, 0.5*tr - disc) ** 0.5
+        major = max(0.0, 0.5*tr + disc) ** 0.5
+        if minor <= 1.3 * glif_px and major <= 60.0 * glif_px:
+            for k in czl:
+                tekst_cc.append(int(gi[k]))
+        else:
+            # skupisko 2D (tabela / akapit / pole): tnij na wiersze, bierz tylko GESTE
+            for b in geste_wiersze(czl):
+                for k in b:
+                    tekst_cc.append(int(gi[k]))
+
+    if not tekst_cc:
+        return np.zeros((H, W), dtype=bool)
+    czy = np.zeros(ncc + 1, dtype=bool)
+    czy[np.array(tekst_cc) + 1] = True
+    return czy[lab]
+
+
+def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol_domk=14.0,
+               prostuj=True, tol_prost=2.5, min_prosta=25.0, pomijaj_tekst=False):
     """Obraz w skali szarosci (uint8) -> lista polilinii [(x, y), ...] w pikselach.
     UWAGA: zwraca x=kolumna, y=wiersz. Zamiana na uklad rysunku jest po stronie CAD.
 
@@ -316,13 +724,19 @@ def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol
     despeckle=True zostawione dla skanow tak brudnych, ze inaczej sie nie da."""
     prog = otsu(szary)
     bw = szary < prog                       # kreska ciemna na jasnym papierze
+    if pomijaj_tekst:                        # OPCJA: wywal skupiska opisow/cyfr (geometria zostaje)
+        bw = bw & ~maska_tekstu(bw)
     if despeckle:
         bw = otworz(bw, 1)
     szk = szkieletyzuj(bw)
     lancuchy = trasuj(szk, min_dlugosc=min_dlugosc)
     polilinie = []
     for lan in lancuchy:
-        pkt = rdp([(x, y) for (y, x) in lan], eps)   # (wiersz,kol) -> (x,y)
+        ch = [(x, y) for (y, x) in lan]              # (wiersz,kol) -> (x,y)
+        if prostuj:                                  # adaptacyjne prostowanie (proste vs detal)
+            pkt = prostuj_lancuch(ch, eps=eps, tol=tol_prost, min_prosta=min_prosta)
+        else:
+            pkt = rdp(ch, eps)
         if len(pkt) >= 2:
             polilinie.append(pkt)
     if domykaj:                                       # zamknij szpary + ostrzej narozniki
@@ -391,15 +805,23 @@ def wektoryzuj_cmd():
             gcutPrintf("\n[WEKTOR] Szerokosc musi byc dodatnia. Anulowano.")
             return
 
+        # OPCJA (retest #32): pomijanie skupisk opisow/cyfr. Domyslnie NIE — geometria 1:1.
+        # T = sprobuj wyciac tekst (krzyzyki/linie/znaczniki zostaja). Prototyp: tabele i
+        # akapity moga zostac. Prostowanie linii jest ZAWSZE wlaczone, niezaleznie od tego.
+        pomijaj = False
+        st, tt = gcedGetString(1, "\nPomijac skupiska opisow/cyfr? [T/N] <N>: ")
+        if st == RTNORM and tt and tt.strip().lower() in ("t", "tak", "y", "yes"):
+            pomijaj = True
+
         gcutPrintf("\n[WEKTOR] Wczytuje obraz...")
         t0 = time.time()
         im = Image.open(path).convert("L")          # do skali szarosci
         szary = np.asarray(im, dtype=np.uint8)
         H, W = szary.shape
-        gcutPrintf("\n[WEKTOR] %d x %d px (%.1f Mpx). Licze — to potrwa kilka sekund..."
-                   % (W, H, W * H / 1e6))
+        gcutPrintf("\n[WEKTOR] %d x %d px (%.1f Mpx)%s. Licze — to potrwa kilka sekund..."
+                   % (W, H, W * H / 1e6, " | pomijam tekst" if pomijaj else ""))
 
-        pol, prog, npix = wektoryzuj(szary, eps=1.5)
+        pol, prog, npix = wektoryzuj(szary, eps=1.5, pomijaj_tekst=pomijaj)
         dt = time.time() - t0
         if not pol:
             gcutPrintf("\n[WEKTOR] Nie znalazlem zadnych linii. Za jasny skan albo za duzo szumu?")
