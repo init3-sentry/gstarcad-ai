@@ -20,6 +20,7 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 | **`GSAI_IMPORTXYZ`** | Plik z Excela/Notatnika ze współrzędnymi → punkty z numerami. Natywnie brak (płatne nakładki = dowód popytu). | [25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py) | Robert |
 | **`GSAI_AUDYTZ`** | Znajduje i zaznacza obiekty, które „uciekły" w Z≠0 (z góry niewidoczne, psują pomiary w płaskim rysunku). Prostowanie natywnym `FLATTEN`. | [26_audit_z_axis.py](biblioteka-rag/przyklady/26_audit_z_axis.py) | Jakub 29.07 |
 | **`GSAI_SCHODY`** 🎁 | Generator schodów (rzut / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. **Rysuje też po ponownym otwarciu pliku** (generatywne → odporne na BUG-10). | kod w repo *powertools*, dostawa: release `skrypty-test` | Tomasz 31.07 |
+| **`GSAI_STRZALKA_POLNOCY`** 🧭 | Ozdobna strzałka północy — **6 stylów dwutonowych** (prosta/strzałka/romb/róża wiatrów/kompas geodezyjny/iglica), panel wyboru z podglądem + wysokość + klik. Natywnie brak (GstarCAD ma tylko `COMPASS`/`NORTHDIRECTION`). Generatywne → BUG-10-safe. `GSAI_STRZALKA_GALERIA` = wszystkie naraz. | kod w *powertools*, release `skrypty-test` | **LC (GUI) 01.08** |
 
 > **Bramka przed premierą (nie pomijać):** te narzędzia zespół ma jeszcze przejść **na pliku ZAPISANYM → otwartym ponownie** (bo BUG-10 — patrz niżej — ujawnił różnicę „świeży rysunek" vs „plik klienta"). RENAME/IMPORTXYZ/AUDYTZ/SCHODY są konstrukcyjnie BUG-10-safe, ale gate potwierdza to na realnym workflow.
 
