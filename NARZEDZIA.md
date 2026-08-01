@@ -1,6 +1,6 @@
 # Katalog narzędzi — co mamy, co działa, skąd pobrać
 
-> **To jest jedyny obowiązujący katalog narzędzi.** Wszystkie repozytoria projektu linkują tutaj. Zmiana statusu, nazwy komendy albo nowe narzędzie — **zmienia się tylko ten plik**.
+> _Stan na 2026-08-01._ **To jest jedyny obowiązujący katalog narzędzi.** Wszystkie repozytoria projektu linkują tutaj. Zmiana statusu, nazwy komendy albo nowe narzędzie — **zmienia się tylko ten plik**.
 >
 > Jak uruchomić którekolwiek z nich: **[JAK-URUCHOMIC.md](JAK-URUCHOMIC.md)**.
 
@@ -10,24 +10,30 @@
 
 ---
 
-## ✅ Działają — sprawdzone na prawdziwych rysunkach
+## ✅ Działają — zwalidowane na prawdziwych rysunkach (kandydaci na premierę)
 
 Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałaganem po poprzednim projektancie. **To najlepsze źródło problemów, jakie mamy** — narzędzie, które działa tylko na sztucznie wygenerowanym pliku, jest do niczego.
 
-| Komenda | Co robi | Plik |
-|---|---|---|
-| **`GSAI_IMPORTXYZ`** | Plik z Excela albo Notatnika ze współrzędnymi → punkty z numerami w rysunku. Natywnie GstarCAD tego nie ma (są płatne nakładki). | [25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py) |
-| **`GSAI_AUDYTZ`** | Znajduje i zaznacza obiekty, które „uciekły" w trzeci wymiar (Z≠0) i psują pomiary w płaskim rysunku — z góry są niewidoczne, więc inaczej nie sposób ich znaleźć. Potem prostuje się je natywnym `FLATTEN`. | [26_audit_z_axis.py](biblioteka-rag/przyklady/26_audit_z_axis.py) |
+| Komenda | Co robi | Plik | Zwalidował |
+|---|---|---|---|
+| **`GSAI_RENAME_WARSTWY`** 🦸 | Hurtowa zmiana nazw warstw wzorcem (find→replace w środku nazwy) z obsługą kolizji. Natywnie GstarCAD tego nie ma — **lukę potwierdził na piśmie QA Manager Autodesku** (ADR 08). Wartość = hurt/wzorzec, nie pojedyncza warstwa. | [31_rename_warstw_wzorcem.py](biblioteka-rag/przyklady/31_rename_warstw_wzorcem.py) | Tomasz 29.07 (hurt) |
+| **`GSAI_IMPORTXYZ`** | Plik z Excela/Notatnika ze współrzędnymi → punkty z numerami. Natywnie brak (płatne nakładki = dowód popytu). | [25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py) | Robert |
+| **`GSAI_AUDYTZ`** | Znajduje i zaznacza obiekty, które „uciekły" w Z≠0 (z góry niewidoczne, psują pomiary w płaskim rysunku). Prostowanie natywnym `FLATTEN`. | [26_audit_z_axis.py](biblioteka-rag/przyklady/26_audit_z_axis.py) | Jakub 29.07 |
+| **`GSAI_SCHODY`** 🎁 | Generator schodów (rzut / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. **Rysuje też po ponownym otwarciu pliku** (generatywne → odporne na BUG-10). | kod w repo *powertools*, dostawa: release `skrypty-test` | Tomasz 31.07 |
 
-## 🟡 W testach — jeszcze nie zwalidowane
+> **Bramka przed premierą (nie pomijać):** te narzędzia zespół ma jeszcze przejść **na pliku ZAPISANYM → otwartym ponownie** (bo BUG-10 — patrz niżej — ujawnił różnicę „świeży rysunek" vs „plik klienta"). RENAME/IMPORTXYZ/AUDYTZ/SCHODY są konstrukcyjnie BUG-10-safe, ale gate potwierdza to na realnym workflow.
+
+## 🟡 Warunkowe / w testach
 
 | Komenda | Co robi | Plik | Stan |
 |---|---|---|---|
-| **`GSAI_PRZEDMIAR`** | Pole + obwód wskazanych obiektów → CSV (otwiera się w Excelu). | [30_przedmiar.py](biblioteka-rag/przyklady/30_przedmiar.py) | Szlif pod Tomasza (07-24). **Region nieliczony — BUG-09.** Decyzja COM vs `BOUNDARY`: [robert#7](https://github.com/init3-sentry/gstarcad-ai-robert/issues/7). |
-| **`GSAI_DLUGOSC`** / **`GSAI_DLUGOSC_OPIS`** | Suma długości zaznaczonych obiektów; wariant `_OPIS` dokłada etykietę z przedrostkiem na rysunku. | [GSAI_DLUGOSC.py](biblioteka-rag/przyklady/GSAI_DLUGOSC.py) · [29_dlugosc_opis.py](biblioteka-rag/przyklady/29_dlugosc_opis.py) | U Roberta do oceny ([robert#6](https://github.com/init3-sentry/gstarcad-ai-robert/issues/6)). |
-| **`GSAI_RENAME_WARSTWY`** | Hurtowa zmiana nazw warstw wzorcem, z obsługą kolizji (natywnie GstarCAD tego nie ma — ADR 08). | [31_rename_warstw_wzorcem.py](biblioteka-rag/przyklady/31_rename_warstw_wzorcem.py) | Do testu na realnym rysunku. |
-| **`GSAI_WEKTORYZUJ`** *(prototyp)* | Skan rastrowy → polilinie w rysunku, całość lokalnie. | [wektoryzacja.py](biblioteka-rag/przyklady/wektoryzacja.py) | Prototyp; oddzielanie tekstu do walidacji u Jakuba. OCR = v2.0 (ADR 05). |
-| **`GSAI_CHROPOWATOSC`** | Symbol struktury geometrycznej powierzchni (chropowatość) wg ISO 1302. | [27_surface_roughness.py](biblioteka-rag/przyklady/27_surface_roughness.py) | Czeka na normę **PN-EN ISO 21920-1** (zastąpiła ISO 1302) — nie zgadujemy geometrii. |
+| **`GSAI_PRZEDMIAR`** | Pole + obwód wskazanych obiektów → CSV (Excel). | [30_przedmiar.py](biblioteka-rag/przyklady/30_przedmiar.py) | 🔴 **Blokada BUG-10** — na ZAPISANYM pliku encje wracają jako bazowe, `getArea` pada → działa na świeżym rysunku, **nie na plikach klienta**. Region: `BOUNDARY` (zdecydowane, [robert#7](https://github.com/init3-sentry/gstarcad-ai-robert/issues/7)). Eskalowane R&D (Jira **162444**). |
+| **`GSAI_DLUGOSC`** / **`GSAI_DLUGOSC_OPIS`** | Suma długości; `_OPIS` dokłada etykietę na rysunku. | [GSAI_DLUGOSC.py](biblioteka-rag/przyklady/GSAI_DLUGOSC.py) · [29_dlugosc_opis.py](biblioteka-rag/przyklady/29_dlugosc_opis.py) | Zwalidowane na **ŚWIEŻYM** rysunku (Jakub 29.07), ale 🔴 **BUG-10 na zapisanych** (`length` pada). Do przepisania na `entget` albo fix R&D. |
+| **`GSAI_ORNAMENT`** *(ciekawostka)* | Generator wzorów ozdobnych (spirograf/rozeta/mandala; +4 rodziny w budowie). | kod w *powertools*, release `skrypty-test` | v1 zbudowany; **SVG-preview gate** na estetykę przed publikacją. |
+| **`GSAI_WEKTORYZUJ`** *(prototyp)* | Skan rastrowy → polilinie, lokalnie. | [wektoryzacja.py](biblioteka-rag/przyklady/wektoryzacja.py) | Prototyp; oddzielanie tekstu do walidacji u Jakuba. OCR = v2.0 (ADR 05). |
+| **`GSAI_CHROPOWATOSC`** | Symbol chropowatości wg normy. | [27_surface_roughness.py](biblioteka-rag/przyklady/27_surface_roughness.py) | Czeka na **PN-EN ISO 21920-1** (zastąpiła ISO 1302) — nie zgadujemy geometrii. |
+
+> **⚠️ BUG-10 (bug wiązania pygcad, nie nasz):** encje wczytane z ZAPISANEGO pliku DWG wracają jako bazowe `GcDbEntity` → typowane metody geometryczne (`getArea`/`length`) na nich padają. Narzędzia CZYTAJĄCE geometrię z plików klienta (PRZEDMIAR, DLUGOSC) są tym zablokowane; narzędzia GENERUJĄCE (SCHODY, ORNAMENT, IMPORTXYZ) i tabelowe (RENAME_WARSTWY, AUDYTZ) są odporne. Zgłoszone R&D jako top-issue **162444**.
 
 ## ⛔ Wycofane — bo GstarCAD ma to natywnie
 
