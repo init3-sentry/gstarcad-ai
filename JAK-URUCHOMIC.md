@@ -67,9 +67,12 @@ Moduł jest **fabrycznie wyłączony**. Włącza się raz:
 
 ### B1. Pobrać plik
 
-W **[katalogu narzędzi](NARZEDZIA.md)** przy każdym narzędziu jest link. Kliknięcie otwiera stronę pliku → w prawym górnym rogu przycisk **„Download raw file"** (ikonka strzałki w dół).
+**Najpewniej — wszystko naraz:** zielony przycisk **Code → Download ZIP**, potem rozpakować. Jeden plik, nic nie psuje się po drodze.
 
-> Plik musi zapisać się z rozszerzeniem **`.py`**, a nie `.txt` — przeglądarki czasem to psują.
+**Pojedynczy plik:** w **[katalogu narzędzi](NARZEDZIA.md)** przy każdym narzędziu jest link. Kliknięcie otwiera stronę pliku → przycisk **„Download raw file"** (strzałka w dół, prawy górny róg).
+
+> ✅ **Sprawdź, że pobrało się DOBRZE:** otwarty plik ma zaczynać się od `#` (to kod). Jeśli w środku widać `<!DOCTYPE html>` / wygląda jak strona internetowa, albo zapisało się jako **`.txt`/`.html`** — to **nie jest narzędzie, tylko strona www**. Wtedy: prawy-klik na „Download raw file" → **„Zapisz element docelowy jako"** i wymuś końcówkę **`.py`**.
+> Jak dalej nie idzie — **napisz do nas, dostarczymy plik bezpośrednio** (z sumą kontrolną do sprawdzenia). Nie walcz z przeglądarką.
 
 ### B2. Wczytać do GstarCAD
 
