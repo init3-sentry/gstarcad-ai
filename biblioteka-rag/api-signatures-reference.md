@@ -204,3 +204,7 @@ Zgrepane w `pygrx.pyi` 2026-07-29, jeszcze nie odpalone — pierwszy skrypt, kt�
 
 ---
 
+
+## GcDbSolid — wypełnienie (zweryfikowane na LC 2026-08-01, GstarCAD 2027 Premium)
+
+🟢 **Wypełniony TROJKAT przez `GcDbSolid`: `setPointAt(0..3)` w kolejnosci `[A,B,C,A]` renderuje sie CZYSTO** (empirycznie, GSAI_SOLIDPROBE na LC). Testowano tez `[A,B,A,C]` (0-1-3-2) — tez czysty. Wniosek: dla trojkata (4. punkt = powtorzony wierzcholek) **kolejnosc nie tworzy „muszki"**; klasyczna pulapka bowtie 0-1-2-3 vs 0-1-3-2 dotyczy tylko prawdziwych **czworokatow** (4 rozne punkty). Wzorzec dzialajacy: `s=GcDbSolid(); for i,(x,y) in enumerate([A,B,C,A]): s.setPointAt(i, GcGePoint3d(x,y,0)); s.setLayer(...); ms.appendGcDbEntity(s)`. Uzywane w filled-strzalkach polnocy (polowa = trojkat solid).
