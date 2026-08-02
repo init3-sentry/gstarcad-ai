@@ -1,7 +1,13 @@
-# GSAI CHROPOWATOSC — symbol struktury geometrycznej powierzchni wg ISO 1302.
+# GSAI CHROPOWATOSC — symbol struktury geometrycznej powierzchni.
 # GSAI_CHROPOWATOSC : wskaz punkt na powierzchni -> symbol + wartosc (np. "Ra 3.2").
 #
-# Geometria wg ISO 1302 (zweryfikowana w oryginale normy):
+# NORMA: PN-EN ISO 21920-1:2022 (aktualna; zastapila ISO 1302:2002, wycofana 2021).
+# SYMBOL graficzny (haczyk) jest PRZENIESIONY z ISO 1302 bez zmian -> geometria ponizej
+# pozostaje wazna. ISO 21920 zmienila WARTOSC/opis (parametry + warunki pomiaru,
+# domyslna regula 16% -> regula "max"), a wartosc user wpisuje jako wolny tekst,
+# wiec narzedzie przyjmuje zarowno "Ra 3.2" jak i pelny spec wg 21920.
+#
+# Geometria symbolu (zweryfikowana w ISO 1302:2002, tozsama w ISO 21920):
 #   §3.1  symbol podstawowy: dwa ramiona NIEROWNEJ dlugosci pod 60 st. do linii powierzchni,
 #         wierzcholek NA DOLE, krotkie ramie z lewej, dlugie z prawej.
 #   §3.2  usuniecie materialu WYMAGANE  -> belka zamykajaca ptaszek.
