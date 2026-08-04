@@ -46,7 +46,7 @@ Zbudowaliśmy je, po czym **sami skasowaliśmy**. Sprawdziliśmy uczciwie i okaz
 | `GSAI_ZAMIEN_TEKST` | **`FIND`** — i jest bogatszy od naszego |
 | `GSAI_EKSPORT_ATRYBUTOW` | **`ATTOUT`** (Express Tools) |
 | `GSAI_IMPORT_ATRYBUTOW` | **`ATTIN`** (Express Tools) |
-| `GSAI_RENUMERUJ` | **`ATTINC`** — trzyma nawet zera wiodące (P-002) |
+| `GSAI_RENUMERUJ` | **`ATTINC`** — Robert potwierdził (robert#4, 2026-08-05): literki, prefiks, kolejność — wszystko już jest w `ATTINC`. Wątek zamknięty, narzędzie wycofane. |
 
 Warto też znać: **`FLATTEN`** (prostowanie do płaszczyzny), **`TCOUNT`** (numerowanie), **`DATAEXTRACTION`** (dane → tabela/Excel), **`MEASUREGEOM`** (pomiary długości i pól).
 
