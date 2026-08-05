@@ -4,9 +4,12 @@
 sekcji, trzymająca budżet słów z briefu (§9-10). Makieta wizualna: `makieta-ai-gstarcad-pl.html`.
 
 ⚠️ **Do potwierdzenia przez Dawida:** które narzędzia są „gotowe" na dzień publikacji i jakie
-liczby wolno podać. Poniżej użyłem trzech zwalidowanych (import współrzędnych, audyt osi Z,
-atrybuty ↔ arkusz). Modułu geodezyjnego świadomie NIE ma na stronie — jeszcze nie istnieje,
-a brief zabrania obiecywać nieistniejące.
+liczby wolno podać. **Aktualizacja 2026-08-05 (zwrot w zestawie):** „Atrybuty ↔ arkusz" WYCOFANE
+(GstarCAD ma to natywnie — ATTOUT/ATTIN), zdjęte z kart; w miejsce weszły Schody. Zestaw urósł —
+pełne opisy 13 narzędzi w `opisy-narzedzi/` (Schody, Strzałka północy, Słońce, Formatka, Rzędne,
+Standard warstw, Import współrzędnych, Audyt osi Z i in.). **Finalny wybór narzędzi na kafelki =
+decyzja Dawida** (statusy w `NARZEDZIA.md`; nie obiecujemy nieistniejących ani niezwalidowanych).
+Modułu geodezyjnego świadomie NIE ma — jeszcze nie istnieje.
 
 ---
 
@@ -37,7 +40,7 @@ a brief zabrania obiecywać nieistniejące.
 |---|---|---|
 | 📍 | **Import współrzędnych** | Wstawia punkty z pliku tekstowego w kilka sekund, bez ręcznego przepisywania. |
 | ⚠️ | **Audyt osi Z** | Znajduje obiekty leżące poza zerem, zanim policzą Ci błędną powierzchnię. |
-| 🔁 | **Atrybuty ↔ arkusz** | Wyciąga atrybuty bloków do arkusza i wczytuje z powrotem — z polskimi znakami. |
+| 🪜 | **Schody w rzucie i przekroju** | Generuje schody jednym poleceniem — koniec rysowania stopni ręcznie. |
 
 ---
 
@@ -69,6 +72,22 @@ a brief zabrania obiecywać nieistniejące.
 
 > Każde narzędzie działa u wszystkich, którzy mają GstarCAD. Mniej powtarzalnej pracy to krótsze
 > projekty i mniej miejsc, w których wkrada się błąd.
+
+---
+
+## PREMIERA RAZEM Z GSTARCAD 2027 (hak na moment premiery)
+
+**Nagłówek:** Nowość, która przychodzi z GstarCAD 2027
+
+> Zestaw startuje **tego samego dnia co GstarCAD 2027**. Aktualizujesz program — narzędzia są od razu na miejscu, w nowym oknie startowym.
+
+*(⚠️ do Dawida: jeśli chcemy ramkę komercyjną — „w cenie aktualizacji" / „dodatek" — dopisz; celowo nie przesądzam modelu cenowego dla klienta.)*
+
+## NOWE OKNO STARTOWE (uprzedzić zaskoczenie obecnych użytkowników)
+
+**Nagłówek:** Wszystko pod ręką od pierwszego uruchomienia
+
+> Po aktualizacji przywita Cię **nowe okno startowe**: szybki dostęp do narzędzi, ostatnich projektów i tego, co nowego. Zawsze pod ręką — a jeśli wolisz pusty ekran, wyłączasz je jednym kliknięciem.
 
 ---
 
