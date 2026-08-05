@@ -77,11 +77,9 @@ Modułu geodezyjnego świadomie NIE ma — jeszcze nie istnieje.
 
 ## PREMIERA RAZEM Z GSTARCAD 2027 (hak na moment premiery)
 
-**Nagłówek:** Nowość, która przychodzi z GstarCAD 2027
+**Nagłówek:** Za darmo dla każdego, kto ma GstarCAD 2027
 
-> Zestaw startuje **tego samego dnia co GstarCAD 2027**. Aktualizujesz program — narzędzia są od razu na miejscu, w nowym oknie startowym.
-
-*(⚠️ do Dawida: jeśli chcemy ramkę komercyjną — „w cenie aktualizacji" / „dodatek" — dopisz; celowo nie przesądzam modelu cenowego dla klienta.)*
+> Zestaw startuje **tego samego dnia co GstarCAD 2027** i jest **bezpłatny dla każdego, kto ma 2027**. Aktualizujesz program — narzędzia są od razu na miejscu, w nowym oknie startowym. Nic nie dokupujesz.
 
 ## NOWE OKNO STARTOWE (uprzedzić zaskoczenie obecnych użytkowników)
 
