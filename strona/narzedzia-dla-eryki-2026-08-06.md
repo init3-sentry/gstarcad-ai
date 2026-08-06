@@ -6,7 +6,7 @@
 
 ## Poprawki względem Twojej propozycji (to samo, tylko na faktach)
 1. `GSAI_RZUTOWANIE` → **`GSAI_SYMBOL_RZUTOWANIA`** (zmieniona nazwa — stara myliła, że rzutuje obiekty).
-2. `GSAI_CUI` → **`GSAI_RATUNEK`** (to nasza realna nazwa reset-u interfejsu).
+2. `GSAI_CUI` — zostaje, dobra i prosta nazwa (miałaś rację).
 3. **Słońce** — usuń „zacieniania". To wykres **pozycji słońca / ścieżki słońca**, nie mapa cienia działki. Właściwie: „diagram nasłonecznienia — ścieżka słońca dla daty i lokalizacji".
 4. **Ornament / „Generator AI"** — **zdejmij ze strony.** Dwa powody: praktyk (Robert) ocenił „nie widzę zastosowania", a nazwa „Generator AI" łamie ramę z briefu (AI jest po naszej stronie, klient nie dostaje „przycisku AI").
 5. **Dodane: `GSAI_SPADEK`** — gotowe, dziś potwierdzone przez zespół. Pominęłaś je.
@@ -33,7 +33,7 @@
 - ✅ **Standard warstw** (`GSAI_WARSTWY_STANDARD`) — pełne drzewo warstw jednym kliknięciem przy starcie projektu. *(dziś: v2 po uwagach Roberta — do potwierdzenia w teście)* 🟡
 - ✅ **Zmiana nazw warstw** (`GSAI_RENAME_WARSTWY`) — hurtowa podmiana nazw wzorcem, sprzątanie plików po podwykonawcach. *(lukę potwierdził na piśmie QA Manager Autodesku)*
 - 🟡 **Numeracja arkuszy** (`GSAI_NUMERACJA`) — automatyczne wstawianie i inkrementacja numerów rysunków. *Status do potwierdzenia testem.*
-- 🟡 **Reset interfejsu** (`GSAI_RATUNEK`) — natychmiastowe przywracanie znikających pasków i wstążek. *Status do potwierdzenia.*
+- 🟡 **Reset interfejsu** (`GSAI_CUI`) — natychmiastowe przywracanie znikających pasków i wstążek. *Status do potwierdzenia.*
 - 🟡 **Raport warstw** (`GSAI_DUMP_WARSTW`) — pokazuje puste/„używane" warstwy, których PURGE nie sprząta, i kolizje nazw. Nic nie zmienia.
 
 ## 🔧 W budowie — NIE na stronę
