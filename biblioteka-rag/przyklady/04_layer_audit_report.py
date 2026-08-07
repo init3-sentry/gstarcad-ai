@@ -46,7 +46,7 @@ def auditLayersToFile():
         if status != Gcad.eOk:
             gcutPrintf("\n[BŁĄD] Nie można otworzyć tabeli warstw.")
             return
-        layerTable = GcDbLayerTable.cast(obj)
+        layerTable = obj   # gcdbOpenObject zwraca juz typowany rekord — bez .cast() (BUG-07: cast zatruwa sesje)
 
         status, iterator = layerTable.newIterator()
         if status != Gcad.eOk:

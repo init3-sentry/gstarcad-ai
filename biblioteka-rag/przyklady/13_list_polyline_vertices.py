@@ -61,7 +61,7 @@ def listPolylineVertices():
         while not vertIter.done():
             vertexId = vertIter.objectId()
             status, vObj = gcdbOpenObject(vertexId, GcDb.kForRead)
-            vertex = GcDb2dVertex.cast(vObj)
+            vertex = vObj   # gcdbOpenObject zwraca juz typowany obiekt — bez .cast() (BUG-07: cast zatruwa sesje)
             loc = vertex.position()
             vertex.close()
             gcutPrintf(f"\nWierzchołek #{count}: ({loc.x:.3f}, {loc.y:.3f}, {loc.z:.3f})")

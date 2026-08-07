@@ -60,7 +60,7 @@ def offsetEllipse():
             gcutPrintf("\nWskazany obiekt nie jest elipsą. Narysuj elipsę poleceniem ELLIPSE.")
             return
 
-        ellipse = GcDbEllipse.cast(obj)
+        ellipse = obj   # gcdbOpenObject zwraca juz typowany obiekt — bez .cast() (BUG-07: cast zatruwa sesje)
         status, curves = ellipse.getOffsetCurves(OFFSET_DIST)
         obj.close()
 
@@ -68,8 +68,8 @@ def offsetEllipse():
             gcutPrintf("\n[BŁĄD] Odsunięcie nie zwróciło żadnej krzywej.")
             return
 
-        # curves[0] to nowa krzywa — rzutuj na encję i dodaj do rysunku
-        newEntity = GcDbEntity.cast(curves[0])
+        # curves[0] to nowa krzywa — juz jest GcDbEntity (podklasa GcDbCurve), bez .cast() (BUG-07)
+        newEntity = curves[0]
         if _addToModelSpace(newEntity):
             gcutPrintf(f"\nUtworzono kopię elipsy odsuniętą o {OFFSET_DIST} jednostek.")
         else:

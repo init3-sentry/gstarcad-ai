@@ -66,10 +66,10 @@ def zakreskuj():
 
         # Akceptuj lekką GcDbPolyline i ciężką GcDb2dPolyline (zależy od PLINETYPE)
         if obj.isKindOf(GcDbPolyline.desc()):
-            boundary = GcDbPolyline.cast(obj)
+            boundary = obj   # typ potwierdzony isKindOf; gcdbOpenObject zwraca typowany obiekt — bez .cast() (BUG-07)
             typ = "GcDbPolyline"
         elif obj.isKindOf(GcDb2dPolyline.desc()):
-            boundary = GcDb2dPolyline.cast(obj)
+            boundary = obj   # typ potwierdzony isKindOf; gcdbOpenObject zwraca typowany obiekt — bez .cast() (BUG-07)
             typ = "GcDb2dPolyline"
         else:
             klasa = obj.isA().name()
