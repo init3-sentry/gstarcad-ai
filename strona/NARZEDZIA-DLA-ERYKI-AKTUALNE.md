@@ -1,9 +1,9 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-11**.
+> **Aktualizowane automatycznie.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-12**.
 > Regula z briefu: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). NIE edytuj tego pliku recznie.
 
-Gotowych na strone: **8** | w testach: **15** | razem przewidzianych na premiere: **23**
+Gotowych na strone: **8** | w testach: **19** | razem przewidzianych na premiere: **27**
 
 ## Architektura i rysunek
 - ✅ **Generator schodow** (`GSAI_SCHODY`) - Rysuje bieg schodow w rzucie i przekroju jednym poleceniem.
@@ -12,6 +12,9 @@ Gotowych na strone: **8** | w testach: **15** | razem przewidzianych na premiere
 - ✅ **Strzalka spadku** (`GSAI_SPADEK`) - Oznaczenie spadku dachu, tarasu, odwodnienia.
 - ✅ **Strzalka polnocy** (`GSAI_STRZALKA_POLNOCY`) - Estetyczny symbol orientacji, 6 stylow, jako blok.
 - 🟡 **Formatka rysunkowa** (`GSAI_FORMATKA`) - Ramka i tabliczka rysunkowa wg formatu, jednym poleceniem.
+- 🟡 **Podzialka liniowa** (`GSAI_PODZIALKA`) - Graficzna podzialka liniowa (scale bar) do map i rzutow.
+- 🟡 **Meble** (`GSAI_MEBLE`) - Biblioteka mebli + auto-rozmieszczanie: wstaw, szyk, stol z krzeslami.
+- 🟡 **Tabliczka rysunkowa** (`GSAI_TABELKA`) - Tabliczka ISO 7200 jako blok z polami; punkt wstawienia = prawy dolny rog.
 
 ## Konstrukcje i mechanika
 - 🟡 **Symbole chropowatosci** (`GSAI_CHROPOWATOSC`) - Znaki obrobki powierzchni wg PN-EN ISO 21920-1.
@@ -37,3 +40,4 @@ Gotowych na strone: **8** | w testach: **15** | razem przewidzianych na premiere
 - 🟡 **Numeracja arkuszy** (`GSAI_NUMERACJA`) - Automatyczne wstawianie i inkrementacja numerow rysunkow.
 - 🟡 **Reset interfejsu** (`GSAI_CUI`) - Natychmiastowe przywracanie znikajacych paskow i wstazek.
 - 🟡 **Raport warstw** (`GSAI_DUMP_WARSTW`) - Pokazuje puste/kolizyjne warstwy, ktorych PURGE nie sprzata.
+- 🟡 **Rodzaj linii z opisem** (`GSAI_LINIA`) - Wlasny rodzaj linii z wtopionym tekstem (GAZ/KABEL) do sieci uzbrojenia.

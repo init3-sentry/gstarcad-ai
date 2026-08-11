@@ -45,6 +45,27 @@
           "status": "w_tescie",
           "na_premiere": true,
           "korzysc": "Ramka i tabliczka rysunkowa wg formatu, jednym poleceniem."
+        },
+        {
+          "cmd": "GSAI_PODZIALKA",
+          "nazwa": "Podzialka liniowa",
+          "status": "w_tescie",
+          "na_premiere": true,
+          "korzysc": "Graficzna podzialka liniowa (scale bar) do map i rzutow."
+        },
+        {
+          "cmd": "GSAI_MEBLE",
+          "nazwa": "Meble",
+          "status": "w_tescie",
+          "na_premiere": true,
+          "korzysc": "Biblioteka mebli + auto-rozmieszczanie: wstaw, szyk, stol z krzeslami."
+        },
+        {
+          "cmd": "GSAI_TABELKA",
+          "nazwa": "Tabliczka rysunkowa",
+          "status": "w_tescie",
+          "na_premiere": true,
+          "korzysc": "Tabliczka ISO 7200 jako blok z polami; punkt wstawienia = prawy dolny rog."
         }
       ]
     },
@@ -188,6 +209,13 @@
           "status": "w_tescie",
           "na_premiere": true,
           "korzysc": "Pokazuje puste/kolizyjne warstwy, ktorych PURGE nie sprzata."
+        },
+        {
+          "cmd": "GSAI_LINIA",
+          "nazwa": "Rodzaj linii z opisem",
+          "status": "w_tescie",
+          "na_premiere": true,
+          "korzysc": "Wlasny rodzaj linii z wtopionym tekstem (GAZ/KABEL) do sieci uzbrojenia."
         }
       ]
     }

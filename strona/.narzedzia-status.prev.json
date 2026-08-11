@@ -5,6 +5,9 @@
   "GSAI_SPADEK": "gotowe",
   "GSAI_STRZALKA_POLNOCY": "gotowe",
   "GSAI_FORMATKA": "w_tescie",
+  "GSAI_PODZIALKA": "w_tescie",
+  "GSAI_MEBLE": "w_tescie",
+  "GSAI_TABELKA": "w_tescie",
   "GSAI_CHROPOWATOSC": "w_tescie",
   "GSAI_SYMBOL_RZUTOWANIA": "w_tescie",
   "GSAI_IMPORTXYZ": "gotowe",
@@ -21,5 +24,6 @@
   "GSAI_KOLEJNOSC": "w_tescie",
   "GSAI_NUMERACJA": "w_tescie",
   "GSAI_CUI": "w_tescie",
-  "GSAI_DUMP_WARSTW": "w_tescie"
+  "GSAI_DUMP_WARSTW": "w_tescie",
+  "GSAI_LINIA": "w_tescie"
 }
