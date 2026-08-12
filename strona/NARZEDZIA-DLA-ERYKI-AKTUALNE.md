@@ -3,7 +3,7 @@
 > **Aktualizowane automatycznie.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-12**.
 > Regula z briefu: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). NIE edytuj tego pliku recznie.
 
-Gotowych na strone: **8** | w testach: **19** | razem przewidzianych na premiere: **27**
+Gotowych na strone: **8** | w testach: **18** | razem przewidzianych na premiere: **26**
 
 ## Architektura i rysunek
 - ✅ **Generator schodow** (`GSAI_SCHODY`) - Rysuje bieg schodow w rzucie i przekroju jednym poleceniem.
@@ -23,7 +23,7 @@ Gotowych na strone: **8** | w testach: **19** | razem przewidzianych na premiere
 ## Geodezja
 - ✅ **Import wspolrzednych** (`GSAI_IMPORTXYZ`) - Punkty X,Y,Z z pliku TXT/Excel prosto do rysunku, z numerami.
 - ✅ **Audyt osi Z** (`GSAI_AUDYTZ`) - Wykrywa obiekty z Z!=0, ktore falszuja plaskie pomiary.
-- 🟡 **Linie urbanistyczne** (`PLANNINGLINES`) - Znormalizowane linie zabudowy, granice, ogrodzenia.
+- 🟡 **Biblioteka linii urbanistycznych** (`PLANNINGLINES`) - Gotowe znormalizowane linie: zabudowa i nieprzekraczalna zabudowa, tory kolejowe i tramwajowe, ogrodzenie, skarpa, granice. Biblioteka linii (wczytywana do rysunku), nie komenda.
 
 ## Pomiary i zestawienia
 - 🟡 **Pomiar z opisem** (`GSAI_POMIAR`) - Dlugosci obiektow i odleglosci z trwalym opisem na rysunku.
@@ -39,5 +39,4 @@ Gotowych na strone: **8** | w testach: **19** | razem przewidzianych na premiere
 - 🟡 **Kolejnosc rysowania** (`GSAI_KOLEJNOSC`) - Warstwa na wierzch/spod - dziala tam, gdzie natywne LAYDRAWORDER zawodzi.
 - 🟡 **Numeracja arkuszy** (`GSAI_NUMERACJA`) - Automatyczne wstawianie i inkrementacja numerow rysunkow.
 - 🟡 **Reset interfejsu** (`GSAI_CUI`) - Natychmiastowe przywracanie znikajacych paskow i wstazek.
-- 🟡 **Raport warstw** (`GSAI_DUMP_WARSTW`) - Pokazuje puste/kolizyjne warstwy, ktorych PURGE nie sprzata.
 - 🟡 **Rodzaj linii z opisem** (`GSAI_LINIA`) - Wlasny rodzaj linii z wtopionym tekstem (GAZ/KABEL) do sieci uzbrojenia.

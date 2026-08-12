@@ -109,10 +109,10 @@
         },
         {
           "cmd": "PLANNINGLINES",
-          "nazwa": "Linie urbanistyczne",
+          "nazwa": "Biblioteka linii urbanistycznych",
           "status": "w_tescie",
           "na_premiere": true,
-          "korzysc": "Znormalizowane linie zabudowy, granice, ogrodzenia."
+          "korzysc": "Gotowe znormalizowane linie: zabudowa i nieprzekraczalna zabudowa, tory kolejowe i tramwajowe, ogrodzenie, skarpa, granice. Biblioteka linii (wczytywana do rysunku), nie komenda."
         }
       ]
     },
@@ -202,13 +202,6 @@
           "status": "w_tescie",
           "na_premiere": true,
           "korzysc": "Natychmiastowe przywracanie znikajacych paskow i wstazek."
-        },
-        {
-          "cmd": "GSAI_DUMP_WARSTW",
-          "nazwa": "Raport warstw",
-          "status": "w_tescie",
-          "na_premiere": true,
-          "korzysc": "Pokazuje puste/kolizyjne warstwy, ktorych PURGE nie sprzata."
         },
         {
           "cmd": "GSAI_LINIA",
