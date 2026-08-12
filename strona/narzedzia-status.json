@@ -123,7 +123,7 @@
         {
           "cmd": "GSAI_POMIAR",
           "nazwa": "Pomiar z opisem",
-          "status": "w_tescie",
+          "status": "gotowe",
           "na_premiere": true,
           "korzysc": "Dlugosci obiektow i odleglosci z trwalym opisem na rysunku."
         },
@@ -137,21 +137,21 @@
         {
           "cmd": "GSAI_PRZEDMIAR",
           "nazwa": "Przedmiar do Excela",
-          "status": "w_tescie",
+          "status": "gotowe",
           "na_premiere": true,
           "korzysc": "Zaznacz zamkniete obiekty -> pole i obwod + suma, otwiera sie w Excelu."
         },
         {
           "cmd": "GSAI_ZESTAWIENIE",
           "nazwa": "Zestawienie pol",
-          "status": "w_tescie",
+          "status": "gotowe",
           "na_premiere": true,
           "korzysc": "Pole, obwod i tabela dla zaznaczonych obiektow."
         },
         {
           "cmd": "GSAI_POLA",
           "nazwa": "Pola i pomieszczenia",
-          "status": "w_tescie",
+          "status": "gotowe",
           "na_premiere": true,
           "korzysc": "Pole i obwod pol - zaznacz oknem albo kliknij w pomieszczenie, opis + tabela."
         }

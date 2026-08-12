@@ -3,7 +3,7 @@
 > **Aktualizowane automatycznie.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-12**.
 > Regula z briefu: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). NIE edytuj tego pliku recznie.
 
-Gotowych na strone: **8** | w testach: **18** | razem przewidzianych na premiere: **26**
+Gotowych na strone: **12** | w testach: **14** | razem przewidzianych na premiere: **26**
 
 ## Architektura i rysunek
 - ✅ **Generator schodow** (`GSAI_SCHODY`) - Rysuje bieg schodow w rzucie i przekroju jednym poleceniem.
@@ -26,11 +26,11 @@ Gotowych na strone: **8** | w testach: **18** | razem przewidzianych na premiere
 - 🟡 **Biblioteka linii urbanistycznych** (`PLANNINGLINES`) - Gotowe znormalizowane linie: zabudowa i nieprzekraczalna zabudowa, tory kolejowe i tramwajowe, ogrodzenie, skarpa, granice. Biblioteka linii (wczytywana do rysunku), nie komenda.
 
 ## Pomiary i zestawienia
-- 🟡 **Pomiar z opisem** (`GSAI_POMIAR`) - Dlugosci obiektow i odleglosci z trwalym opisem na rysunku.
+- ✅ **Pomiar z opisem** (`GSAI_POMIAR`) - Dlugosci obiektow i odleglosci z trwalym opisem na rysunku.
 - 🟡 **Suma dlugosci** (`GSAI_DLUGOSC_OPIS`) - Sumuje dlugosc wskazanych obiektow i podpisuje na rysunku.
-- 🟡 **Przedmiar do Excela** (`GSAI_PRZEDMIAR`) - Zaznacz zamkniete obiekty -> pole i obwod + suma, otwiera sie w Excelu.
-- 🟡 **Zestawienie pol** (`GSAI_ZESTAWIENIE`) - Pole, obwod i tabela dla zaznaczonych obiektow.
-- 🟡 **Pola i pomieszczenia** (`GSAI_POLA`) - Pole i obwod pol - zaznacz oknem albo kliknij w pomieszczenie, opis + tabela.
+- ✅ **Przedmiar do Excela** (`GSAI_PRZEDMIAR`) - Zaznacz zamkniete obiekty -> pole i obwod + suma, otwiera sie w Excelu.
+- ✅ **Zestawienie pol** (`GSAI_ZESTAWIENIE`) - Pole, obwod i tabela dla zaznaczonych obiektow.
+- ✅ **Pola i pomieszczenia** (`GSAI_POLA`) - Pole i obwod pol - zaznacz oknem albo kliknij w pomieszczenie, opis + tabela.
 
 ## Automatyzacja i porzadkowanie
 - 🟡 **Standard warstw** (`GSAI_WARSTWY_STANDARD`) - Pelne drzewo warstw jednym klknieciem przy starcie projektu.
