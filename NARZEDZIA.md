@@ -1,10 +1,35 @@
 # Katalog narzędzi — co mamy, co działa, skąd pobrać
 
-> _Stan na 2026-08-06._ **To jest jedyny obowiązujący katalog narzędzi.** Wszystkie repozytoria projektu linkują tutaj. Zmiana statusu, nazwy komendy albo nowe narzędzie — **zmienia się tylko ten plik**.
+> _Stan na 2026-08-15._ **To jest jedyny obowiązujący katalog narzędzi.** Wszystkie repozytoria projektu linkują tutaj. Zmiana statusu, nazwy komendy albo nowe narzędzie — **zmienia się tylko ten plik**.
 >
 > Jak uruchomić którekolwiek z nich: **[JAK-URUCHOMIC.md](JAK-URUCHOMIC.md)**.
 >
 > **Aktualizacja 2026-08-06:** dystrybucja przeszła na **instalator self-service** (`instalator-gsai` w *powertools*) — klient uruchamia jeden plik, który dokłada Python + skrypty do GstarCAD, bez ręcznego „Download raw file". Instalator testowany przez zespół na czystych maszynach ([zespol#78](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/78)): przechodzi; jeden edge-case (Python już all-users) naprawiony, retest w toku. Runda testów serii generatywnej v2 po werdyktach Roberta: [zespol#79](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/79).
+
+---
+
+> ### 📣 Aktualizacja 2026-08-15 — dla marketingu (strona)
+>
+> Zmiany z pełnego przeglądu Roberta 14–15.08. Skrót do przeniesienia na stronę:
+>
+> **⛔ Wyleciało — usunąć ze strony:**
+> - `GSAI_ZESTAWIENIE` i `GSAI_PRZEDMIAR` → **wchłonięte przez `GSAI_POLA`** (jedno narzędzie: pole + obwód + opis + tabela + eksport CSV). Robert potwierdził konsolidację.
+> - `GSAI_KOLEJNOSC` (kolejność rysowania warstw) → GstarCAD ma to natywnie i lepiej (`DRAWORDER`, opcja nad/pod obiekt). Robert: „zamykamy temat". Usunięte.
+>
+> **➕ Doszło — nowe narzędzia (kandydaci premierowi, w teście zespołu; na stronę PO odbiorze praktyka):**
+> - **`GSAI_ZNAKI`** — tarcze znaków drogowych pionowych (grupy A/B/C/D) + znak B-33 wg Dz.U. 2003/2181, wynik jako blok.
+> - **`GSAI_PRZEJAZD`** — analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus…).
+> - **`GSAI_AKUSTYKA`** — kalkulator czasu pogłosu RT60 + ocena zgodności z PN-B-02151-4, tabela wyników na rysunku.
+> - **`GSAI_MEBLE`** — rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki (poprzednia wersja była szczątkowa).
+>
+> **🔄 Zmieniło funkcję — nowy opis na stronę:**
+> - **`GSAI_POLA`** — łączy pole i obwód pól/pomieszczeń; opis w pomieszczeniu do wyboru (numer / powierzchnia / oba), tabela zbiorcza, eksport CSV/przedmiar.
+> - **`GSAI_POMIAR`** — dokłada typ pomiaru w opisie (obwód dla zamkniętych) + przerywaną linię skąd-dokąd.
+> - **`GSAI_ZLICZ`** — radzi sobie z blokami dynamicznymi (liczy po nazwie efektywnej, nie po anonimowej `*U###`).
+> - **`GSAI_LINIA`** — wyśrodkowany opis w przerwie linii + wybór czcionki / dowolnego znaku (z ostrzeżeniem o przenośności).
+> - **`GSAI_SCHODY`** — opis czyta się wzdłuż biegu, pełna strzałka na łuku, czerwone podświetlenie wartości niezgodnych z normą.
+>
+> Uwaga dla strony: pozycje z „doszło" i część „zmieniło" czekają na runtime-test zespołu/Roberta. **Publiczny opis dopiero po odbiorze praktyka** — do tego czasu trzymamy je jako „wkrótce / w testach", nie jako gotowe.
 
 **Komendy mają przedrostek `GSAI_`** (zmiana z 14.07.2026). Wpisuje się np. `GSAI_IMPORTXYZ`. Stare nazwy bez przedrostka już nie działają — po pobraniu nowej wersji trzeba zrobić `APPLOAD` jeszcze raz.
 
@@ -21,7 +46,7 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 | **`GSAI_RENAME_WARSTWY`** 🦸 | Hurtowa zmiana nazw warstw wzorcem (find→replace w środku nazwy) z obsługą kolizji. Natywnie GstarCAD tego nie ma — **lukę potwierdził na piśmie QA Manager Autodesku** (ADR 08). Wartość = hurt/wzorzec, nie pojedyncza warstwa. | źródło [31_rename_warstw_wzorcem.py](biblioteka-rag/przyklady/31_rename_warstw_wzorcem.py) → **doportowane do instalatora 2026-08-12** (`skrypty/GSAI_RENAME_WARSTWY.py`, AST+stuby 🟢) | Tomasz 29.07 (hurt); **re-test w instalce przed premierą** |
 | **`GSAI_IMPORTXYZ`** | Plik z Excela/Notatnika ze współrzędnymi → punkty z numerami. Natywnie brak (płatne nakładki = dowód popytu). | źródło [25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py) → **doportowane do instalatora 2026-08-12** (`skrypty/GSAI_IMPORTXYZ.py`, AST+stuby 🟢) | Robert; **re-test w instalce przed premierą** |
 | **`GSAI_AUDYTZ`** | Znajduje i zaznacza obiekty, które „uciekły" w Z≠0 (z góry niewidoczne, psują pomiary w płaskim rysunku). Prostowanie natywnym `FLATTEN`. | źródło [26_audit_z_axis.py](biblioteka-rag/przyklady/26_audit_z_axis.py) → **doportowane do instalatora 2026-08-12** (`skrypty/GSAI_AUDYTZ.py`, AST+stuby 🟢) | Jakub 29.07; **re-test w instalce przed premierą** |
-| **`GSAI_SCHODY`** 🎁 | Generator schodów (rzut / łuk / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. **Rysuje też po ponownym otwarciu pliku** (generatywne → odporne na BUG-10). | kod w repo *powertools*, dostawa: release `skrypty-test` | Tomasz 31.07; **v2 06.08** (cm zamiast mm, wynik jako blok na bieżącej warstwie, auto-opis) → retest [#79](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/79) |
+| **`GSAI_SCHODY`** 🎁 | Generator schodów (rzut / łuk / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. **Rysuje też po ponownym otwarciu pliku** (generatywne → odporne na BUG-10). | kod w repo *powertools*, dostawa: release `skrypty-test` | Tomasz 31.07; **v2 06.08** (cm zamiast mm, wynik jako blok, auto-opis); **v3 15.08 po robert#16**: opis czyta się wzdłuż biegu, pełna strzałka na łuku (Robert ✓), czerwone podświetlenie niezgodności z normą. Zostaje od Roberta: „typ opisów wg normy" + opcja opisów jako atrybuty. |
 | **`GSAI_STRZALKA_POLNOCY`** 🧭 | Ozdobna strzałka północy — **6 stylów dwutonowych** (prosta/strzałka/romb/róża wiatrów/kompas geodezyjny/iglica), panel wyboru z podglądem + wysokość + klik. **v2 06.08: wynik jako blok na bieżącej warstwie** (obrót przez ROTATE, przesuń/kasuj jako jeden obiekt). Natywnie brak (GstarCAD ma tylko `COMPASS`/`NORTHDIRECTION`). Generatywne → BUG-10-safe. `GSAI_STRZALKA_GALERIA` = wszystkie naraz. | kod w *powertools*, release `skrypty-test` | LC 01.08 → **zespół 06.08 (Tomasz ✓, [#79](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/79))** |
 | **`GSAI_SLONCE`** ☀️ | Diagram nasłonecznienia / ścieżka słońca (biegunowy wykres): szerokość geo + data → horyzont, pierścienie wysokości, azymuty N/E/S/W, ścieżka słońca + przesilenia/równonoc. Okno z **dropdownem 18 miast wojewódzkich** + ręczna szerokość. **v2 06.08: legenda „jak czytać"** (praktyk brał to za mapę cienia). Generatywne → BUG-10-safe. Spina z **Linijką Słońca**. `GSAI_SUNPATH` = alias. | kod w *powertools*, release `skrypty-test` | LC 02.08 → **zespół 06.08 (Tomasz ✓, [#79](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/79))** |
 | **`GSAI_SPADEK`** 📐 | Strzałka spadku + wartość (%/‰/°/1:n) — dachy, tarasy, odwodnienie; tryb ręczny albo auto z różnicy wysokości. Natywnie brak. Generatywne → BUG-10-safe. | kod w *powertools*, release `skrypty-test` | **runtime ✓ Jakub 06.08** (oba tryby, V2607); ocena praktyczna Roberta [robert#9](https://github.com/init3-sentry/gstarcad-ai-robert/issues/9) w toku |
@@ -32,7 +57,7 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 
 | Komenda | Co robi | Plik | Stan |
 |---|---|---|---|
-| **`GSAI_PRZEDMIAR`** | Pole + obwód wskazanych obiektów → CSV (Excel). | [30_przedmiar.py](biblioteka-rag/przyklady/30_przedmiar.py) | 🔴 **Blokada BUG-10** — na ZAPISANYM pliku encje wracają jako bazowe, `getArea` pada → działa na świeżym rysunku, **nie na plikach klienta**. Region: `BOUNDARY` (zdecydowane, [robert#7](https://github.com/init3-sentry/gstarcad-ai-robert/issues/7)). Eskalowane R&D (Jira **162444**). |
+| ~~**`GSAI_PRZEDMIAR`**~~ | Pole + obwód wskazanych obiektów → CSV (Excel). | — | ⛔ **Wycofane 2026-08-15 — wchłonięte przez `GSAI_POLA`** (eksport CSV/przedmiar jest teraz opcją w POLA). Robert potwierdził konsolidację. |
 | **`GSAI_DLUGOSC`** / **`GSAI_DLUGOSC_OPIS`** | Suma długości; `_OPIS` dokłada etykietę na rysunku. | [GSAI_DLUGOSC.py](biblioteka-rag/przyklady/GSAI_DLUGOSC.py) · [29_dlugosc_opis.py](biblioteka-rag/przyklady/29_dlugosc_opis.py) | Zwalidowane na **ŚWIEŻYM** rysunku (Jakub 29.07), ale 🔴 **BUG-10 na zapisanych** (`length` pada). Do przepisania na `entget` albo fix R&D. |
 | **`GSAI_FORMATKA`** 📐 | **07.08 ROZDZIELONE wg werdyktu Roberta ([robert#9](https://github.com/init3-sentry/gstarcad-ai-robert/issues/9), mail 2026-08-05 + wzorzec `formatka-uniwersalna-robert.dwg`).** Teraz: SAMA ramka **ISO 5457** (margines 20mm lewy / 10mm pozostałe — zweryfikowane w normie), formaty A4/A3/A2 (A4 też poziomo), guard „tylko Arkusz", **BEZ tabliczki** (każda firma ma własną). Natywnie brak w bazie Professional (Mechanical ma). Generatywne → BUG-10-safe. | kod w *powertools*, release `skrypty-test` | 🟡 **Do retestu zespołu** po rozdziale — poprzednia wersja (rama+tabliczka razem) była na LC (Dawid 02.08); nowy podział jeszcze nie testowany na LC/zespole. ⚠️ testerzy: klawiatura **Polski (Programisty)**, nie 214. |
 | **`GSAI_TABELKA`** 📐 | **NOWA 07.08** — połowa rozdziału `GSAI_FORMATKA`: tabliczka rysunkowa **ISO 7200** (PL) + pas właściciela (logo + Biuro) jako osobny blok **ATTDEF**, dla tych bez własnej tabliczki. Szerokość **180 mm** (≤180mm, wymóg Roberta), wysokość 57mm. **Punkt wstawienia = prawy dolny narożnik** (klik, tabliczka rozwija się w lewo/górę — dosuwalna do dowolnego rogu ramki). Guard „tylko Arkusz". Generatywne → BUG-10-safe. Styl **TTF `GSAI_PL`** dla polskich znaków. | kod w *powertools*, release `skrypty-test` | 🟡 **Nowe, nie testowane** — walidator AST 🟢 OK, brak jeszcze przebiegu na LC/zespole. |
