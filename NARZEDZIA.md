@@ -18,7 +18,7 @@
 >
 > **➕ Doszło — nowe narzędzia (kandydaci premierowi, w teście zespołu; na stronę PO odbiorze praktyka):**
 > - **`GSAI_ZNAKI`** — tarcze znaków drogowych pionowych (grupy A/B/C/D) + znak B-33 wg Dz.U. 2003/2181, wynik jako blok.
-> - **`GSAI_PRZEJAZD`** — analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus…).
+> - **`GSAI_PRZEJEZDNOSC`** — analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus…).
 > - **`GSAI_AKUSTYKA`** — kalkulator czasu pogłosu RT60 + ocena zgodności z PN-B-02151-4, tabela wyników na rysunku.
 > - **`GSAI_MEBLE`** — rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki (poprzednia wersja była szczątkowa).
 >
