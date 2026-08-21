@@ -1,6 +1,6 @@
 # Katalog narzędzi — co mamy, co działa, skąd pobrać
 
-> _Stan na 2026-08-15._ **To jest jedyny obowiązujący katalog narzędzi.** Wszystkie repozytoria projektu linkują tutaj. Zmiana statusu, nazwy komendy albo nowe narzędzie — **zmienia się tylko ten plik**.
+> _Stan na 2026-08-21._ **To jest jedyny obowiązujący katalog narzędzi.** Wszystkie repozytoria projektu linkują tutaj. Zmiana statusu, nazwy komendy albo nowe narzędzie — **zmienia się tylko ten plik**.
 >
 > Jak uruchomić którekolwiek z nich: **[JAK-URUCHOMIC.md](JAK-URUCHOMIC.md)**.
 >
@@ -75,6 +75,32 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 | **Linie urbanistyczne** (`planninglines`) | 42 znormalizowane wzory: linia zabudowy obow./nieprzekraczalna, tory, ogrodzenie, skarpa, granice, rozbiórka. Od Roberta ([robert#10](https://github.com/init3-sentry/gstarcad-ai-robert/issues/10)). | `powertools/04-gsai-linie/robert-planninglines/` | 🟡 wciągnięte 06.08. **Wymaga `RODZLIN.shx` w Fontach GstarCAD** (instalator musi dowozić) — inaczej linie stają się ciągłe. Do testu ładowania + skali. |
 | **`GSAI_ORNAMENT`** | Demonstracyjny generator wzorów geometrycznych (algorytm, nie AI). | kod w *powertools* | ⛔ **DO WYWALENIA 06.08 — Robert kazał usunąć** ([robert#9](https://github.com/init3-sentry/gstarcad-ai-robert/issues/9): brak zastosowania). Poza ofertą i poza stroną. |
 
+> ### 🆕 Aktualizacja 2026-08-21 — Suite GEO (Geoportal) + moduł OC (schron), w runtime-teście zespołu
+>
+> Dwa nowe zestawy weszły w **runtime-test zespołu, przed odbiorem praktyka (Robert)** — publiczny opis dopiero po jego werdykcie. Oznaczenie modelu opłat: **🆓 darmowe** (podkład + pojedyncza działka) / **💰 płatne** (moduł/analiza), wg decyzji Dawida z 2026-08-21 (geoportal = freemium; schron = płatny moduł OC).
+
+**Suite GEO (Geoportal)** — bundle `GSAI-geoportal-test.zip` na release `skrypty-test` w [`gstarcad-ai-zespol`](https://github.com/init3-sentry/gstarcad-ai-zespol), SHA256 `d083599cac41382f33da9238c09adf2ff6f7e6dfbb22320ccd8f6b0ab0b78783`, zgłoszenie [zespol#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113). Źródła w `narzedzia-do-testow/`: `geoportal.py` + `gsai_wladanie.py` + `gsai_pog.py` + `gsai_zabytki.py` + `gsai_geologia.py`. **Dane GUGiK / NID / PIG są bezpłatne** (art. 40a Prawa geodezyjnego i kartograficznego) — nasza wartość to integracja wprost w GstarCAD, nie sprzedaż danych. Graduacja pozycji „Dane z Geoportalu" z sekcji *W budowie*.
+
+| Komenda | Co robi | Plik | Stan |
+|---|---|---|---|
+| **`GSAI_DZIALKI`** 🆓 | Wskaż punkt → obrys działki + numer + powierzchnia (ULDK/EGiB). Podkład. | bundle `GSAI-geoportal-test.zip` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_BUDYNKI`** 🆓 | Obrysy budynków w okolicy wskazanego punktu (EGiB/BDOT10k). | bundle `GSAI-geoportal-test.zip` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_WYSOKOSC`** 🆓 | Etykieta wysokości H z Numerycznego Modelu Terenu (GUGiK). | bundle `GSAI-geoportal-test.zip` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_ORTOFOTO`** 🆓 | Podkład ortofotomapy jako raster (PZGIK/GUGiK). | bundle `GSAI-geoportal-test.zip` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_GEOPORTAL`** 🆓 | Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo. | bundle `GSAI-geoportal-test.zip` · `geoportal.py` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_WLADANIE`** 🆓 | Wskaż punkt → kto włada działką (Skarb Państwa / gmina / osoba fizyczna — **bez nazwisk, RODO**) + ścieżka „do kogo się zwrócić". Źródło: KIEG (`grupa_rejestrowa`). Podstawa: §14 rozp. EGiB (Dz.U. 2024/219). Hak — pojedyncza działka. | bundle `GSAI-geoportal-test.zip` · `gsai_wladanie.py` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_TRASA`** 💰 | Wskaż polilinię przyłącza → wykaz przeciętych działek (obrysy + numery) w rysunku. | bundle `GSAI-geoportal-test.zip` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_WYKAZ`** 💰 | Wskazana działka + sąsiedzi graniczni → tabela właścicieli/instytucji na rysunku. | bundle `GSAI-geoportal-test.zip` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_POG`** 💰 | Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa `PlanyOgolneGmin` (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG (Studia obowiązują do 31.08.2026) — „brak POG" to **poprawny wynik**. Spina dawne narzędzia chłonność + POG. | bundle `GSAI-geoportal-test.zip` · `gsai_pog.py` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_ZABYTKI`** 💰 | Wskaż punkt → czy objęty ochroną konserwatorską (NID: zabytek nieruchomy / archeologiczny / UNESCO) + numer rejestru + „wymagane pozwolenie WKZ". Źródło: usługi INSPIRE NID (`usluga.zabytek.gov.pl`). Podstawa: art. 36 ust. z 23.07.2003 o ochronie zabytków. | bundle `GSAI-geoportal-test.zip` · `gsai_zabytki.py` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+| **`GSAI_GEOLOGIA`** 💰 | Wskaż punkt → czy w terenie osuwiskowym / zagrożonym (baza SOPO PIG-PIB) + numer osuwiska + stopień aktywności + zalecenie badania geolog.-inż. ⚠️ SOPO pokrywa głównie Karpaty — poza zasięgiem „brak" **≠ „bezpiecznie"**. Podstawa: dane SOPO + Eurokod 7 (PN-EN 1997). | bundle `GSAI-geoportal-test.zip` · `gsai_geologia.py` | 🟡 runtime-test zespołu ([#113](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/113)) |
+
+**Moduł OC (schron)** — osobny bundle `GSAI-schron-test.zip` na release `skrypty-test` w [`gstarcad-ai-zespol`](https://github.com/init3-sentry/gstarcad-ai-zespol), SHA256 `b5f785603c8942c5471fab8335d74686cacd2d0dd2c5261a390739888a5c4578`, zgłoszenie [zespol#114](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/114). Źródła w `narzedzia-do-testow/`: `GSAI_SCHRON.py` + `gsai_schron_core.py`. **To NIE ten sam bundle co Suite GEO.**
+
+| Komenda | Co robi | Plik | Stan |
+|---|---|---|---|
+| **`GSAI_SCHRON`** 💰 | Checker budowli ochronnej (schron/ukrycie): wskaż zamkniętą polilinię strefy → pole (COM Area) → opcjonalnie liczba osób → sprawdza wymagania WT: min 1 m²/os; wyjścia (>50 os → ≥2, >1000 os → ≥2 poza strefę zagruzowania); wejścia (>300 os → ≥2); podział na strefy (ukrycie ≤300 os, schron S-1 ≤1000 os); dopuszczalność szybu (≤35 m² i ≤10 os); szer. drogi ewakuacyjnej 0,4 m/100 os. **Zakres v1: wymiarowy** (grubości przegród / wentylacja / dojście ≤500 m poza zakresem). Podstawa: rozp. MSWiA z 4.11.2025 (Dz.U. 2025/1548) + ust. z 5.12.2024 o ochronie ludności (Dz.U. 2024/1907). | bundle `GSAI-schron-test.zip` | 🟡 nowy moduł, przed odbiorem praktyka ([#114](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/114)) |
+
 > **⚠️ BUG-10 (bug wiązania pygcad, nie nasz):** encje wczytane z ZAPISANEGO pliku DWG wracają jako bazowe `GcDbEntity` → typowane metody geometryczne (`getArea`/`length`) na nich padają. Narzędzia CZYTAJĄCE geometrię z plików klienta (PRZEDMIAR, DLUGOSC) są tym zablokowane; narzędzia GENERUJĄCE (SCHODY, ORNAMENT, IMPORTXYZ) i tabelowe (RENAME_WARSTWY, AUDYTZ) są odporne. Zgłoszone R&D jako top-issue **162444**.
 
 ## ⛔ Wycofane — bo GstarCAD ma to natywnie
@@ -108,7 +134,6 @@ Kilka użytecznych z brzegu:
 
 | Narzędzie | Co ma robić |
 |---|---|
-| **Dane z Geoportalu** | Numer i obrys działki, rzędna terenu, zdjęcie lotnicze — z ewidencji GUGiK prosto do rysunku, po wskazaniu punktu. |
 | **Podkład rastrowy z georeferencją** | Wstawiony raster sam siada we właściwym miejscu (GstarCAD nie czyta georeferencji z pliku). |
 | **Opis współrzędnych punktu** | Opisywanie bez nachodzenia tekstu na siebie. |
 | **Formuły w zestawieniach** | Kolumny wyliczane (SUMA = ilość × cena). |
