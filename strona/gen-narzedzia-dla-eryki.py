@@ -97,7 +97,8 @@ def gen(d, stamp):
     return len(changes), gotowe
 
 if __name__=="__main__":
-    stamp = sys.argv[1] if len(sys.argv)>1 else "(brak daty)"
+    import datetime
+    stamp = sys.argv[1] if len(sys.argv)>1 else datetime.date.today().isoformat()
     d = load()
     nch, ng = gen(d, stamp)
     print("OK: %s | zmian: %d | gotowych: %d" % (os.path.basename(OUT), nch, ng))

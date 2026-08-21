@@ -1,6 +1,6 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-12**.
+> **Aktualizowane automatycznie.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-21**.
 > Regula z briefu: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). NIE edytuj tego pliku recznie.
 
 Gotowych na strone: **12** | w testach: **14** | razem przewidzianych na premiere: **26**
