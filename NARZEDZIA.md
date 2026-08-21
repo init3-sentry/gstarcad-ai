@@ -105,6 +105,8 @@ Sprawdzone na prawdziwych rysunkach projektowych — tych ciężkich, z bałagan
 | Komenda | Co robi | Plik | Stan |
 |---|---|---|---|
 | **`GSAI_SCHRON`** 💰 | Checker budowli ochronnej (schron/ukrycie): wskaż zamkniętą polilinię strefy → pole (COM Area) → opcjonalnie liczba osób → sprawdza wymagania WT: min 1 m²/os; wyjścia (>50 os → ≥2, >1000 os → ≥2 poza strefę zagruzowania); wejścia (>300 os → ≥2); podział na strefy (ukrycie ≤300 os, schron S-1 ≤1000 os); dopuszczalność szybu (≤35 m² i ≤10 os); szer. drogi ewakuacyjnej 0,4 m/100 os. **Zakres v1: wymiarowy** (grubości przegród / wentylacja / dojście ≤500 m poza zakresem). Podstawa: rozp. MSWiA z 4.11.2025 (Dz.U. 2025/1548) + ust. z 5.12.2024 o ochronie ludności (Dz.U. 2024/1907). | bundle `GSAI-schron-test.zip` | 🟡 nowy moduł, przed odbiorem praktyka ([#114](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/114)) |
+| **`GSAI_DACH`** 🎁 | Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Native-first + COM fallback (BUG-10-świadome). Generowania połaci z obrysu nie ma nikt. | kod w *powertools* (`GSAI_DACH.py` + `gsai_dach_core.py`, self-test 16/16) | 🟡 **pełny pass zespołu** na 5 typach dachu ([#100](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/100), Tomasz ✓); czeka finalny werdykt Roberta — uwagi z [robert#16](https://github.com/init3-sentry/gstarcad-ai-robert/issues/16) (powiększyć opisy/strzałki, „m²") do wdrożenia. **O krok od ✅.** |
+| **`GSAI_PODZIALKA`** | Podziałka liniowa (skala rysunku) na arkuszu. Generatywne → BUG-10-safe. | kod w *powertools* (`GSAI_PODZIALKA.py`) | 🟡 render potwierdzony przez zespół ([#95](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/95), fix nachodzenia „10m"); przed werdyktem Roberta |
 
 > **⚠️ BUG-10 (bug wiązania pygcad, nie nasz):** encje wczytane z ZAPISANEGO pliku DWG wracają jako bazowe `GcDbEntity` → typowane metody geometryczne (`getArea`/`length`) na nich padają. Narzędzia CZYTAJĄCE geometrię z plików klienta (PRZEDMIAR, DLUGOSC) są tym zablokowane; narzędzia GENERUJĄCE (SCHODY, ORNAMENT, IMPORTXYZ) i tabelowe (RENAME_WARSTWY, AUDYTZ) są odporne. Zgłoszone R&D jako top-issue **162444**.
 
@@ -137,8 +139,15 @@ Kilka użytecznych z brzegu:
 
 ## 🔧 W budowie
 
-| Narzędzie | Co ma robić |
+> Zbudowane i zwalidowane (walidator API 🟢), ale **bez odbioru runtime na realnym rysunku** — nie idą na stronę. Część (TIN/GRANICA/PROFIL) wisi na BUG-10 (odczyt zapisanych encji), rozwiązywanym na LC.
+
+| Narzędzie | Stan / co robi |
 |---|---|
+| **`GSAI_TIN`** ⭐ | Warstwice z chmury punktów (Delaunay). Silnik geo wspólny z PROFIL i free-tier GSAI-Geo — fundament linii geodezyjnej. Czyta zapisane punkty Z → rodzina **BUG-10** (pada na plikach klienta). Walidator 🟢, brak runtime-pass; czeka rozwiązanie BUG-10 na LC. |
+| **`GSAI_GRANICA`** | Wykaz współrzędnych granicy działki (pole, obwód, tabela). Czyta polilinię z pliku → rodzina **BUG-10**, aktywnie łatane; brak odbioru na rysunku klienta. |
+| **`GSAI_PROFIL`** | Profil podłużny z punktów wysokościowych + linia cięcia. Silnik geo wspólny z TIN. Rodzina **BUG-10** (zapisane punkty Z). Walidator 🟢, brak runtime-pass. |
+| **`GSAI_PRZEKROJ`** | Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku. |
+| **`GSAI_UMEBLUJ`** | Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie ([#107](https://github.com/init3-sentry/gstarcad-ai-zespol/issues/107)), zestaw 1/5, pre-Robert. |
 | **Podkład rastrowy z georeferencją** | Wstawiony raster sam siada we właściwym miejscu (GstarCAD nie czyta georeferencji z pliku). |
 | **Opis współrzędnych punktu** | Opisywanie bez nachodzenia tekstu na siebie. |
 | **Formuły w zestawieniach** | Kolumny wyliczane (SUMA = ilość × cena). |

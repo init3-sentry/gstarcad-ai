@@ -3,7 +3,16 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-21**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **11** | w testach: **28** | poza strona (w budowie/wycofane): **6**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_DACH (🟡 w testach (jeszcze nie))
+- + NOWE: GSAI_PODZIALKA (🟡 w testach (jeszcze nie))
+- + NOWE: GSAI_TIN (🔧 poza strona (w budowie))
+- + NOWE: GSAI_GRANICA (🔧 poza strona (w budowie))
+- + NOWE: GSAI_PROFIL (🔧 poza strona (w budowie))
+- + NOWE: GSAI_PRZEKROJ (🔧 poza strona (w budowie))
+- + NOWE: GSAI_UMEBLUJ (🔧 poza strona (w budowie))
+
+Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane): **11**
 
 ## ✅ Na strone (gotowe)
 
@@ -25,6 +34,7 @@ Gotowych na strone: **11** | w testach: **28** | poza strona (w budowie/wycofane
 - `GSAI_BUDYNKI` — Obrysy budynków w okolicy wskazanego punktu (EGiB/BDOT10k).
 - `GSAI_CHROPOWATOSC` — Symbol chropowatości powierzchni (haczyk 60°, warianty usunięcia materiału, półka na dane).
 - `GSAI_CUI` — Reset interfejsu — przywraca znikające paski i wstążki jednym poleceniem (ratunek po uszkodzonym CUI).
+- `GSAI_DACH` — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Native-first + COM fallback (BUG-10-świadome). Generowania połaci z obrysu nie ma nikt.
 - `GSAI_DLUGOSC` — Suma długości; _OPIS dokłada etykietę na rysunku.
 - `GSAI_DLUGOSC_OPIS` — Suma długości; _OPIS dokłada etykietę na rysunku.
 - `GSAI_DZIALKI` — Wskaż punkt → obrys działki + numer + powierzchnia (ULDK/EGiB). Podkład.
@@ -35,6 +45,7 @@ Gotowych na strone: **11** | w testach: **28** | poza strona (w budowie/wycofane
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUMERACJA` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_ORTOFOTO` — Podkład ortofotomapy jako raster (PZGIK/GUGiK).
+- `GSAI_PODZIALKA` — Podziałka liniowa (skala rysunku) na arkuszu. Generatywne → BUG-10-safe.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG (Studia obowiązują do 31.08.2026) — „brak POG" to poprawny wynik. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJEZDNOSC` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_RZEDNE` — Znacznik rzędnej wysokościowej na przekroju/rzucie — wskaż punkt bazowy ±0,000 (DOWOLNY, nie początek układu), potem kolejne punkty; auto-odczyt Y liczy różnicę. Grot otwarty/zamknięty-w-połowie-czarny wg PN-B-01025:2004 §3.5, każdy znacznik = BLOK. Natywnie brak dedykowanego. Generatywne.
@@ -49,6 +60,14 @@ Gotowych na strone: **11** | w testach: **28** | poza strona (w budowie/wycofane
 - `GSAI_WYSOKOSC` — Etykieta wysokości H z Numerycznego Modelu Terenu (GUGiK).
 - `GSAI_ZABYTKI` — Wskaż punkt → czy objęty ochroną konserwatorską (NID: zabytek nieruchomy / archeologiczny / UNESCO) + numer rejestru + „wymagane pozwolenie WKZ". Źródło: usługi INSPIRE NID (usluga.zabytek.gov.pl). Podstawa: art. 36 ust. z 23.07.2003 o ochronie zabytków.
 - `GSAI_ZNAKI` — Tarcze pionowych znaków drogowych (grupy A/B/C/D) + znak B-33 wg Dz.U. 2003/2181; wynik jako blok.
+
+## 🔧 W budowie — poza strona
+
+- `GSAI_GRANICA` — Wykaz współrzędnych granicy działki (pole, obwód, tabela). Czyta polilinię z pliku → rodzina BUG-10, aktywnie łatane; brak odbioru na rysunku klienta.
+- `GSAI_PROFIL` — Profil podłużny z punktów wysokościowych + linia cięcia. Silnik geo wspólny z TIN. Rodzina BUG-10 (zapisane punkty Z). Walidator 🟢, brak runtime-pass.
+- `GSAI_PRZEKROJ` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.
+- `GSAI_TIN` — Warstwice z chmury punktów (Delaunay). Silnik geo wspólny z PROFIL i free-tier GSAI-Geo — fundament linii geodezyjnej. Czyta zapisane punkty Z → rodzina BUG-10 (pada na plikach klienta). Walidator 🟢, brak runtime-pass; czeka rozwiązanie BUG-10 na LC.
+- `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
 
 ## ⛔ NIE umieszczac (wycofane / zastapione natywnym GstarCAD)
 
