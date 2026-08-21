@@ -3,15 +3,6 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-21**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_DACH (🟡 w testach (jeszcze nie))
-- + NOWE: GSAI_PODZIALKA (🟡 w testach (jeszcze nie))
-- + NOWE: GSAI_TIN (🔧 poza strona (w budowie))
-- + NOWE: GSAI_GRANICA (🔧 poza strona (w budowie))
-- + NOWE: GSAI_PROFIL (🔧 poza strona (w budowie))
-- + NOWE: GSAI_PRZEKROJ (🔧 poza strona (w budowie))
-- + NOWE: GSAI_UMEBLUJ (🔧 poza strona (w budowie))
-
 Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane): **11**
 
 ## ✅ Na strone (gotowe)

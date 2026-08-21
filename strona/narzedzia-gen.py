@@ -204,8 +204,20 @@ def render_eryka(entries, stamp, changes):
 def main():
     stamp = sys.argv[1] if len(sys.argv) > 1 else datetime.date.today().isoformat()
     entries = parse(SOT)
+    prev = load_prev()
+    # SELF-CHECK (BLOKER): rozjechany parse NARZEDZIA.md NIE moze po cichu nadpisac katalogu
+    # pustka. 0 wpisow = na pewno zle. Nagly spadek >50% vs poprzednio = prawdopodobnie zle.
+    # Wychodzimy PRZED zapisem, wiec dobry plik zostaje nietkniety.
+    if len(entries) == 0:
+        sys.exit("BLAD PARSE: 0 narzedzi z NARZEDZIA.md — format tabeli rozjechany. "
+                 "Katalog NIE nadpisany.")
+    if prev and len(entries) < 0.5 * len(prev):
+        sys.exit("BLAD PARSE: sparsowano %d narzedzi, poprzednio %d (spadek >50%%) — "
+                 "prawdopodobnie rozjechany parse. Katalog NIE nadpisany. "
+                 "(jesli celowe masowe usuniecie: skasuj %s i ponow)"
+                 % (len(entries), len(prev), os.path.basename(PREV)))
     cur_map = {e["cmd"]: e["status"] for e in entries}
-    changes = diff(cur_map, load_prev())
+    changes = diff(cur_map, prev)
 
     md = render_eryka(entries, stamp, changes)
     with open(OUT, "w", encoding="utf-8") as f:
