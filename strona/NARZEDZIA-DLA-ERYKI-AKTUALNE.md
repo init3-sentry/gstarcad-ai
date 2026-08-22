@@ -1,6 +1,6 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-21**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-23**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane): **11**
@@ -24,7 +24,7 @@ Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane
 - `GSAI_AKUSTYKA` — Kalkulator czasu pogłosu RT60 + ocena zgodności z PN-B-02151-4; tabela wyników na rysunku.
 - `GSAI_BUDYNKI` — Obrysy budynków w okolicy wskazanego punktu (EGiB/BDOT10k).
 - `GSAI_CHROPOWATOSC` — Symbol chropowatości powierzchni (haczyk 60°, warianty usunięcia materiału, półka na dane).
-- `GSAI_CUI` — Reset interfejsu — przywraca znikające paski i wstążki jednym poleceniem (ratunek po uszkodzonym CUI).
+- `GSAI_CUI` — „Odzyskaj wstążkę" — naprawa interfejsu GstarCAD po uszkodzonym gcad.cuix / porwanym rejestrze MenuFile (znika wstążka/menu). Przywraca z baseline sprzed instalacji albo z 5 zdrowych snapshotów (ring), naprawia rejestrację głównego menu; okno z przyciskiem „Odzyskaj wstążkę" + modal „ZRESTARTUJ GstarCAD". Naprawa interfejsu, nie danych — rysunki nietknięte. Alias globalny: GSAI_REPAIRCUI.
 - `GSAI_DACH` — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Native-first + COM fallback (BUG-10-świadome). Generowania połaci z obrysu nie ma nikt.
 - `GSAI_DLUGOSC` — Suma długości; _OPIS dokłada etykietę na rysunku.
 - `GSAI_DLUGOSC_OPIS` — Suma długości; _OPIS dokłada etykietę na rysunku.
