@@ -3,7 +3,10 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-24**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane): **11**
+## 🔔 Co sie zmienilo od ostatniego razu
+- - USUNIETE: GSAI_ORTOFOTO
+
+Gotowych na strone: **11** | w testach: **29** | poza strona (w budowie/wycofane): **11**
 
 ## ✅ Na strone (gotowe)
 
@@ -35,7 +38,6 @@ Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane
 - `GSAI_LEGENDA_WARSTW` — Wstawia legendę warstw jako tabelę na rysunku: nazwa + próbka koloru + próbka typu linii (graficznie) + szerokość + druk + opis. Pomysł Roberta (robert#13). Natywnie brak. Generatywne → BUG-10-safe.
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUMERACJA` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
-- `GSAI_ORTOFOTO` — Podkład ortofotomapy jako raster (PZGIK/GUGiK).
 - `GSAI_PODZIALKA` — Podziałka liniowa (skala rysunku) na arkuszu. Generatywne → BUG-10-safe.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG (Studia obowiązują do 31.08.2026) — „brak POG" to poprawny wynik. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJEZDNOSC` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
