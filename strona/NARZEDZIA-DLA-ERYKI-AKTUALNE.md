@@ -1,6 +1,6 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-23**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-24**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 Gotowych na strone: **11** | w testach: **30** | poza strona (w budowie/wycofane): **11**
