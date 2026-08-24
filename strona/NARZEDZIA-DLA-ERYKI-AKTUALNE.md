@@ -3,9 +3,6 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-24**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- - USUNIETE: GSAI_ORTOFOTO
-
 Gotowych na strone: **11** | w testach: **29** | poza strona (w budowie/wycofane): **11**
 
 ## ✅ Na strone (gotowe)
