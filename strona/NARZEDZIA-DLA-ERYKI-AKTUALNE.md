@@ -1,9 +1,13 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-24**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-26**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **11** | w testach: **29** | poza strona (w budowie/wycofane): **11**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_GEORASTER (🔧 poza strona (w budowie))
+- + NOWE: GSAI_GML (🔧 poza strona (w budowie))
+
+Gotowych na strone: **11** | w testach: **29** | poza strona (w budowie/wycofane): **13**
 
 ## ✅ Na strone (gotowe)
 
@@ -53,6 +57,8 @@ Gotowych na strone: **11** | w testach: **29** | poza strona (w budowie/wycofane
 
 ## 🔧 W budowie — poza strona
 
+- `GSAI_GEORASTER` — Podkład rastrowy sam siada na prawdziwych współrzędnych. Czyta georeferencję z kompletu źródeł: world file (.tfw/.jgw/.pgw/.wld…), tagi GeoTIFF w samym .tif (skala+tiepoint albo macierz transformacji, układ z GeoKeyDirectory) oraz ESRI .aux.xml + .prj. Osadza natywnym IMAGEATTACH (punkt/skala/obrót z modelu) → omija buga słownika obrazów, na którym utknął GSAI_ORTOFOTO (BUG-05 / downcast 162444). GUI + raport georeferencji + odczyt współrzędnych wskazanego punktu. GstarCAD natywnie tego nie potrafi (ma IMAGEATTACH bez czytania georeferencji). Nowe 2026-08-26. Self-test offline 15/15 (world-file / GeoTIFF / aux.xml); brak runtime-pass na realnym rysunku — czeka odbiór praktyka (Robert). Opis (2 wersje) = szkic do odbioru Roberta.
+- `GSAI_GML` — Import GML EGiB (ewidencja gruntów i budynków): rysuje działki / budynki / kontury użytków / klasy jako zamknięte polilinie i punkty graniczne na warstwach EGIB_*. Czyta układ z srsName, dla PL-2000 / PL-1992 zamienia osie (X=E, Y=N), obsługuje Polygon / Surface-patches / MultiSurface z otworami; opcja przesunięcia do punktu bazowego (wsp. rzędu 7 mln). Alias globalny GSAI_IMPORTGML. MVP. Silnik (gsai_gml_core) przetestowany na realnym pliku EGiB (zsk_2025.gml: 14 działek / 7 budynków / 92 punkty / 89 użytków / 63 klasy, EPSG 2178, swap OK); samo rysowanie w GstarCAD bez runtime-pass — czeka odbiór praktyka (Robert). Opis (2 wersje) = szkic do odbioru Roberta.
 - `GSAI_GRANICA` — Wykaz współrzędnych granicy działki (pole, obwód, tabela). Czyta polilinię z pliku → rodzina BUG-10, aktywnie łatane; brak odbioru na rysunku klienta.
 - `GSAI_PROFIL` — Profil podłużny z punktów wysokościowych + linia cięcia. Silnik geo wspólny z TIN. Rodzina BUG-10 (zapisane punkty Z). Walidator 🟢, brak runtime-pass.
 - `GSAI_PRZEKROJ` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.

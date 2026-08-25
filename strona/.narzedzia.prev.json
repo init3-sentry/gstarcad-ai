@@ -12,6 +12,8 @@
   "GSAI_FORMATKA": "w_tescie",
   "GSAI_GEOLOGIA": "w_tescie",
   "GSAI_GEOPORTAL": "w_tescie",
+  "GSAI_GEORASTER": "w_budowie",
+  "GSAI_GML": "w_budowie",
   "GSAI_GRANICA": "w_budowie",
   "GSAI_IMPORTXYZ": "gotowe",
   "GSAI_IMPORT_ATRYBUTOW": "wycofane",
