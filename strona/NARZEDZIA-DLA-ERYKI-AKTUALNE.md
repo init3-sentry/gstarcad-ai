@@ -3,7 +3,7 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-08-27**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane): **13**
+Gotowych na strone: **15** | w testach: **26** | poza strona (w budowie/wycofane): **13**
 
 ## ✅ Na strone (gotowe)
 
@@ -20,7 +20,7 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - **`GSAI_SLONCE`** — Diagram nasłonecznienia / ścieżka słońca (biegunowy wykres): szerokość geo + data → horyzont, pierścienie wysokości, azymuty N/E/S/W, ścieżka słońca + przesilenia/równonoc. Okno z dropdownem 18 miast wojewódzkich + ręczna szerokość. v2 06.08: legenda „jak czytać" (praktyk brał to za mapę cienia). Generatywne → BUG-10-safe. Spina z Linijką Słońca. GSAI_SUNPATH = alias.
 - **`GSAI_SPADEK`** — Strzałka spadku + wartość (%/‰/°/1:n) — dachy, tarasy, odwodnienie; tryb ręczny albo auto z różnicy wysokości. Natywnie brak. Generatywne → BUG-10-safe.
 - **`GSAI_STRZALKA_POLNOCY`** — Ozdobna strzałka północy — 6 stylów dwutonowych (prosta/strzałka/romb/róża wiatrów/kompas geodezyjny/iglica), panel wyboru z podglądem + wysokość + klik. v2 06.08: wynik jako blok na bieżącej warstwie (obrót przez ROTATE, przesuń/kasuj jako jeden obiekt). Natywnie brak (GstarCAD ma tylko COMPASS/NORTHDIRECTION). Generatywne → BUG-10-safe. GSAI_STRZALKA_GALERIA = wszystkie naraz.
-- **`GSAI_WARSTWY_STANDARD`** — Polski standard warstw jednym poleceniem (panel wyboru): wariant Short (42 warstwy wg wzorca Roberta — grupy A/E/S/L/W + systemowe, kolory ACI+RGB) oraz Full. Natywnie brak. Generatywne → BUG-10-safe.
+- **`GSAI_WSS`** — Warstwy Standard Short — praktyczny zestaw 42 warstw jednym poleceniem (ustawienia praktyka wg wzorca Roberta: grupy A/E/S/L/W + systemowe, gotowe kolory ACI+RGB, typy linii i grubości pod codzienną robotę). Zakłada tylko te, których w rysunku jeszcze nie ma. Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_SHORT.
 - **`GSAI_ZLICZ`** — Zliczanie obiektów wg kryterium (warstwa/blok/typ) → tabela na rysunku; bloki dynamiczne liczone po nazwie efektywnej (nie po anonimowej *U###).
 
 ## 🟡 W testach — jeszcze NIE na strone
@@ -46,6 +46,7 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - `GSAI_TRASA` — Wskaż polilinię przyłącza → wykaz przeciętych działek (obrysy + numery) w rysunku.
 - `GSAI_WEKTORYZUJ` — Skan rastrowy → polilinie, lokalnie.
 - `GSAI_WLADANIE` — Wskaż punkt → kto włada działką (Skarb Państwa / gmina / osoba fizyczna — bez nazwisk, RODO) + ścieżka „do kogo się zwrócić". Źródło: KIEG (grupa_rejestrowa). Podstawa: §14 rozp. EGiB (Dz.U. 2024/219). Hak — pojedyncza działka.
+- `GSAI_WSF` — Warstwy Standard Full — pełny branżowy zestaw warstw wg normy (A/K/instalacje/Z + systemowe), kolory kolejne z palety indeksu ACI 1–255 do własnego dostrojenia. Panel wyboru branż. Rodzeństwo GSAI_WSS (Short). Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_FULL.
 - `GSAI_WYKAZ` — Wskazana działka + sąsiedzi graniczni → tabela właścicieli/instytucji na rysunku.
 - `GSAI_WYSOKOSC` — Etykieta wysokości H z Numerycznego Modelu Terenu (GUGiK).
 - `GSAI_ZABYTKI` — Wskaż punkt → czy objęty ochroną konserwatorską (NID: zabytek nieruchomy / archeologiczny / UNESCO) + numer rejestru + „wymagane pozwolenie WKZ". Źródło: usługi INSPIRE NID (usluga.zabytek.gov.pl). Podstawa: art. 36 ust. z 23.07.2003 o ochronie zabytków.
