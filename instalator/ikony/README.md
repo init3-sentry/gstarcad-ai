@@ -37,7 +37,7 @@ wyłącznie w wersji macOS.
 GstarCAD znajduje ikonę **wyłącznie po nazwie pliku**, razem z rozszerzeniem. Zła nazwa to przycisk
 bez ikony — bez żadnego komunikatu o błędzie.
 
-Dla komendy `GSAI_IMPORTXYZ` pliki nazywają się:
+Dla komendy `GSAI_XYZ` pliki nazywają się:
 
 ```
 GSAI_IMPORTXYZ_16.bmp

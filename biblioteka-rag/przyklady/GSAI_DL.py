@@ -1,4 +1,4 @@
-# GSAI_DLUGOSC — suma długości zaznaczonych obiektów (port Lee Mac "tlen", www.lee-mac.com).
+# GSAI_DL — suma długości zaznaczonych obiektów (port Lee Mac "tlen", www.lee-mac.com).
 #
 # Ból geodety/projektanta: policzyć ŁĄCZNĄ długość wielu obiektów naraz (linie, łuki,
 # polilinie, okręgi, elipsy, splajny). GstarCAD natywnie nie sumuje długości wielu obiektów
@@ -19,11 +19,11 @@
 # Idiom selekcji jak wzorzec 05 (gcedSSGet -> SSLength -> SSName -> gcdbOpenGcDbEntity).
 # Tylko CZYTA — nic nie zmienia.
 #
-# Użycie: APPLOAD tego pliku -> komenda GSAI_DLUGOSC -> zaznacz obiekty, Enter.
+# Użycie: APPLOAD tego pliku -> komenda GSAI_DL -> zaznacz obiekty, Enter.
 
 # @KATALOG
 # nazwa: Suma długości
-# komenda: GSAI_DLUGOSC
+# komenda: GSAI_DL
 
 from pygcad.core import *
 from pygcad.core.runtime import *
@@ -51,7 +51,7 @@ def _dlugosc_krzywej(entity):
     return None
 
 
-@command(local_name='GSAI_DLUGOSC', global_name='GSAI_TLEN', group_name='GSAI')
+@command(local_name='GSAI_DL', global_name='GSAI_TLEN', group_name='GSAI')
 def dlugosc():
     """Sumuje długość zaznaczonych obiektów (linie/łuki/polilinie/okręgi/elipsy/splajny). Tylko czyta."""
     try:

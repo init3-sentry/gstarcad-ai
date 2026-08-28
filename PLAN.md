@@ -52,7 +52,7 @@ Zanim ktokolwiek napisze zdanie na stronę, do zespołu, do prasy albo do klient
 
 Praca podzielona jest na etapy o konkretnych kryteriach zaliczenia. Etapy częściowo się nakładają — biblioteka wiedzy i narzędzia rosną równolegle, instalator domyka łańcuch dostawy, strona jest bramą do premiery. Kolejność krytyczna (za decyzją 06 §7):
 
-> **`GSAI_IMPORTXYZ` (utwardzenie) → WARSTWY → INSTALATOR → strona-pobieralnia → zliczanie/tabelki → (geodezja / wektoryzacja / ASKAI = zaparkowane).**
+> **`GSAI_XYZ` (utwardzenie) → WARSTWY → INSTALATOR → strona-pobieralnia → zliczanie/tabelki → (geodezja / wektoryzacja / ASKAI = zaparkowane).**
 
 ### Etap 0 — PoC pluginu ASKAI (ZAMKNIĘTY, historyczny)
 
@@ -81,7 +81,7 @@ Praca podzielona jest na etapy o konkretnych kryteriach zaliczenia. Etapy częś
 
 Katalog ma dwie warstwy o różnej funkcji marketingowej:
 
-- **Workhorse — narzędzia „skalowe".** Rozwiązują ból, o który ludzie proszą wprost (dowód popytu z ankiety powebinarowej). Prowadzą w komunikacji, bo popyt jest wyartykułowany. Rdzeń: `GSAI_WARSTWY` (hurtowe czyszczenie + reguła + raport, czego PURGE nie ruszy i dlaczego — demo „437 warstw → 12, jedna komenda"), `GSAI_IMPORTXYZ`, `GSAI_ZAMIEN`, `GSAI_RENUMERUJ`, `GSAI_PRZEDMIAR`, `GSAI_SCHODY`.
+- **Workhorse — narzędzia „skalowe".** Rozwiązują ból, o który ludzie proszą wprost (dowód popytu z ankiety powebinarowej). Prowadzą w komunikacji, bo popyt jest wyartykułowany. Rdzeń: `GSAI_WARSTWY` (hurtowe czyszczenie + reguła + raport, czego PURGE nie ruszy i dlaczego — demo „437 warstw → 12, jedna komenda"), `GSAI_XYZ`, `GSAI_ZAMIEN`, `GSAI_RENUMERUJ`, `GSAI_PRZEDMIAR`, `GSAI_SCHODY`.
 - **Ciekawostki — narzędzia „o, nie wiedziałem, że w CAD tak można".** Nie ściągają funkcjonalnością (bo popyt jest nieartykułowany — nikt o nie nie prosi, bo nikt nie pomyślał, że się da), ale robią efekt „wow" na stronie i w wideo, i pokazują, że AI naprawdę dała nam skrzydła. Trzon: `GSAI_ORNAMENT` (generator wzorów — algorytm rysuje, każdy user dostaje inny zestaw; to jest „idea AI" pokazana wprost), `GSAI_SLONCE` (diagram nasłonecznienia), `GSAI_POLNOC` + `GSAI_PODZIALKA` (ozdobna strzałka północy i podziałka skali).
 
 **Native-first jest obowiązkowy przed każdym narzędziem.** Budujemy tylko to, czego GstarCAD nie umie zrobić **hurtem według reguły** (nie to, czego nie ma w ogóle — bo referencja 697 komend pokazała, że wiele „luk" było fałszem z braku znaleziska). Kryterium: „jest, ale ręcznie, 437 razy" = realny ból; „nie ma i nikt nie prosi" = nie prowadzić tym.
@@ -168,7 +168,7 @@ Trzy kierunki z wersji 1.0 są świadomie odłożone. Parkujemy je, bo odwracaj�
 |---|---|---|
 | **Czat-aplikacja za żetony** (`ai.gstarcad.pl` jako okno rozmowy z modelem, doładowania Przelewy24) | Odwraca ramę „AI po naszej stronie" (0/53 pytań o AI to dowód, że rama działa); model generuje zły kod → „GstarCAD nie działa"; koszt bez sufitu, zero przychodu | Wiarygodność zbudowana narzędziami + realny, zmierzony popyt na samodzielne promptowanie |
 | **Plugin ASKAI dla klienta** (czat wewnątrz GstarCAD) | Ten sam problem złego kodu, ale w rękach klienta bez naszej kontroli; znane usterki (#19 blokada wiersza poleceń, #20/#21 edycje Standard/Pro); drugi front | Jak wyżej — narzędzia najpierw. Wykonalność już mamy (PoC zaliczony) |
-| **Geodezja jako pierwszy front** | ~90% zrobiona i zwalidowana, ale garstka odbiorców vs cały rynek kreślarzy; parkuje na czystej granicy po utwardzeniu `GSAI_IMPORTXYZ` | Wchodzi jako trzon **płatnego pakietu premium** (etap 5), nie jako darmowy front |
+| **Geodezja jako pierwszy front** | ~90% zrobiona i zwalidowana, ale garstka odbiorców vs cały rynek kreślarzy; parkuje na czystej granicy po utwardzeniu `GSAI_XYZ` | Wchodzi jako trzon **płatnego pakietu premium** (etap 5), nie jako darmowy front |
 
 ---
 

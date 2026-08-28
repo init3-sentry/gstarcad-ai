@@ -166,7 +166,7 @@ def _wlasciwosci_warstw(db, warstwy):
     i NIE castujemy. Split test dowiódł, że trucizna sesji (WARSTWY dziala, ale
     następna akcja w GstarCAD wywala program) siedzi w tej fazie. Główny podejrzany:
     `.cast()` — WARSTWY było jedyną komendą z castem i jedyną, która wywalała GS
-    (patrz nagłówek GSAI_DLUGOSC — celowo napisany bez castu z tego powodu).
+    (patrz nagłówek GSAI_DL — celowo napisany bez castu z tego powodu).
 
     Zamiast iterator+cast: otwieram każdą warstwę PO NAZWIE przez `getAt()`, który
     wg stubów zwraca od razu `GcDbLayerTableRecord` (typ warstwy) — więc

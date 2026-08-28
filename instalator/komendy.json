@@ -13,7 +13,7 @@
   "zakladka": "GstarCAD AI",
   "komendy": [
     {
-      "komenda": "GSAI_IMPORTXYZ",
+      "komenda": "GSAI_XYZ",
       "nazwa": "Import współrzędnych",
       "opis": "Wstawia punkty z pliku tekstowego. Format rozpoznaje sam.",
       "panel": "Punkty",

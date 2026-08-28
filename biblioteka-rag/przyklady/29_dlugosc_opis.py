@@ -1,20 +1,20 @@
-# GSAI_DLUGOSC_OPIS — suma długości wskazanych obiektów + ETYKIETA z przedrostkiem na rysunku.
+# GSAI_DL — suma długości wskazanych obiektów + ETYKIETA z przedrostkiem na rysunku.
 #
 # Zadanie #26 (Z-14). Popyt (Jakub, potwierdzony): branża instalacyjna/sieciowa —
 # długości kabli/przewodów, zestawienia materiałowe, kabel między studniami.
 #
 # Native-check (protokół §4): GstarCAD ma MEASUREGEOM (suma długości) i DIST, ale
 # wynik idzie TYLKO do wiersza poleceń — brak natywnej etykiety NA rysunku z przedrostkiem.
-# GSAI_DLUGOSC sumuje luźną selekcję, ale też bez opisu. Ta komenda domyka realną lukę:
+# GSAI_DL sumuje luźną selekcję, ale też bez opisu. Ta komenda domyka realną lukę:
 # suma długości + trwały opis w rysunku z przedrostkiem (np. "Dł.cał. 1234.56").
 #
-# Użycie: APPLOAD w GstarCAD 2026/2027, komenda GSAI_DLUGOSC_OPIS:
+# Użycie: APPLOAD w GstarCAD 2026/2027, komenda GSAI_DL:
 #   1. wskaż obiekty (odcinki/łuki/polilinie), Enter,
 #   2. podaj przedrostek opisu (Enter = domyślny "Dł.cał."),
 #   3. wskaż punkt wstawienia opisu.
 #
 # STATUS WERYFIKACJI:
-#   🟢 selekcja + suma długości: wzorzec z GSAI_DLUGOSC (getEndParam/getDistAtParam,
+#   🟢 selekcja + suma długości: wzorzec z GSAI_DL (getEndParam/getDistAtParam,
 #      fallback length()), bez .cast() (BUG-07), encja w try/finally.
 #   🟡 tworzenie tekstu: wzorzec 07_text_label — GcDbText(punkt, treść) 2-arg + setHeight,
 #      appendGcDbEntity. UDOKUMENTOWANE (v2 przewodnika), ale NIE zweryfikowane
@@ -46,7 +46,7 @@ def _dlugosc_krzywej(entity):
     return None
 
 
-@command(local_name='GSAI_DLUGOSC_OPIS')
+@command(local_name='GSAI_DL')
 def dlugoscOpis():
     """Sumuje długość wskazanych obiektów i wstawia opis z przedrostkiem w rysunku."""
     try:
@@ -140,4 +140,4 @@ def dlugoscOpis():
         gcutPrintf("\nWstawiono opis: \"%s\"   (wysokość %.2f jedn.)" % (tresc, TEXT_HEIGHT))
 
     except Exception as err:
-        gcutPrintf("\n[GSAI_DLUGOSC_OPIS BLAD] %s: %s" % (type(err).__name__, err))
+        gcutPrintf("\n[GSAI_DL BLAD] %s: %s" % (type(err).__name__, err))

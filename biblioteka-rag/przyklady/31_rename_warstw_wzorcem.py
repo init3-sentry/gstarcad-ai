@@ -28,12 +28,12 @@
 #   - komunikaty ASCII (domyslny font gubi PL, #49).
 #   - DRY-RUN najpierw: nic nie zapisujemy, dopoki user nie potwierdzi.
 #
-# Uzycie: APPLOAD -> GSAI_RENAME_WARSTWY. Podajesz co zamienic i na co, widzisz
+# Uzycie: APPLOAD -> GSAI_ZNW. Podajesz co zamienic i na co, widzisz
 #   podglad, potwierdzasz. Nic sie nie dzieje bez potwierdzenia.
 
 # @KATALOG
 # nazwa: Zmiana nazw warstw wzorcem
-# komenda: GSAI_RENAME_WARSTWY
+# komenda: GSAI_ZNW
 # komenda_en: GSAI_RENAMELAYERS
 # branza: ogolne
 # opis: Zmienia nazwy wielu warstw naraz wedlug wzorca (zamien fragment nazwy na inny), z podgladem przed zapisem. Robi to, czego natywne -RENAME nie ma: zamiane w srodku nazwy i wsadowo. Kolizje nazw wykrywa i zglasza. Nic nie zmienia bez potwierdzenia; dziala tylko na warstwach, ktore wolno przemianowac (pomija 0, DEFPOINTS i warstwy z odnosnikow).
@@ -144,7 +144,7 @@ def _plan(warstwy, szukaj, zamien):
     return rename, kolizje, pominiete
 
 
-@command(local_name='GSAI_RENAME_WARSTWY', global_name='GSAI_RENAMELAYERS', group_name='GSAI')
+@command(local_name='GSAI_ZNW', global_name='GSAI_RENAMELAYERS', group_name='GSAI')
 def rename_warstw():
     """Zmiana nazw warstw wzorcem (find->replace), z podgladem i potwierdzeniem."""
     try:

@@ -82,7 +82,7 @@ Moduł jest **fabrycznie wyłączony**. Włącza się raz:
 
 Wpisać **nazwę komendy** (WIELKIMI literami, z [katalogu](NARZEDZIA.md)) i Enter.
 
-> **Komendy mają przedrostek `GSAI_`** — czyli `GSAI_IMPORTXYZ`, nie `IMPORTXYZ`. Zmiana z 14.07.2026, żeby nasze narzędzia nie myliły się z komendami GstarCAD. Starsze nazwy (bez przedrostka) już nie działają.
+> **Komendy mają przedrostek `GSAI_`** — czyli `GSAI_XYZ`, nie `IMPORTXYZ`. Zmiana z 14.07.2026, żeby nasze narzędzia nie myliły się z komendami GstarCAD. Starsze nazwy (bez przedrostka) już nie działają.
 
 ---
 
@@ -90,7 +90,7 @@ Wpisać **nazwę komendy** (WIELKIMI literami, z [katalogu](NARZEDZIA.md)) i Ent
 
 1. Pobrać **[25_import_coordinates.py](biblioteka-rag/przyklady/25_import_coordinates.py)** → `APPLOAD`
 2. Pobrać przykładowe dane: **[wspolrzedne_excel_pl.csv](biblioteka-rag/przyklady/dane-testowe/wspolrzedne_excel_pl.csv)**
-3. W GstarCAD wpisać **`GSAI_IMPORTXYZ`**
+3. W GstarCAD wpisać **`GSAI_XYZ`**
 4. Wskazać pobrany plik `.csv`
 5. Format: wpisać **`NrXY`** → Enter
 6. Wpisać **`ZOOM`**, potem **`E`** — pojawią się cztery punkty z numerami 1–4

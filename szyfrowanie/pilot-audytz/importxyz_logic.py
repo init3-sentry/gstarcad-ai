@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Logika GSAI_IMPORTXYZ -> importxyz_logic.pyd (Cython). NIE importuje pygcad;
+# Logika GSAI_XYZ -> importxyz_logic.pyd (Cython). NIE importuje pygcad;
 # loader podaje globals(), tu globals().update(api). Nazwy API pre-deklarowane (Cython).
 #
 # ⚠️ TO JEST SZABLON WZORCA SZYFROWANIA, NIE DZIAŁAJĄCE NARZĘDZIE.

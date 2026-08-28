@@ -1,5 +1,5 @@
 # GSAI CHROPOWATOSC — symbol struktury geometrycznej powierzchni.
-# GSAI_CHROPOWATOSC : wskaz punkt na powierzchni -> symbol + wartosc (np. "Ra 3.2").
+# GSAI_CHROP : wskaz punkt na powierzchni -> symbol + wartosc (np. "Ra 3.2").
 #
 # NORMA: PN-EN ISO 21920-1:2022 (aktualna; zastapila ISO 1302:2002, wycofana 2021).
 # SYMBOL graficzny (haczyk) jest PRZENIESIONY z ISO 1302 bez zmian -> geometria ponizej
@@ -95,7 +95,7 @@ def _rysuj(px, py, wartosc, typ):
     gcutPrintf("\n[Chropowatosc] symbol wstawiony (h=%.2f, H1=%.2f, H2=%.2f, typ: %s)." % (h, H1, H2, typ))
 
 
-@command(local_name='GSAI_CHROPOWATOSC', global_name='GSAI_ROUGHNESS', group_name='GSAI')
+@command(local_name='GSAI_CHROP', global_name='GSAI_ROUGHNESS', group_name='GSAI')
 def chropowatosc():
     try:
         pt = GcGePoint3d()
