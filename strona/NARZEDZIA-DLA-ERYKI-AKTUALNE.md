@@ -1,9 +1,12 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-02**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-04**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane): **13**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_WMS (🔧 poza strona (w budowie))
+
+Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane): **14**
 
 ## ✅ Na strone (gotowe)
 
@@ -60,6 +63,7 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - `GSAI_PRZK` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.
 - `GSAI_TIN` — Warstwice z chmury punktów (Delaunay). Silnik geo wspólny z PROFIL i free-tier GSAI-Geo — fundament linii geodezyjnej. Czyta zapisane punkty Z → rodzina BUG-10 (pada na plikach klienta). Walidator 🟢, brak runtime-pass; czeka rozwiązanie BUG-10 na LC.
 - `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
+- `GSAI_WMS` — Podkład z usług WMS wprost w rysunku, na prawdziwych współrzędnych: ortofotomapa geoportalu GUGiK + granice/numery działek EGiB + własny URL WMS. Okno wyboru usług + rozdzielczość, obszar = prostokąt (dwa naroża). Silnik osadzania wspólny z GSAI_GEORASTER (obraz siada na współrzędnych, omija słownik obrazów — obejście limitu 1 raster/rysunek, bug producenta 162389). Darmowy magnes: dane geoportalu publiczne (INSPIRE 2007/2/WE + ustawa IIP Dz.U. 2010/76/489 + art. 40a PGiK). Nowe 2026-09-04. Self-test offline 13/13; brak runtime-pass — dostawa do testów zespołu w poniedziałek, potem odbiór praktyka (Robert). Opis (2 wersje) + kafelek = szkic do odbioru Roberta.
 
 ## ⛔ NIE umieszczac (wycofane / zastapione natywnym GstarCAD)
 
