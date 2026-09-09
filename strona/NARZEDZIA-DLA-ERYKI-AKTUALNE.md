@@ -1,9 +1,12 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-09**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-10**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane): **13**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_SKARPA (✅ NA STRONE)
+
+Gotowych na strone: **16** | w testach: **25** | poza strona (w budowie/wycofane): **13**
 
 ## ✅ Na strone (gotowe)
 
@@ -16,6 +19,7 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - **`GSAI_POLA`** — Pole i obwód pól/pomieszczeń: zaznacz oknem albo wskaż pomieszczenie → opis w centroidzie + tabela zbiorcza + eksport CSV. Liczy też na pliku ZAPISANYM od klienta (ścieżka COM, obejście BUG-10). Wchłonęło ZESTAWIENIE i PRZEDMIAR (konsolidacja, Robert ✓).
 - **`GSAI_POMIAR`** — Pomiar z opisem: długości + odległość punkt-punkt, „obwód" w opisie zamkniętej polilinii, linia przerywana skąd-dokąd, przełącznik orientacji opisu. Natywnie brak takiego złożenia.
 - **`GSAI_SCHODY`** — Generator schodów (rzut / łuk / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. Rysuje też po ponownym otwarciu pliku (generatywne → odporne na BUG-10).
+- **`GSAI_SKARPA`** — Oznaczenia skarpy między górnym a dolnym zarysem — kreski długie/krótkie na przemian, rozstaw i długość wg skali rysunku; zarysy = dowolne krzywe (linia/polilinia/łuk). Native-first + COM fallback (BUG-10-świadome, bez castu). Wniosek klienta (P. Szczepański).
 - **`GSAI_SLONCE`** — Diagram nasłonecznienia / ścieżka słońca (biegunowy wykres): szerokość geo + data → horyzont, pierścienie wysokości, azymuty N/E/S/W, ścieżka słońca + przesilenia/równonoc. Okno z dropdownem 18 miast wojewódzkich + ręczna szerokość. v2 06.08: legenda „jak czytać" (praktyk brał to za mapę cienia). Generatywne → BUG-10-safe. Spina z Linijką Słońca. GSAI_SUNPATH = alias.
 - **`GSAI_SPADEK`** — Strzałka spadku + wartość (%/‰/°/1:n) — dachy, tarasy, odwodnienie; tryb ręczny albo auto z różnicy wysokości. Natywnie brak. Generatywne → BUG-10-safe.
 - **`GSAI_WSS`** — Warstwy Standard Short — praktyczny zestaw 42 warstw jednym poleceniem (ustawienia praktyka wg wzorca Roberta: grupy A/E/S/L/W + systemowe, gotowe kolory ACI+RGB, typy linii i grubości pod codzienną robotę). Zakłada tylko te, których w rysunku jeszcze nie ma. Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_SHORT.
