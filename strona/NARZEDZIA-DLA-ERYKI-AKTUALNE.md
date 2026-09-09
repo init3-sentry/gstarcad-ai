@@ -1,12 +1,9 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-04**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-09**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_WMS (🔧 poza strona (w budowie))
-
-Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane): **14**
+Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane): **13**
 
 ## ✅ Na strone (gotowe)
 
@@ -32,7 +29,6 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - `GSAI_BUDYNKI` — Obrysy budynków w okolicy wskazanego punktu (EGiB/BDOT10k).
 - `GSAI_CHROP` — Symbol chropowatości powierzchni (haczyk 60°, warianty usunięcia materiału, półka na dane).
 - `GSAI_DACH` — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Native-first + COM fallback (BUG-10-świadome). Generowania połaci z obrysu nie ma nikt.
-- `GSAI_DL` — Suma długości; _OPIS dokłada etykietę na rysunku.
 - `GSAI_DZIALKI` — Wskaż punkt → obrys działki + numer + powierzchnia (ULDK/EGiB). Podkład.
 - `GSAI_GEOLOGIA` — Wskaż punkt → czy w terenie osuwiskowym / zagrożonym (baza SOPO PIG-PIB) + numer osuwiska + stopień aktywności + zalecenie badania geolog.-inż. ⚠️ SOPO pokrywa głównie Karpaty — poza zasięgiem „brak" ≠ „bezpiecznie". Podstawa: dane SOPO + Eurokod 7 (PN-EN 1997).
 - `GSAI_GEOPORTAL` — Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo.
@@ -48,6 +44,7 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - `GSAI_TRASA` — Wskaż polilinię przyłącza → wykaz przeciętych działek (obrysy + numery) w rysunku.
 - `GSAI_WEKTORYZUJ` — Skan rastrowy → polilinie, lokalnie.
 - `GSAI_WLADANIE` — Wskaż punkt → kto włada działką (Skarb Państwa / gmina / osoba fizyczna — bez nazwisk, RODO) + ścieżka „do kogo się zwrócić". Źródło: KIEG (grupa_rejestrowa). Podstawa: §14 rozp. EGiB (Dz.U. 2024/219). Hak — pojedyncza działka.
+- `GSAI_WMS` — Podkład z usług WMS wprost w rysunku, na prawdziwych współrzędnych: ortofotomapa geoportalu GUGiK + granice/numery działek EGiB + własny URL WMS. Okno wyboru usług + rozdzielczość, obszar = prostokąt (dwa naroża). Silnik osadzania wspólny z GSAI_GEORASTER (obraz siada na współrzędnych, obejście limitu 1 raster/rysunek — bug producenta 162389). Darmowy magnes: dane geoportalu publiczne (INSPIRE 2007/2/WE + ustawa IIP Dz.U. 2010/76/489 + art. 40a PGiK). Przejmuje popyt płatnej wtyczki Wms2Cad (599–799 zł/rok). Kod chroniony (.pyd), zależność gsai_geoportal_core.
 - `GSAI_WSF` — Warstwy Standard Full — pełny branżowy zestaw warstw wg normy (A/K/instalacje/Z + systemowe), kolory kolejne z palety indeksu ACI 1–255 do własnego dostrojenia. Panel wyboru branż. Rodzeństwo GSAI_WSS (Short). Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_FULL.
 - `GSAI_WYKAZ` — Wskazana działka + sąsiedzi graniczni → tabela właścicieli/instytucji na rysunku.
 - `GSAI_WYSOKOSC` — Etykieta wysokości H z Numerycznego Modelu Terenu (GUGiK).
@@ -63,7 +60,6 @@ Gotowych na strone: **15** | w testach: **25** | poza strona (w budowie/wycofane
 - `GSAI_PRZK` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.
 - `GSAI_TIN` — Warstwice z chmury punktów (Delaunay). Silnik geo wspólny z PROFIL i free-tier GSAI-Geo — fundament linii geodezyjnej. Czyta zapisane punkty Z → rodzina BUG-10 (pada na plikach klienta). Walidator 🟢, brak runtime-pass; czeka rozwiązanie BUG-10 na LC.
 - `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
-- `GSAI_WMS` — Podkład z usług WMS wprost w rysunku, na prawdziwych współrzędnych: ortofotomapa geoportalu GUGiK + granice/numery działek EGiB + własny URL WMS. Okno wyboru usług + rozdzielczość, obszar = prostokąt (dwa naroża). Silnik osadzania wspólny z GSAI_GEORASTER (obraz siada na współrzędnych, omija słownik obrazów — obejście limitu 1 raster/rysunek, bug producenta 162389). Darmowy magnes: dane geoportalu publiczne (INSPIRE 2007/2/WE + ustawa IIP Dz.U. 2010/76/489 + art. 40a PGiK). Nowe 2026-09-04. Self-test offline 13/13; brak runtime-pass — dostawa do testów zespołu w poniedziałek, potem odbiór praktyka (Robert). Opis (2 wersje) + kafelek = szkic do odbioru Roberta.
 
 ## ⛔ NIE umieszczac (wycofane / zastapione natywnym GstarCAD)
 
