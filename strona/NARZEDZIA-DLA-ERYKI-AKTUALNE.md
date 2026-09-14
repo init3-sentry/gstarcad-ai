@@ -1,12 +1,14 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-10**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-15**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 ## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_SKARPA (✅ NA STRONE)
+- + NOWE: GSAI_KOL (🟡 w testach (jeszcze nie))
+- + NOWE: GSAI_SKL (🟡 w testach (jeszcze nie))
+- + NOWE: GSAI_ODSWIEZ (🟡 w testach (jeszcze nie))
 
-Gotowych na strone: **16** | w testach: **25** | poza strona (w budowie/wycofane): **13**
+Gotowych na strone: **16** | w testach: **28** | poza strona (w budowie/wycofane): **13**
 
 ## ✅ Na strone (gotowe)
 
@@ -36,14 +38,17 @@ Gotowych na strone: **16** | w testach: **25** | poza strona (w budowie/wycofane
 - `GSAI_DZIALKI` — Wskaż punkt → obrys działki + numer + powierzchnia (ULDK/EGiB). Podkład.
 - `GSAI_GEOLOGIA` — Wskaż punkt → czy w terenie osuwiskowym / zagrożonym (baza SOPO PIG-PIB) + numer osuwiska + stopień aktywności + zalecenie badania geolog.-inż. ⚠️ SOPO pokrywa głównie Karpaty — poza zasięgiem „brak" ≠ „bezpiecznie". Podstawa: dane SOPO + Eurokod 7 (PN-EN 1997).
 - `GSAI_GEOPORTAL` — Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo.
+- `GSAI_KOL` — Menedżer kolejności rysowania wg warstw (rework FAZA 2): przenosi wszystkie obiekty wskazanej warstwy na wierzch albo spód i zapisuje — strzałki góra/dół, sort A→Z, zapisz/odtwórz układ. Działa na zapisanych rysunkach klienta. Native DRAWORDER robi per-obiekt — per-warstwa + persystencja układu to nasza wartość.
 - `GSAI_LEGW` — Wstawia legendę warstw jako tabelę na rysunku: nazwa + próbka koloru + próbka typu linii (graficznie) + szerokość + druk + opis. Pomysł Roberta (robert#13). Natywnie brak. Generatywne → BUG-10-safe.
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
+- `GSAI_ODSWIEZ` — Serwis — sprawdza, czy zestawienia liczone z rysunku (np. pola z GSAI_POLA) są aktualne; nieaktualne opisy zaznacza na czerwono, jednym poleceniem dla wszystkich narzędzi naraz.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG (Studia obowiązują do 31.08.2026) — „brak POG" to poprawny wynik. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJ` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_RZEDNE` — Znacznik rzędnej wysokościowej na przekroju/rzucie — wskaż punkt bazowy ±0,000 (DOWOLNY, nie początek układu), potem kolejne punkty; auto-odczyt Y liczy różnicę. Grot otwarty/zamknięty-w-połowie-czarny wg PN-B-01025:2004 §3.5, każdy znacznik = BLOK. Natywnie brak dedykowanego. Generatywne.
 - `GSAI_RZUT` — Tabliczkowy symbol metody rzutowania 1./3. kąta (ISO 5456-2) — ścięty stożek w dwóch widokach. Natywnie brak. Generatywne.
 - `GSAI_SCHRON` — Checker budowli ochronnej (schron/ukrycie): wskaż zamkniętą polilinię strefy → pole (COM Area) → opcjonalnie liczba osób → sprawdza wymagania WT: min 1 m²/os; wyjścia (>50 os → ≥2, >1000 os → ≥2 poza strefę zagruzowania); wejścia (>300 os → ≥2); podział na strefy (ukrycie ≤300 os, schron S-1 ≤1000 os); dopuszczalność szybu (≤35 m² i ≤10 os); szer. drogi ewakuacyjnej 0,4 m/100 os. Zakres v1: wymiarowy (grubości przegród / wentylacja / dojście ≤500 m poza zakresem). Podstawa: rozp. MSWiA z 4.11.2025 (Dz.U. 2025/1548) + ust. z 5.12.2024 o ochronie ludności (Dz.U. 2024/1907).
+- `GSAI_SKL` — Skala linii warstwy — ustawia skalę rodzaju linii (gęstość kreskowania) dla całej warstwy naraz; natywnie tylko globalnie albo obiekt po obiekcie.
 - `GSAI_TABELKA` — NOWA 07.08 — połowa rozdziału GSAI_FORMATKA: tabliczka rysunkowa ISO 7200 (PL) + pas właściciela (logo + Biuro) jako osobny blok ATTDEF, dla tych bez własnej tabliczki. Szerokość 180 mm (≤180mm, wymóg Roberta), wysokość 57mm. Punkt wstawienia = prawy dolny narożnik (klik, tabliczka rozwija się w lewo/górę — dosuwalna do dowolnego rogu ramki). Guard „tylko Arkusz". Generatywne → BUG-10-safe. Styl TTF GSAI_PL dla polskich znaków.
 - `GSAI_TRASA` — Wskaż polilinię przyłącza → wykaz przeciętych działek (obrysy + numery) w rysunku.
 - `GSAI_WEKTORYZUJ` — Skan rastrowy → polilinie, lokalnie.
