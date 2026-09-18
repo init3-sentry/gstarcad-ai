@@ -44,6 +44,6 @@ Robert wybiera ten, który najlepiej pasuje do jego najbliższych planów szkole
 
 ## Materiały odniesienia
 
-- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md)
+- `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/backend/system-prompt.md` w repozytorium wewnętrznym (poproś Dawida o kopię, jeśli jej nie masz)
 - [`biblioteka-rag/przyklady/`](../biblioteka-rag/przyklady/) — pięć wzorcowych komend Dawida
 - [`PLAN.md`](../PLAN.md) — sekcja o etapie trzecim (galeria mistrzowska), w którą Robert najprawdopodobniej wchodzi naturalnie

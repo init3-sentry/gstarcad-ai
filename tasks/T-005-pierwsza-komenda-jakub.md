@@ -38,6 +38,6 @@ Pierwsza odpowiedź pomocnika prawdopodobnie nie będzie idealna. To jest celowe
 
 ## Materiały odniesienia
 
-- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md)
+- `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/backend/system-prompt.md` w repozytorium wewnętrznym (poproś Dawida o kopię, jeśli jej nie masz)
 - [`biblioteka-rag/przyklady/`](../biblioteka-rag/przyklady/) — pięć wzorcowych komend Dawida (model do naśladowania)
 - [`dla-pomocy-technicznej/04-lekcja-iteracja.md`](../dla-pomocy-technicznej/04-lekcja-iteracja.md) — jak rozmawiać z modelem, kiedy pierwsza odpowiedź nie jest doskonała

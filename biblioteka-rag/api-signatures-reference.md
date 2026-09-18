@@ -2,7 +2,7 @@
 
 Referencja sygnatur API pygcad wyprowadzona z oficjalnych stubów `pygrx.pyi` (443 klasy,
 ~19 tys. sygnatur) z instalacji GstarCAD 2027. **Wydzielona z `przewodnik-systemowy.md`
-przy konsolidacji SoT (2026-07-12):** operacyjny system prompt = `poc-plugin-askai/backend/system-prompt.md`;
+przy konsolidacji SoT (2026-07-12):** operacyjny system prompt = `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/backend/system-prompt.md` (repo wewnętrzne);
 ta referencja to materiał głębszy dla RAG / ludzi — celowo NIE leci w prompcie przy każdym żądaniu
 (zbyt ciężki), ale karmi kolekcję OWUI `gstarcad-ai-knowledge` przez zwykły sync repo.
 

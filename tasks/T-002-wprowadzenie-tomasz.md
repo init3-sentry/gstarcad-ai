@@ -32,4 +32,4 @@ Weryfikacja jest krytyczna dla całego projektu, bo z tych pięciu wzorcowych ko
 
 - Wszystkie lekcje z folderu `dla-pomocy-technicznej/` (jak w T-001)
 - Pięć plików `.py` z folderu `biblioteka-rag/przyklady/`
-- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md) jako referencja, gdyby coś było niejasne w kodzie
+- `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/backend/system-prompt.md` w repozytorium wewnętrznym (poproś Dawida o kopię, jeśli jej nie masz) jako referencja, gdyby coś było niejasne w kodzie

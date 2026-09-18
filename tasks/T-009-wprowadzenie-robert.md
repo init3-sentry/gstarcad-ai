@@ -32,6 +32,6 @@ Robert jest naszym najcenniejszym testerem na tym etapie. Każda jego uwaga doty
 ## Materiały odniesienia
 
 - Wszystkie pliki w folderze [`dla-pomocy-technicznej/`](../dla-pomocy-technicznej/)
-- [`poc-plugin-askai/backend/system-prompt.md`](../poc-plugin-askai/backend/system-prompt.md)
+- `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/backend/system-prompt.md` w repozytorium wewnętrznym (poproś Dawida o kopię, jeśli jej nie masz)
 - [`biblioteka-rag/przyklady/`](../biblioteka-rag/przyklady/) — pięć wzorcowych komend
 - [`PLAN.md`](../PLAN.md) — mapa drogowa, żeby Robert zobaczył perspektywę półroczną i znalazł swoje miejsce

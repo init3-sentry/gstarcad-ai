@@ -34,7 +34,7 @@ Dlatego ta kopia ma trzy role:
 
 ## Potwierdzenie, że to ta sama wersja co w GstarCAD
 
-Aby empirycznie sprawdzić, jakiego dokładnie Pythona ma dana instalacja GstarCAD-a, uruchom w GstarCAD komendę `DIAG_INFO` ze skryptu [`../../poc-plugin-askai/testy-stabilnosci/gstarcad-diag.py`](../../poc-plugin-askai/testy-stabilnosci/gstarcad-diag.py) — zaloguje `sys.version` wbudowanego interpretera do pliku na Pulpicie. Ta wartość to źródło prawdy; niniejszy plik ma jej odpowiadać.
+Aby empirycznie sprawdzić, jakiego dokładnie Pythona ma dana instalacja GstarCAD-a, uruchom w GstarCAD komendę `DIAG_INFO` ze skryptu `gstarcad-diag.py` (repo wewnętrzne, `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/testy-stabilnosci/gstarcad-diag.py`) — zaloguje `sys.version` wbudowanego interpretera do pliku na Pulpicie. Ta wartość to źródło prawdy; niniejszy plik ma jej odpowiadać.
 
 ## Instalacja (tylko dla deweloperów / środowiska dev)
 

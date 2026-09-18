@@ -55,7 +55,23 @@ STMAP = {
     "w_tescie": "🟡 w testach (jeszcze nie)",
     "w_budowie": "🔧 poza strona (w budowie)",
     "wycofane": "⛔ poza strona (wycofane)",
+    "wstrzymane": "🔴 poza strona (wstrzymane — nie obiecywac)",
 }
+
+# Narzedzia zdjete klientowi na wszystkich rynkach — flaga "wstrzymane" w rejestrze rynkowym.
+_REJESTR_RYNKOWY = "/Users/init3.pro/Code/gstarcad-ai-powertools/instalator-gsai/skrypty/rejestr-rynkowy.json"
+
+
+def _wczytaj_wstrzymane():
+    try:
+        with open(_REJESTR_RYNKOWY, encoding="utf-8") as f:
+            r = json.load(f)
+        return {k for k, v in r.get("narzedzia", {}).items() if v.get("wstrzymane")}
+    except Exception:
+        return set()
+
+
+_WSTRZYMANE = _wczytaj_wstrzymane()
 
 CMD_RE = re.compile(r"`\s*(GSAI_[A-Z0-9_]+)\s*`")
 
@@ -115,6 +131,11 @@ def parse(md_path):
         row_status = section_status
         if "~~" in first or "⛔" in line:
             row_status = "wycofane"
+        # WSTRZYMANE (rejestr rynkowy, powertools) = zdjete klientowi na wszystkich rynkach.
+        # Nie jest „gotowe" ani „nadchodzi" — nie wolno tego obiecywac na stronie. Tak wypadl
+        # GSAI_KOL (nie dziala, BUG-12, czeka na fix GstarSoftu). Jedna dzwignia: flaga w rejestrze.
+        if any(c in _WSTRZYMANE for c in cmds):
+            row_status = "wstrzymane"
 
         opis = _clean(cells[1])
         for cmd in cmds:
@@ -155,6 +176,7 @@ def render_eryka(entries, stamp, changes):
     w_tescie = [e for e in entries if e["status"] == "w_tescie"]
     w_budowie = [e for e in entries if e["status"] == "w_budowie"]
     wycofane = [e for e in entries if e["status"] == "wycofane"]
+    wstrzymane = [e for e in entries if e["status"] == "wstrzymane"]
 
     L = []
     L.append("# Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)")
@@ -169,9 +191,18 @@ def render_eryka(entries, stamp, changes):
         for c in changes:
             L.append("- " + c)
         L.append("")
-    L.append("Gotowych na strone: **%d** | w testach: **%d** | poza strona (w budowie/wycofane): **%d**"
-             % (len(gotowe), len(w_tescie), len(w_budowie) + len(wycofane)))
+    L.append("Gotowych na strone: **%d** | w testach: **%d** | poza strona (w budowie/wycofane/wstrzymane): **%d**"
+             % (len(gotowe), len(w_tescie), len(w_budowie) + len(wycofane) + len(wstrzymane)))
     L.append("")
+    if wstrzymane:
+        L.append("## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce")
+        L.append("")
+        L.append("Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go w podreczniku. "
+                 "Nie wiadomo, kiedy wroci. Powod stoi w `NARZEDZIA.md`.")
+        L.append("")
+        for e in sorted(wstrzymane, key=lambda x: x["cmd"]):
+            L.append("- `%s` — %s" % (e["cmd"], e["opis"]))
+        L.append("")
 
     L.append("## ✅ Na strone (gotowe)")
     L.append("")
@@ -225,12 +256,12 @@ def main():
     with open(PREV, "w", encoding="utf-8") as f:
         json.dump(cur_map, f, ensure_ascii=False, indent=2, sort_keys=True)
 
-    n = {"gotowe": 0, "w_tescie": 0, "w_budowie": 0, "wycofane": 0}
+    n = {"gotowe": 0, "w_tescie": 0, "w_budowie": 0, "wycofane": 0, "wstrzymane": 0}
     for e in entries:
-        n[e["status"]] += 1
+        n[e["status"]] = n.get(e["status"], 0) + 1
     print("OK: %s" % os.path.basename(OUT))
-    print("Sparsowano: %d | gotowe: %d | w_tescie: %d | w_budowie: %d | wycofane: %d"
-          % (len(entries), n["gotowe"], n["w_tescie"], n["w_budowie"], n["wycofane"]))
+    print("Sparsowano: %d | gotowe: %d | w_tescie: %d | w_budowie: %d | wycofane: %d | wstrzymane: %d"
+          % (len(entries), n["gotowe"], n["w_tescie"], n["w_budowie"], n["wycofane"], n["wstrzymane"]))
     print("Zmian od ostatniego razu: %d" % len(changes))
     return 0
 

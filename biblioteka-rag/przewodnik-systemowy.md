@@ -6,7 +6,7 @@
 
 | Co | SoT — edytuj TU |
 |---|---|
-| **Operacyjny system prompt** (to, co realnie jedzie do modelu; edycja → deploy → weryfikacja regeneracją) | `poc-plugin-askai/backend/system-prompt.md` |
+| **Operacyjny system prompt** (to, co realnie jedzie do modelu; edycja → deploy → weryfikacja regeneracją) | `gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/backend/system-prompt.md` — **repo wewnętrzne**, nie ten |
 | **Referencja sygnatur API ze stubów** (text/attribute I/O per klasa, atrybuty bloków, handle, input/selection, metody-których-nie-ma) | `biblioteka-rag/api-signatures-reference.md` |
 | **Znane problemy + lekcje** (luki wiązania, hatch przez MPolygon, streaming, modeless…) | `poc-plugin-askai/ZNANE-PROBLEMY.md` |
 

@@ -1,16 +1,20 @@
 # gstarcad-ai
 
-Native Python integration for GstarCAD 2026, delivered with an AI-powered code generator. Built and maintained by **TMSys** (Poland), the official GstarCAD distributor for Poland.
+Native Python tools for GstarCAD 2027. Built and maintained by **TMSys** (Poland), the official GstarCAD distributor for Poland.
 
-GstarCAD 2026 is the only mainstream CAD system in the affordable tier (alongside AutoCAD, BricsCAD, ZWCAD, ARES) that supports native Python with 790+ programming interfaces and a `@command` decorator that turns any Python function into a fully-fledged CAD command via the `APPLOAD` command. This project leverages that capability with three deliverables:
+GstarCAD is the only mainstream CAD system in the affordable tier (alongside AutoCAD, BricsCAD, ZWCAD, ARES) that supports native Python with 790+ programming interfaces and a `@command` decorator that turns any Python function into a fully-fledged CAD command. This project leverages that capability with three deliverables:
 
-1. **A knowledge base for AI models** (`biblioteka-rag/`) — a system prompt and reference materials that teach ChatGPT, Claude, Gemini and other LLMs how to write code that actually works in GstarCAD, rather than hallucinated AutoCAD-style code.
-2. **A web application** (`web-app/`) — a public service at `ai.gstarcad.pl` where any GstarCAD user can describe the command they need in plain language and receive a ready-to-use `.py` file.
-3. **A curated library of master scripts** (`skrypty-mistrzowskie/`) — production-grade Python commands for common engineering tasks: batch layer audits, parametric block generators, PDF export pipelines, drawing diff tools, and more.
+1. **A ready-made tool set for GstarCAD** — an add-in the user installs with one file. It adds commands that do the repetitive work: stair and roof generators, layer standards, area and length take-offs, drawing frames, level marks, map underlays from public Polish geodata.
+2. **A download site** (`web-app/`) — `ai.gstarcad.pl`, where a GstarCAD user gets the installer and the tool catalogue.
+3. **A knowledge base for AI models** (`biblioteka-rag/`) — a system prompt and reference materials that teach ChatGPT, Claude, Gemini and other LLMs how to write code that actually works in GstarCAD, rather than hallucinated AutoCAD-style code.
+
+> **Direction change, July 2026.** An earlier version of this page described a chat service at `ai.gstarcad.pl` that would generate a command from a plain-language description, billed per token. **That model is parked.** It proved to be a curiosity rather than a product. The site is a download page for finished tools instead. See `PRZECZYTAJ-NAJPIERW.md` (revision 2.0) and `PLAN.md`.
 
 ## Project status
 
-Active development. First public release planned for Q3 2026. The repository is built openly — visitors are welcome to read the code, raise issues, and follow progress through the weekly review reports in `przeglady/`.
+**Released.** The first public version shipped on 2 September 2026, together with GstarCAD 2027. Development continues — the repository is built openly, so visitors are welcome to read the code, raise issues, and follow progress through the review reports in `przeglady/`.
+
+The tool catalogue with current status is kept in [`NARZEDZIA.md`](NARZEDZIA.md). ⚠️ `PLAN.md` still carries the roadmap as of 30 July 2026 and has not been revised since the release.
 
 ## Project language
 
@@ -28,33 +32,42 @@ This means that the master `README.md` (this file) is in English so it reaches t
 
 Witamy w projekcie **gstarcad-ai**. Główne dokumenty dla osób polskojęzycznych znajdują się w plikach:
 
+- [`NARZEDZIA.md`](NARZEDZIA.md) — katalog narzędzi: co działa, co jest w testach, co wycofane
 - [`PRZECZYTAJ-NAJPIERW.md`](PRZECZYTAJ-NAJPIERW.md) — wprowadzenie do projektu, do kogo jest skierowany, jak się włączyć
-- [`PLAN.md`](PLAN.md) — szczegółowa mapa drogowa na sześć miesięcy
+- [`PLAN.md`](PLAN.md) — mapa drogowa (⚠️ stan na 30 lipca 2026, nieodświeżona po premierze)
 - [`dla-pomocy-technicznej/`](dla-pomocy-technicznej/) — pakiet wprowadzający dla zespołu pomocy technicznej TMSys
 
-Strona dla użytkowników końcowych (formularz generowania skryptów dla licencyjnych klientów GstarCAD) zostanie uruchomiona pod adresem `ai.gstarcad.pl` w Q3 2026.
+Strona dla użytkowników końcowych działa pod adresem `ai.gstarcad.pl` — stąd pobiera się instalator narzędzi.
 
 ## Repository structure
 
 ```
 gstarcad-ai/
 ├── README.md                          ← this file (English)
+├── NARZEDZIA.md                       ← tool catalogue and acceptance status (Polish)
 ├── PRZECZYTAJ-NAJPIERW.md             ← team onboarding (Polish)
-├── PLAN.md                            ← six-month roadmap (Polish)
+├── PLAN.md                            ← roadmap (Polish; as of 30 July 2026)
 ├── tasks/                             ← individual task descriptions (T-001, T-002, ...)
-├── przeglady/                         ← weekly review reports
+├── przeglady/                         ← review reports
 ├── biblioteka-rag/                    ← AI knowledge base for pygcad
-│   ├── przewodnik-systemowy.md        ← POINTER -> poc-plugin-askai/backend/system-prompt.md (operacyjny SoT)
+│   ├── przewodnik-systemowy.md        ← pointer; the operational system prompt lives in the internal repo
+│   ├── api-signatures-reference.md    ← pygcad API signatures
 │   ├── oficjalne-materialy-gstarcad-2027/ ← official pygcad samples + manual (from the GstarCAD 2027 installation)
-│   └── przyklady/                     ← working .py example commands (5 today, target 20+ by end of July — built up by the support team; see folder README)
-├── poc-plugin-askai/                  ← ASKAI plugin proof of concept (plugin + working FastAPI backend)
-├── web-app/                           ← ai.gstarcad.pl — strona-POBIERALNIA narzędzi (plan; NIE czat-za-tokeny — ten model parked, patrz PLAN.md rew. 2.0)
-│   ├── backend/                       ← FastAPI server, SQLite, Anthropic API
-│   └── frontend/                      ← user-facing Polish form
+│   └── przyklady/                     ← working .py example commands (see folder README)
+├── skrypty/                           ← shipped tool sources
+├── instalator/                        ← installer
+├── strona/                            ← materials for the public site
+├── szyfrowanie/                       ← source protection (Cython)
+├── testy/                             ← tests
+├── tools/                             ← helper tooling (incl. python-runtime notes)
+├── poc-plugin-askai/                  ← ASKAI plugin proof of concept (historical; code moved to the internal repo)
+├── web-app/                           ← ai.gstarcad.pl — the download page
 ├── dla-pomocy-technicznej/            ← onboarding pack for the support team
 ├── dla-marketingu/                    ← Polish-language marketing materials
 └── skrypty-mistrzowskie/              ← master script library
 ```
+
+**Note on `poc-plugin-askai/`.** The folders here are empty — the proof-of-concept code and its system prompt live in the internal repository (`gstarcad-ai-wewnetrzne/produkt-i-badania/poc-plugin-askai/`). Documents in this repo that point at it name the internal path. If you work with the support team and do not have that repo, ask Dawid for a copy.
 
 ## License
 
