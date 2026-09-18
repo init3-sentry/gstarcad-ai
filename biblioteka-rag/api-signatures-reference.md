@@ -196,11 +196,21 @@ Zgrepane w `pygrx.pyi` 2026-07-29, jeszcze nie odpalone — pierwszy skrypt, kt�
 
 | API | Dlaczego ⛔ | Zamiast tego |
 |---|---|---|
-| `.cast()` (np. `GcDbLayerTableRecord.cast(rec)`) | **BUG-07** — nie crashuje od razu, **truje sesję**: następny dostęp do bazy / akcja usera wywala GstarCAD | otwórz rekord typowany wprost: `getAt(nazwa, mode)` zwraca podklasę |
-| `gcedGetReal(prompt, result)` | **BUG-06** — parametr wyjściowy typu prostego, z Pythona nieużywalny | `gcedGetString` + parsowanie float |
-| czytanie geometrii **wczytanych** encji (`getArea`, `getDistAtParam`, `length` na encji z DWG) | **BUG-10** — pygcad nie robi downcastu, encja otwiera się jako bazowy `GcDbEntity`, metody pochodne niedostępne → pada na plikach po ponownym otwarciu | narzędzia **generatywne** (twórz geometrię, nie czytaj cudzej). `getGeomExtents`/`layer()` = metody bazowe, bezpieczne |
+| COM (`win32com`, `GetActiveObject`, `Dispatch`) | **BUG-13** (2026-09-18, build 260827) — GstarCAD nie wystawia się w Running Object Table, więc przyczepienie zwraca `MK_E_UNAVAILABLE`, a kod spadający na `Dispatch` **uruchamia drugi egzemplarz programu i wiesza sesję klienta** | `gsai_downcast_core.as_typed` (wiersz niżej). ⛔ Nie dokładać COM nigdzie |
+| grupy DXF (`gcdbEntGet`) do odczytu **punktów** | **BUG-14** (2026-09-18, build 260827) — unia `gds_u_val` nie ma pola punktowego; dodatkowo odczyt pola niepasującego do numeru grupy **ubija proces bez śladu w dzienniku** | punkty czytaj metodami podklasy po rzutowaniu. Z grup DXF wolno brać wyłącznie pole pasujące do numeru: 0 → `rstring`, 40/50/51 → `rreal`, 70/90 → `rint` |
+| `gcedGetInt`, `gcedGetDist` | parametr wyjściowy typu prostego, jak dawne `gcedGetReal` — **niesprawdzone** | `gcedGetString` + parsowanie |
 
-> **Reguła projektowa, którą to wymusza:** domyślny kształt narzędzia GSAI = **generatywny** (rysuje nową geometrię). To automatycznie omija BUG-10 i większość pułapek odczytu. Odczyt cudzych encji tylko gdy narzędzie naprawdę o to jest, i wtedy tylko metodami bazowymi.
+> **✅ ODBLOKOWANE 2026-09-18 (build 260827) — dwa wpisy wyprowadzone z tej tabeli:**
+>
+> - **`.cast()` — NAPRAWIONY przez producenta** (zgłoszenie 162390, poprawka w buildzie **260813**; zespół potwierdził na dwóch maszynach 19.08, my własnym przebiegiem na **260827**: `GSAI_TEST_CAST`, 5 z 5 wartości zgodnych z wzorcem, sesja żyje po rzutowaniach). Dawny zapis „truje sesję" (BUG-07) stał tu **miesiąc po tym, jak przestał być prawdziwy**, i kosztował dzień objazdu. Cast jest dziś **naszym obejściem BUG-10**.
+> - **Odczyt geometrii z wczytanych encji — DZIAŁA przez rzutowanie.** BUG-10 nadal występuje (encja z zapisanego pliku wraca jako bazowy `GcDbEntity`), ale ma lekarstwo: otwórz encję → `type(ent).__name__ == 'GcDbEntity'` → `gsai_downcast_core.as_typed` → czytaj **normalnie metodami podklasy** (`getArea`, `numVerts`, `getPointAt`, `radius`, `textString`). Zły cast zwraca `None`, więc próbowanie po kolei jest bezpieczne. Osiem narzędzi przeszło na tę drogę 18.09.
+> - ⛔ **Jedyny wyjątek, nadal groźny:** blok **z atrybutami** wczytany z pliku — cast się udaje, ale odczyt atrybutów po nim wywala program (19.08, dwie maszyny, dwa pliki). Dotyczy TABELKI i ZLICZ tam, gdzie czytają atrybuty.
+> - Dla **rekordów tablic symboli** (warstwy itd.) nadal prościej: `getAt(nazwa, mode)` zwraca podklasę od razu, bez rzutowania.
+> - **`gcedGetReal` — NAPRAWIONY** (zgłoszenie 162344, build **260813**; zespół potwierdził na dwóch maszynach 19.08: wpisane 123.45 wróciło jako 123.45). Istniejący kod na `gcedGetString` zostaw — działa wszędzie, w tym na starszych buildach.
+>
+> **Dlaczego to tu stoi, a nie zostało po cichu skasowane:** żeby następny czytelnik zobaczył, że zakaz miał datę i build — i żeby sprawdzał to przy każdym kolejnym. Stan wszystkich ograniczeń z datą i buildem: `gstarcad-ai-wewnetrzne/sdk-bugs/REJESTR-OGRANICZEN.md`.
+
+> **Reguła projektowa:** narzędzie generatywne (rysuje nową geometrię) nadal jest najprostsze i najmniej zależne od SDK. Ale odczyt cudzych encji **nie jest już zakazany** — jest drogą przez `as_typed` i tak działa osiem narzędzi.
 
 ---
 
