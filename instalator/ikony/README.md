@@ -11,7 +11,7 @@ i była w połowie błędna — nie używać.
 |---|---|
 | Format | **BMP, 32 bity z kanałem alfa**. ⛔ **NIE SVG** |
 | Rozmiary | **16 × 16** i **32 × 32** px |
-| Nazwy plików | `<KOMENDA>_16.bmp` i `<KOMENDA>_32.bmp`, np. `GSAI_IMPORTXYZ_16.bmp` |
+| Nazwy plików | `<KOMENDA>_16.bmp` i `<KOMENDA>_32.bmp`, np. `GSAI_XYZ_16.bmp` |
 | Warianty | jasny — ciemny **wstrzymany**, patrz niżej |
 
 Czyli na jedno narzędzie: **2 pliki**. Lista komend jest w `../komendy.json`.
@@ -40,8 +40,8 @@ bez ikony — bez żadnego komunikatu o błędzie.
 Dla komendy `GSAI_XYZ` pliki nazywają się:
 
 ```
-GSAI_IMPORTXYZ_16.bmp
-GSAI_IMPORTXYZ_32.bmp
+GSAI_XYZ_16.bmp
+GSAI_XYZ_32.bmp
 ```
 
 Uruchomienie `python3 gsai-cuix-gen.py` wypisuje, których plików brakuje — co do znaku. To jest
