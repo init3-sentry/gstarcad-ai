@@ -1,6 +1,8 @@
 {
   "GSAI_AKUSTYKA": "w_tescie",
+  "GSAI_ANONIM": "w_budowie",
   "GSAI_AUDYTZ": "gotowe",
+  "GSAI_BLOKI": "w_budowie",
   "GSAI_BUDYNKI": "w_tescie",
   "GSAI_CHROP": "w_tescie",
   "GSAI_CUI": "gotowe",
@@ -14,6 +16,7 @@
   "GSAI_GEORASTER": "w_budowie",
   "GSAI_GML": "w_budowie",
   "GSAI_GRANICA": "gotowe",
+  "GSAI_ILOSCI": "gotowe",
   "GSAI_IMPORT_ATRYBUTOW": "wycofane",
   "GSAI_KOL": "w_tescie",
   "GSAI_LEGW": "w_tescie",
@@ -32,6 +35,7 @@
   "GSAI_PRZEJ": "w_tescie",
   "GSAI_PRZK": "w_budowie",
   "GSAI_RENUMERUJ": "wycofane",
+  "GSAI_RURA": "w_budowie",
   "GSAI_RZEDNE": "gotowe",
   "GSAI_RZUT": "w_tescie",
   "GSAI_SCHODY": "gotowe",
@@ -54,6 +58,7 @@
   "GSAI_XYZ": "gotowe",
   "GSAI_ZABYTKI": "w_tescie",
   "GSAI_ZAMIEN_TEKST": "wycofane",
+  "GSAI_ZAZNACZ": "gotowe",
   "GSAI_ZLICZ": "gotowe",
   "GSAI_ZNAKI": "w_tescie",
   "GSAI_ZNW": "gotowe"

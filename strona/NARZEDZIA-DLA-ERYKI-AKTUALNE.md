@@ -1,15 +1,16 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-09-21**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-01**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 ## 🔔 Co sie zmienilo od ostatniego razu
-- ~ GSAI_TIN: 🟡 w testach (jeszcze nie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
-- ~ GSAI_PROFIL: 🟡 w testach (jeszcze nie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
-- ~ GSAI_DL: 🟡 w testach (jeszcze nie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
-- ~ GSAI_KOL: 🔴 poza strona (wstrzymane — nie obiecywac) -> 🟡 w testach (jeszcze nie)
+- + NOWE: GSAI_ILOSCI (✅ NA STRONE)
+- + NOWE: GSAI_ZAZNACZ (✅ NA STRONE)
+- + NOWE: GSAI_RURA (🔧 poza strona (w budowie))
+- + NOWE: GSAI_ANONIM (🔧 poza strona (w budowie))
+- + NOWE: GSAI_BLOKI (🔧 poza strona (w budowie))
 
-Gotowych na strone: **18** | w testach: **27** | poza strona (w budowie/wycofane/wstrzymane): **13**
+Gotowych na strone: **20** | w testach: **27** | poza strona (w budowie/wycofane/wstrzymane): **16**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -26,6 +27,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_DACH`** — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Działa też na pliku otwartym ponownie (odczyt obrysu native-first + jawne rzutowanie — 2026-09-18, build 260827). Generowania połaci z obrysu nie ma nikt.
 - **`GSAI_FORMATKA`** — Sama ramka rysunkowa ISO 5457 (margines 20 mm lewy / 10 mm pozostałe), formaty A4/A3/A2 (A4 też poziomo), guard „tylko Arkusz", BEZ tabliczki (każda firma ma własną). Natywnie brak w bazie Professional. Generatywne → BUG-10-safe.
 - **`GSAI_GRANICA`** — Opis granicy działki: z zamkniętej polilinii długość i azymut każdego boku + pole i obwód jako tabela na rysunku, opcjonalnie etykiety boków przy geometrii. Azymut w stopniach dziesiętnych / DMS / gradach. Natywnie GstarCAD granicy nie opisuje.
+- **`GSAI_ILOSCI`** — Zestawienie ilości w jednej tabeli: długości linii i polilinii oraz liczba bloków, grupowane po warstwie albo po rodzaju linii („JakWarstwa” liczone jako rodzaj linii warstwy). Okno z listą pozycji, wyszukiwarką, odznaczaniem (linia ciągła odznaczona przy rodzaju), wyborem jednostki rysunku z podpowiedzią z wymiarów, kopiowaniem do Excela. Tabela śledzi zmiany, GSAI_ODSWIEZ przelicza ją w miejscu. Natywnie QSELECT/DATAEXTRACTION — ręcznie, typ po typie.
 - **`GSAI_LINIA`** — Generator złożonego rodzaju linii z wtopionym tekstem (—A—A—); opis wyśrodkowany w przerwie + wybór stylu tekstu. Natywnie brak. Generatywne → BUG-10-safe.
 - **`GSAI_PN`** — Ozdobna strzałka północy — 6 stylów dwutonowych (prosta/strzałka/romb/róża wiatrów/kompas geodezyjny/iglica), panel wyboru z podglądem + wysokość + klik. v2 06.08: wynik jako blok na bieżącej warstwie (obrót przez ROTATE, przesuń/kasuj jako jeden obiekt). Natywnie brak (GstarCAD ma tylko COMPASS/NORTHDIRECTION). Generatywne → BUG-10-safe. GSAI_STRZALKA_GALERIA = wszystkie naraz.
 - **`GSAI_PODZIALKA`** — Podziałka liniowa (skala rysunku) na arkuszu — rysowana w mm w Przestrzeni Papieru. Generatywne → BUG-10-safe.
@@ -37,6 +39,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_SPADEK`** — Strzałka spadku + wartość (%/‰/°/1:n) — dachy, tarasy, odwodnienie; tryb ręczny albo auto z różnicy wysokości. Natywnie brak. Generatywne → BUG-10-safe.
 - **`GSAI_WSS`** — Warstwy Standard Short — praktyczny zestaw 42 warstw jednym poleceniem (ustawienia praktyka wg wzorca Roberta: grupy A/E/S/L/W + systemowe, gotowe kolory ACI+RGB, typy linii i grubości pod codzienną robotę). Zakłada tylko te, których w rysunku jeszcze nie ma. Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_SHORT.
 - **`GSAI_XYZ`** — Plik z Excela/Notatnika ze współrzędnymi → punkty z numerami. Natywnie brak (płatne nakładki = dowód popytu).
+- **`GSAI_ZAZNACZ`** — Wybór ramką wzdłuż osi obróconego USC: w prawo oknem (ramka niebieska), w lewo przecięciem (zielona); ramka obraca się z USC już w trakcie ciągnięcia. Pomija warstwy wyłączone i zamrożone, wynik zostaje zaznaczony dla następnego polecenia (PRZESUŃ, USUŃ…). Natywnie ramka jest zawsze prostokątna do ekranu, obraca się tylko cały widok (PLAN).
 - **`GSAI_ZLICZ`** — Zliczanie obiektów wg kryterium (warstwa/blok/typ) → tabela na rysunku. ⚠️ Bloki dynamiczne liczone pod nazwą ANONIMOWĄ (*U###, G$...) — nazwa efektywna wymaga innej drogi i nie jest zrobiona.
 - **`GSAI_ZNW`** — Hurtowa zmiana nazw warstw wzorcem (find→replace w środku nazwy) z obsługą kolizji. Natywnie GstarCAD tego nie ma — lukę potwierdził na piśmie QA Manager Autodesku (ADR 08). Wartość = hurt/wzorzec, nie pojedyncza warstwa.
 
@@ -72,9 +75,12 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 
 ## 🔧 W budowie — poza strona
 
+- `GSAI_ANONIM` — Bloki bez nazwy (*U###) z DIALuxa i innych eksportów dostają nazwy: narzędzie rozpoznaje, które mają ten sam kształt, i nadaje każdej grupie wspólną nazwę — podaną przez użytkownika (domyślnie SYMBOL_01). Natywnie GstarCAD to potrafi, ale po jednej sztuce (REFEDIT; BEDIT anonimowych nie pokazuje) — przy 77 definicjach to nie jest droga.
+- `GSAI_BLOKI` — Okno ze spisem bloków w rysunku i liczbą sztuk: kliknięcie nazwy podświetla wszystkie egzemplarze i przesuwa na nie widok, strzałki (także klawisze) chodzą po sztukach pojedynczo, wyszukiwarka zawęża listę. Rysunku nie zmienia. Natywny BCOUNT podaje same liczby do wiersza poleceń, bez wskazania miejsca.
 - `GSAI_GEORASTER` — Podkład rastrowy sam siada na prawdziwych współrzędnych. Czyta georeferencję z kompletu źródeł: world file (.tfw/.jgw/.pgw/.wld…), tagi GeoTIFF w samym .tif (skala+tiepoint albo macierz transformacji, układ z GeoKeyDirectory) oraz ESRI .aux.xml + .prj. Osadza natywnym IMAGEATTACH (punkt/skala/obrót z modelu) → omija buga słownika obrazów, na którym utknął GSAI_ORTOFOTO (BUG-05 / downcast 162444). GUI + raport georeferencji + odczyt współrzędnych wskazanego punktu. GstarCAD natywnie tego nie potrafi (ma IMAGEATTACH bez czytania georeferencji). Nowe 2026-08-26. Self-test offline 15/15 (world-file / GeoTIFF / aux.xml); brak runtime-pass na realnym rysunku — czeka odbiór praktyka (Robert). Opis (2 wersje) = szkic do odbioru Roberta.
 - `GSAI_GML` — Import GML EGiB (ewidencja gruntów i budynków): rysuje działki / budynki / kontury użytków / klasy jako zamknięte polilinie i punkty graniczne na warstwach EGIB_*. Czyta układ z srsName, dla PL-2000 / PL-1992 zamienia osie (X=E, Y=N), obsługuje Polygon / Surface-patches / MultiSurface z otworami; opcja przesunięcia do punktu bazowego (wsp. rzędu 7 mln). Alias globalny GSAI_IMPORTGML. MVP. Silnik (gsai_gml_core) przetestowany na realnym pliku EGiB (zsk_2025.gml: 14 działek / 7 budynków / 92 punkty / 89 użytków / 63 klasy, EPSG 2178, swap OK); samo rysowanie w GstarCAD bez runtime-pass — czeka odbiór praktyka (Robert). Opis (2 wersje) = szkic do odbioru Roberta.
 - `GSAI_PRZK` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.
+- `GSAI_RURA` — Osłona kabla krzyżującego uzbrojenie: wskaż trasę (także z kilku osobnych odcinków), a narzędzie rysuje osłonę jako jedną zamkniętą polilinię. Długość z normy — wskazujesz krzyżowany obiekt, narzędzie mierzy jego szerokość i dokłada zapas z obu stron (domyślnie 50 cm, N SEP-E-004 p. 3.1.6.1). Tryb ciągły: kolejne skrzyżowania do ESC. Opcjonalne podpisy R1, R2, R3 z własnym przedrostkiem, numeracja idzie dalej od tej w rysunku.
 - `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
 
 ## ⛔ NIE umieszczac (wycofane / zastapione natywnym GstarCAD)
