@@ -1,16 +1,9 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-01**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-02**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_ILOSCI (✅ NA STRONE)
-- + NOWE: GSAI_ZAZNACZ (✅ NA STRONE)
-- + NOWE: GSAI_RURA (🔧 poza strona (w budowie))
-- + NOWE: GSAI_ANONIM (🔧 poza strona (w budowie))
-- + NOWE: GSAI_BLOKI (🔧 poza strona (w budowie))
-
-Gotowych na strone: **20** | w testach: **27** | poza strona (w budowie/wycofane/wstrzymane): **16**
+Gotowych na strone: **20** | w testach: **29** | poza strona (w budowie/wycofane/wstrzymane): **16**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -27,7 +20,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_DACH`** — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Działa też na pliku otwartym ponownie (odczyt obrysu native-first + jawne rzutowanie — 2026-09-18, build 260827). Generowania połaci z obrysu nie ma nikt.
 - **`GSAI_FORMATKA`** — Sama ramka rysunkowa ISO 5457 (margines 20 mm lewy / 10 mm pozostałe), formaty A4/A3/A2 (A4 też poziomo), guard „tylko Arkusz", BEZ tabliczki (każda firma ma własną). Natywnie brak w bazie Professional. Generatywne → BUG-10-safe.
 - **`GSAI_GRANICA`** — Opis granicy działki: z zamkniętej polilinii długość i azymut każdego boku + pole i obwód jako tabela na rysunku, opcjonalnie etykiety boków przy geometrii. Azymut w stopniach dziesiętnych / DMS / gradach. Natywnie GstarCAD granicy nie opisuje.
-- **`GSAI_ILOSCI`** — Zestawienie ilości w jednej tabeli: długości linii i polilinii oraz liczba bloków, grupowane po warstwie albo po rodzaju linii („JakWarstwa” liczone jako rodzaj linii warstwy). Okno z listą pozycji, wyszukiwarką, odznaczaniem (linia ciągła odznaczona przy rodzaju), wyborem jednostki rysunku z podpowiedzią z wymiarów, kopiowaniem do Excela. Tabela śledzi zmiany, GSAI_ODSWIEZ przelicza ją w miejscu. Natywnie QSELECT/DATAEXTRACTION — ręcznie, typ po typie.
+- **`GSAI_ILOSCI`** — Zestawienie ilości w jednej tabeli: długości linii i polilinii, liczba bloków oraz pole i obwód kreskowań, grupowane po warstwie albo po rodzaju linii („JakWarstwa” liczone jako rodzaj linii warstwy). Na starcie pytanie [Rysunek/Obiekty] (Enter = cały rysunek). Okno z listą pozycji, wyszukiwarką, odznaczaniem (linia ciągła odznaczona przy rodzaju), wyborem kolumn tabeli (długości / sztuki bloków / pola / obwody — jak właściwości w DATAEXTRACTION), wyborem jednostki rysunku z podpowiedzią z wymiarów (nagłówki kolumn zawijane po słowach), kopiowaniem do Excela. Tabela pamiętająca ustawienia czerwienieje, gdy zmieni się rysunek (zmiana liczb, dorysowanie), nie od samego zaznaczenia obiektu, i działa po Ctrl+Z; GSAI_ODSWIEZ przelicza ją w miejscu. Natywnie QSELECT/DATAEXTRACTION — ręcznie, typ po typie.
 - **`GSAI_LINIA`** — Generator złożonego rodzaju linii z wtopionym tekstem (—A—A—); opis wyśrodkowany w przerwie + wybór stylu tekstu. Natywnie brak. Generatywne → BUG-10-safe.
 - **`GSAI_PN`** — Ozdobna strzałka północy — 6 stylów dwutonowych (prosta/strzałka/romb/róża wiatrów/kompas geodezyjny/iglica), panel wyboru z podglądem + wysokość + klik. v2 06.08: wynik jako blok na bieżącej warstwie (obrót przez ROTATE, przesuń/kasuj jako jeden obiekt). Natywnie brak (GstarCAD ma tylko COMPASS/NORTHDIRECTION). Generatywne → BUG-10-safe. GSAI_STRZALKA_GALERIA = wszystkie naraz.
 - **`GSAI_PODZIALKA`** — Podziałka liniowa (skala rysunku) na arkuszu — rysowana w mm w Przestrzeni Papieru. Generatywne → BUG-10-safe.
@@ -40,7 +33,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_WSS`** — Warstwy Standard Short — praktyczny zestaw 42 warstw jednym poleceniem (ustawienia praktyka wg wzorca Roberta: grupy A/E/S/L/W + systemowe, gotowe kolory ACI+RGB, typy linii i grubości pod codzienną robotę). Zakłada tylko te, których w rysunku jeszcze nie ma. Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_SHORT.
 - **`GSAI_XYZ`** — Plik z Excela/Notatnika ze współrzędnymi → punkty z numerami. Natywnie brak (płatne nakładki = dowód popytu).
 - **`GSAI_ZAZNACZ`** — Wybór ramką wzdłuż osi obróconego USC: w prawo oknem (ramka niebieska), w lewo przecięciem (zielona); ramka obraca się z USC już w trakcie ciągnięcia. Pomija warstwy wyłączone i zamrożone, wynik zostaje zaznaczony dla następnego polecenia (PRZESUŃ, USUŃ…). Natywnie ramka jest zawsze prostokątna do ekranu, obraca się tylko cały widok (PLAN).
-- **`GSAI_ZLICZ`** — Zliczanie obiektów wg kryterium (warstwa/blok/typ) → tabela na rysunku. ⚠️ Bloki dynamiczne liczone pod nazwą ANONIMOWĄ (*U###, G$...) — nazwa efektywna wymaga innej drogi i nie jest zrobiona.
+- **`GSAI_ZLICZ`** — Zliczanie obiektów wg kryterium (warstwa / blok / typ) → tabela na rysunku z sumą, od najliczniejszego. Okno z wyborem kryterium, skali i wysokości tekstu; zakres: zaznaczenie albo cały rysunek. Bloki dynamiczne liczone pod nazwą oryginału (ta, którą projektant widzi we właściwościach), nie pod anonimową. W trybie „Blok” każdy wiersz ma miniaturę bloku w komórce, skalowaną do jej wielkości (także dla bloków dynamicznych, np. drzwi z parametrami). GSAI_ZLICZ_ODSWIEZ przelicza tabele „warstwa” i „typ” w miejscu; tabele z miniaturami przelicza się ponownie komendą. Zestawienie zaznacza policzony obszar literą na Defpoints. Zapis zestawienia do arkusza Excela jest w kodzie, ale uśpiony (EKSPORT_ARKUSZA = False, decyzja Dawida 24.09) — klient go dziś nie widzi.
 - **`GSAI_ZNW`** — Hurtowa zmiana nazw warstw wzorcem (find→replace w środku nazwy) z obsługą kolizji. Natywnie GstarCAD tego nie ma — lukę potwierdził na piśmie QA Manager Autodesku (ADR 08). Wartość = hurt/wzorzec, nie pojedyncza warstwa.
 
 ## 🟡 W testach — jeszcze NIE na strone
@@ -49,6 +42,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_BUDYNKI` — Obrysy budynków w okolicy wskazanego punktu (EGiB/BDOT10k).
 - `GSAI_CHROP` — Symbol chropowatości powierzchni (haczyk 60°, warianty usunięcia materiału, półka na dane).
 - `GSAI_DZIALKI` — Wskaż punkt → obrys działki + numer + powierzchnia (ULDK/EGiB). Podkład.
+- `GSAI_EWAKUACJA` — Kontrola drogi ewakuacyjnej wg warunków technicznych (Dz.U. 2022/1225): długość dojścia wobec limitu dla kategorii zagrożenia ludzi i liczby kierunków (§256) oraz wymagana szerokość przejścia dla podanej liczby osób (§242), z porównaniem do szerokości faktycznej. Opcjonalnie wskazujesz polilinię drogi. Okno z parametrami; jednostka rysunku mm / cm / m z podpowiedzią z wymiarów (domyślnie z INSUNITS) — długość do normy zawsze w metrach; polskie litery w oknie, wierszu poleceń i raporcie na rysunku. Wynik: raport + tabelka na rysunku. Wsparcie, nie audyt — ocena należy do projektanta. Czyta też drogę z obiektów z wczytanego pliku (jawne rzutowanie, bramka buildu).
 - `GSAI_GEOLOGIA` — Wskaż punkt → czy w terenie osuwiskowym / zagrożonym (baza SOPO PIG-PIB) + numer osuwiska + stopień aktywności + zalecenie badania geolog.-inż. ⚠️ SOPO pokrywa głównie Karpaty — poza zasięgiem „brak" ≠ „bezpiecznie". Podstawa: dane SOPO + Eurokod 7 (PN-EN 1997).
 - `GSAI_GEOPORTAL` — Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo.
 - `GSAI_KOL` — Menedżer kolejności rysowania wg warstw (rework FAZA 2): przenosi wszystkie obiekty wskazanej warstwy na wierzch albo spód i zapisuje — strzałki góra/dół, sort A→Z, zapisz/odtwórz układ. Działa na zapisanych rysunkach klienta. Native DRAWORDER robi per-obiekt — per-warstwa + persystencja układu to nasza wartość.
@@ -56,6 +50,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_ODSWIEZ` — Serwis — sprawdza, czy zestawienia liczone z rysunku (np. pola z GSAI_POLA) są aktualne; nieaktualne opisy zaznacza na czerwono, jednym poleceniem dla wszystkich narzędzi naraz.
+- `GSAI_ORIENTACYJNY` — Plan orientacyjny odcinka drogi (projekt stałej organizacji ruchu): początek i koniec odcinka wskazane na rysunku albo wpisane (PL-2000 / PL-1992 / WGS84, osie rozpoznawane same), arkusz A4/A3 w skali 1:10 000 / 1:15 000 / 1:25 000, mapa topograficzna GUGiK kolorowa albo czarno-biała (kafelki ~150 dpi, zapisane obok rysunku z world file), odcinek z kreskami i opisem „droga km od–do”, nowy układ z ramką GSAI_FORMATKA, GSAI_TABELKA, podziałką, strzałką północy i atrybucją © GUGiK. Natywnie GstarCAD nie ma WMS ani planu z dwóch punktów. Tylko PL.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG — „brak POG" to poprawny wynik. 🔴 Do sprawdzenia przez człowieka (18.09): notka mówiła, że Studia obowiązują do 31.08.2026. Ta data minęła, a treść nie była od tego czasu weryfikowana. Zanim POG pójdzie do klienta, trzeba sprawdzić w ustawie, jaki jest obecny stan przepisu przejściowego — i czy komunikat narzędzia nadal jest prawdziwy. Nie zgadywać. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJ` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_RZUT` — Tabliczkowy symbol metody rzutowania 1./3. kąta (ISO 5456-2) — ścięty stożek w dwóch widokach. Natywnie brak. Generatywne.
