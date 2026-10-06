@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ai.gstarcad.pl — zmiany 6.10</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--navy:#001e4d;--accent:#3f71ff;--bg:#f2f5f9;--card:#fff;--muted:#4a5878;--chip:#e8eeff;--line:#dbe3f1;
+  --f-d:"Poppins",system-ui,sans-serif;--f-b:"Segoe UI",system-ui,sans-serif;--f-m:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:var(--f-b);font-size:16px;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding:40px 20px 64px;display:grid;gap:36px}
+h1,h2,h3{font-family:var(--f-d);font-weight:500;margin:0;text-wrap:balance}
+h1{font-size:30px}h2{font-size:22px}h3{font-size:17px;font-weight:600}
+p{margin:0;max-width:70ch}
+section{display:grid;gap:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-d);font-weight:500;font-size:13px;color:var(--muted)}
+code,.m{font-family:var(--f-m);font-size:.88em}
+.tab{overflow-x:auto}
+ol,ul{margin:0;padding-left:22px;display:grid;gap:6px}
+pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto;font-family:var(--f-m);font-size:13px;margin:0}
+.etyk{font-family:var(--f-d);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+/* komponent */
+.glos{background:var(--card);border-radius:21px;box-shadow:0 10px 30px rgba(63,113,255,.12);padding:28px 36px;display:grid;grid-template-columns:auto 1fr;gap:6px 22px;max-width:820px;margin:0 auto;width:100%}
+.glos-znak{font-family:var(--f-d);font-size:64px;line-height:.8;color:var(--accent);font-weight:600;grid-row:span 3}
+.glos-cytat{font-family:var(--f-d);font-weight:500;font-size:24px;line-height:1.35;margin:0}
+.glos-stopka{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:15px;color:var(--muted);margin-top:8px}
+.glos-podpis{font-weight:600;color:var(--navy)}
+.chip{display:inline-flex;background:var(--chip);color:var(--accent);border-radius:999px;padding:4px 12px;font-family:var(--f-m);font-size:13px;text-decoration:none}
+.duch{border:1px dashed #c3cde0;border-radius:18px;padding:12px;text-align:center;color:#8a97b3;font-size:13px;font-family:var(--f-d)}
+.duch.c{background:#0e1a3d;border:none;color:#9fb2ea}
+.strona{background:linear-gradient(#fff,var(--bg));border:1px solid var(--line);border-radius:12px;padding:24px 16px;display:grid;gap:20px}
+@media (max-width:560px){.glos{grid-template-columns:1fr;padding:22px 18px}.glos-znak{grid-row:auto;font-size:48px}.glos-cytat{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:8px">
+  <div class="etyk">ai.gstarcad.pl · zmiany · 6 października 2026</div>
+  <h1>Nowe karty, filmy i opinie użytkowników</h1>
+  <p><b>Kto co robi:</b> Eryka — teksty i akcept treści (punkty 1–2 i 3a); Kateryna — wdrożenie w kodzie po akcepcie Eryki (punkty 1–4, szczegóły techniczne w punkcie 3b i 5); Ewa — do wiadomości, akcept całości.</p>
+  <p>Od 1 września na stronie nic się nie zmieniało, a w programie doszło kilka narzędzi. Poniżej wszystko naraz: sześć nowych kart, zmiany na istniejących kartach, nowe filmy w dwóch formatach i nowy blok z opinią użytkownika. Aktualna lista narzędzi jest jak zwykle w <code>NARZEDZIA-DLA-ERYKI-AKTUALNE.md</code> (30 narzędzi „na stronę”).</p>
+</header>
+
+<section>
+  <h2>1. Sześć nowych kart <small style="font-weight:400;color:#4a5878">— Eryka: teksty · Kateryna: karty</small></h2>
+  <p>Karty jak dotychczasowe w bibliotece. Treść sekcji „Kiedy użyć? / Co robi? / Jak użyć?” z załączonych opisów <code>GSAI_&lt;nazwa&gt;.md</code> (wersja 2, rozwinięta). Adres karty jak w ostatniej kolumnie. Adres karty WMS jest już zapisany w pliku opinii, prosimy go nie zmieniać.</p>
+  <div class="box tab"><table>
+    <tr><th>Narzędzie</th><th>Kategoria</th><th>Jedno zdanie (wersja 1)</th><th>Film</th><th>Adres</th></tr>
+    <tr><td><code>GSAI_ILOSCI</code><br>Zestawienie ilości</td><td>Pomiary i zestawienia</td><td>Jedna tabela po warstwach albo po rodzaju linii: długości linii i polilinii, liczba bloków oraz pole i obwód kreskowań. Sam wybierasz, które kolumny trafią do tabeli.</td><td>gotowy (w załączniku)</td><td><code>/biblioteka/gsai_ilosci/</code></td></tr><tr><td><code>GSAI_RURA</code><br>Rura</td><td>Architektura i rysunek</td><td>Wskazujesz trasę kabla i mówisz, gdzie ma iść osłona, a narzędzie rysuje ją tylko na tym odcinku. Możesz też wskazać, co kabel krzyżuje, i dostać długość policzoną za Ciebie.</td><td>gotowy (w załączniku)</td><td><code>/biblioteka/gsai_rura/</code></td></tr><tr><td><code>GSAI_WMS</code><br>Podkład WMS (geoportal)</td><td>Kontekst działki</td><td>Ortofotomapa i granice działek prosto z geoportalu GUGiK, wczytane w rysunku na właściwych współrzędnych. Zdjęcie widać pod działkami, numery czytelne. GstarCAD sam tego nie potrafi. Za darmo.</td><td>gotowy (w załączniku)</td><td><code>/biblioteka/gsai_wms/</code></td></tr><tr><td><code>GSAI_ZAZNACZ</code><br>Zaznaczanie w obróconym USC</td><td>Porządek w rysunku</td><td>Ramka wyboru ułożona wzdłuż osi obróconego układu współrzędnych: w prawo zaznacza oknem, w lewo przecięciem. Zaznaczone obiekty bierze od razu następne polecenie, np. PRZESUŃ.</td><td>dziś, dośle</td><td><code>/biblioteka/gsai_zaznacz/</code></td></tr><tr><td><code>GSAI_TABELKA</code><br>Tabliczka rysunkowa</td><td>Dokumentacja rysunku</td><td>Gotowa tabliczka dla tych, którzy nie mają własnej, jako blok z polami do wypełnienia. Punkt wstawienia to prawy dolny róg, więc dosuwasz ją do narożnika ramki bez przeliczania współrzędnych.</td><td>dziś, dośle</td><td><code>/biblioteka/gsai_tabelka/</code></td></tr><tr><td><code>GSAI_KOL</code><br>Kolejność rysowania</td><td>Porządek w rysunku</td><td>Ustalasz, która warstwa jest rysowana nad którą, i zapisujesz ten układ w rysunku. Koniec z kreskowaniem zasłaniającym opisy albo podkładem na wierzchu projektu.</td><td>dziś, dośle</td><td><code>/biblioteka/gsai_kol/</code></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2>2. Zmiany na istniejących kartach <small style="font-weight:400;color:#4a5878">— Eryka: akcept · Kateryna: wdrożenie</small></h2>
+  <ul>
+    <li><b>GSAI_RZEDNE:</b> kategoria „Architektura i rysunek” zamiast „Dokumentacja rysunku”, tak jak w programie.</li>
+    <li><b>GSAI_GEORASTER:</b> karta nie ma filmu. Nowy film w załączniku.</li>
+    <li><b>GSAI_DACH:</b> nowy film w załączniku pokazuje dzisiejsze okno i pięć rodzajów dachu. Prosimy podmienić stary.</li>
+    <li>Pozostałe karty bez zmian w treści. Nowe filmy do nich dosyłamy dziś po kolei (punkt 4).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>3. Blok „Głos z praktyki” (opinie użytkowników)</h2>
+  <p><b>3a — Eryka:</b> miejsce i wygląd bloku jak na makiecie poniżej; treść opinii jest już zaakceptowana przez autora i idzie dosłownie.</p>
+  <h3>Gdzie</h3>
+  <ul>
+    <li><b>Strona główna:</b> między sekcją „Od pomysłu do gotowego rozwiązania” a granatowym banerem „Przejdź do biblioteki gotowych narzędzi GstarCAD”.</li>
+    <li><b>Karta narzędzia:</b> pod „Jak użyć?”, z nagłówkiem „Co mówią użytkownicy”, tylko gdy w pliku jest opinia o tym narzędziu (pole <code>narzedzie</code> = nazwa komendy karty). Na razie dotyczy tylko GSAI_WMS.</li>
+  </ul>
+
+  <h3>Jak wygląda (strona główna)</h3>
+  <div class="strona">
+    <div class="duch">Od pomysłu do gotowego rozwiązania · 1. Pomysł · 2. Analiza · 3. Decyzja · 4. Gotowe narzędzie</div>
+    <figure class="glos" style="margin:0">
+      <div class="glos-znak" aria-hidden="true">„</div>
+      <div class="etyk">Głos z praktyki</div>
+      <blockquote class="glos-cytat">GSAI_WMS działa super, warto tą funkcjonalność dalej rozwijać.</blockquote>
+      <figcaption class="glos-stopka">
+        <span class="glos-podpis">Przemek, branża mostowa</span>
+        <a class="chip" href="https://ai.gstarcad.pl/biblioteka/gsai_wms/">GSAI_WMS · podkład z geoportalu</a>
+        <span>wrzesień 2026</span>
+      </figcaption>
+    </figure>
+    <div class="duch c">Przejdź do biblioteki gotowych narzędzi GstarCAD</div>
+  </div>
+  <div class="box">
+    <h3>Wygląd w szczegółach</h3>
+    <ul>
+      <li>Biała karta, zaokrąglenie 21 px, miękki niebieski cień jak przy innych kartach. Szerokość do ok. 820 px, wyśrodkowana.</li>
+      <li>Duży cudzysłów „ w kolorze akcentu <code>#3F71FF</code>, Poppins.</li>
+      <li>Etykieta „GŁOS Z PRAKTYKI”: 12 px, wersaliki, lekkie rozstrzelenie, kolor akcentu.</li>
+      <li>Cytat: Poppins 500, ok. 24 px (na telefonie 20 px), kolor tekstu <code>#001E4D</code>.</li>
+      <li>Stopka: podpis pogrubiony, obok „chip” z nazwą narzędzia (link do karty), obok miesiąc słownie.</li>
+      <li>Na karcie narzędzia: ta sama karta bez cienia, z cienką ramką, cytat ok. 19 px, bez chipu (jesteśmy już na karcie tego narzędzia).</li>
+      <li>Bez nagłówka „Opinie”, bez karuzeli, bez kropek, bez zdjęć.</li>
+    </ul>
+  </div>
+
+  <h3>3b — Kateryna: jak wdrożyć (dwie drogi, wybierz jedną)</h3>
+  <div class="box">
+    <p><b>Droga A — gotowa ramka (najprościej, jak changelog).</b> Widżet jest już na naszym serwerze, w kroju strony (Poppins), sprawdzony: odpowiada z nagłówkiem pozwalającym na osadzenie w ramce.</p>
+    <pre>&lt;!-- strona główna, między „Od pomysłu…” a banerem biblioteki --&gt;
+&lt;iframe src="https://upd.tmsys.pl/opinie/widget.html?rynek=PL"
+        title="Głos z praktyki" loading="lazy"
+        style="width:100%;max-width:860px;border:0;display:block;margin:0 auto;height:230px"&gt;&lt;/iframe&gt;
+
+&lt;!-- karta GSAI_WMS, pod „Jak użyć?” --&gt;
+&lt;iframe src="https://upd.tmsys.pl/opinie/widget.html?rynek=PL&amp;narzedzie=GSAI_WMS"
+        title="Co mówią użytkownicy" loading="lazy"
+        style="width:100%;max-width:800px;border:0;display:block;height:190px"&gt;&lt;/iframe&gt;</pre>
+    <ul>
+      <li>Wysokość: ramka sama się nie dopasuje. Na komputerze wystarczy ok. 230 px (karta 190 px), na telefonie (szerokość do 560 px) ustaw ok. 320 px (karta 280 px), np. przez media query w CSS motywu.</li>
+      <li><code>?rynek=PL</code> wpisz zawsze jawnie. Na stronie DE będzie <code>?rynek=DE</code>, na RO <code>?rynek=RO</code> (dziś tam nie ma jeszcze opinii, więc ramka jest pusta — nie wstawiaj jej na DE/RO, dopóki nie damy znać).</li>
+      <li>Gdy opinii nie ma, widżet nic nie rysuje, ale ramka zajmuje miejsce. Dlatego na razie wstawiamy ją tylko tam, gdzie opinia jest (strona główna PL i karta WMS).</li>
+    </ul>
+    <p><b>Droga B — natywnie w motywie (lepiej wygląda, wysokość dopasowuje się sama), jeśli możesz dopisać PHP do motywu.</b> Plik danych: <code>https://upd.tmsys.pl/opinie/opinie.json</code> (DE: <code>opinie-DE.json</code>, RO: <code>opinie-RO.json</code>). Pobieraj po stronie serwera, nie skryptem w przeglądarce:</p>
+    <pre>function gsai_opinie($rynek = 'PL') {
+  $plik = $rynek === 'PL' ? 'opinie.json' : 'opinie-' . $rynek . '.json';
+  $klucz = 'gsai_opinie_' . $rynek;
+  $dane = get_transient($klucz);
+  if ($dane === false) {
+    $r = wp_remote_get('https://upd.tmsys.pl/opinie/' . $plik, ['timeout' =&gt; 5]);
+    $dane = is_wp_error($r) ? ['opinie' =&gt; []] : json_decode(wp_remote_retrieve_body($r), true);
+    set_transient($klucz, $dane, HOUR_IN_SECONDS);
+  }
+  return $dane['opinie'] ?? [];
+}</pre>
+    <ul>
+      <li>Pola każdej opinii: <code>cytat</code>, <code>podpis</code>, <code>narzedzie</code>, <code>narzedzie_opis</code>, <code>karta_url</code> (może być <code>null</code>), <code>miesiac</code> (RRRR-MM, na stronie słownie: „wrzesień 2026”).</li>
+      <li>Wygląd jak na makiecie wyżej; wartości CSS są w pliku <code>widget.html</code> (link wyżej — „Pokaż źródło” w przeglądarce).</li>
+      <li>Pusta lista = bloku nie ma (cała sekcja znika).</li>
+    </ul>
+  </div>
+<h3>Zasady</h3>
+  <ul>
+    <li><b>0 opinii:</b> blok nie pojawia się wcale.</li>
+    <li><b>1 opinia:</b> jak na makiecie.</li>
+    <li><b>2 i więcej:</b> nadal jeden blok, jedna losowa opinia przy każdym wczytaniu.</li>
+    <li><code>cytat</code> i <code>podpis</code> pokazujemy dokładnie tak, jak są w pliku, bez skracania i poprawiania. Autor sam wybrał podpis i zgodził się na publikację.</li>
+    <li><code>karta_url</code> pusty (<code>null</code>) = chip bez linku, w szarym kolorze.</li>
+    <li><code>miesiac</code> w formacie RRRR-MM, na stronie słownie: „wrzesień 2026”.</li>
+    <li>Zmiany treści albo usunięcie opinii robimy u nas w pliku, na stronie nic nie trzeba ruszać.</li>
+  </ul>
+</section>
+
+
+<section>
+  <h2>4. Filmy: dziś po dwie wersje do każdego narzędzia z widocznym efektem <small style="font-weight:400;color:#4a5878">— Kateryna</small></h2>
+  <p>Każdy film ma dwie wersje: poziomą <code>_16x9</code> na kartę i pionową <code>_9x16</code> („telefoniczną”) do wersji mobilnej i mediów społecznościowych. Napisy są wtopione w obraz, w tle ta sama muzyka co w filmach GstarCAD. Nazwy plików: <code>GSAI_&lt;NAZWA&gt;_PL_16x9.mp4</code> i <code>GSAI_&lt;NAZWA&gt;_PL_9x16.mp4</code>.</p>
+  <ul>
+    <li><b>Gotowe, w załączniku:</b> DACH, GEORASTER, ILOSCI, RURA, WMS.</li>
+    <li><b>Dziś, w paczkach po kilka:</b> POLA, ZLICZ, SCHODY, POMIAR, ZAZNACZ, TABELKA, KOL, PN, SLONCE, SPADEK, PODZIALKA, FORMATKA, RZEDNE, GRANICA, LINIA, XYZ, CHROP, RZUT, SKL, GML. Każdy nowy film zastępuje dotychczasowy na karcie.</li>
+    <li><b>Bez nowego filmu</b> (efektu nie widać na rysunku): CUI, AUDYTZ, WSS, ZNW. Zostają ich obecne filmy.</li>
+    <li>Wersje niemieckie i rumuńskie przyjdą później, po komplecie polskich.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5. Sprawdzenie po wdrożeniu <small style="font-weight:400;color:#4a5878">— Kateryna, potem my</small></h2>
+  <ul>
+    <li>Strona główna PL: blok widać między „Od pomysłu…” a banerem, polskie znaki poprawne, na telefonie tekst się nie ucina.</li>
+    <li>Karta WMS: blok pod „Jak użyć?”, bez chipu z nazwą narzędzia.</li>
+    <li>Nowe karty: adresy z tabeli w punkcie 1 otwierają się, film gra w obu wersjach.</li>
+    <li>Zmiany w treści opinii i filmów nie wymagają zmian w kodzie strony — idą przez nasze pliki na serwerze (tak jak changelog). Nie trzeba linku do GitHuba.</li>
+    <li>Po naszej stronie: zmieniamy krój widżetu „Co nowego” na Poppins, żeby pasował do strony (bez zmian w osadzeniu).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>W załączniku</h2>
+  <ul>
+    <li>filmy: <code>GSAI_DACH</code>, <code>GSAI_GEORASTER</code>, <code>GSAI_ILOSCI</code>, <code>GSAI_RURA</code>, <code>GSAI_WMS</code> (po dwa pliki)</li>
+    <li>opisy: <code>GSAI_ILOSCI.md</code>, <code>GSAI_RURA.md</code>, <code>GSAI_WMS.md</code>, <code>GSAI_ZAZNACZ.md</code>, <code>GSAI_TABELKA.md</code>, <code>GSAI_KOL.md</code></li>
+    <li>ikony narzędzi z wstążki GstarCAD (32 px), jeśli przydadzą się na kartach</li>
+    <li>ten dokument</li>
+  </ul>
+  <p>Po wdrożeniu prosimy o linki do nowych kart i do strony głównej. Sprawdzimy i zapiszemy publikację opinii u siebie.</p>
+</section>
+</div>
+</body>
+</html>
