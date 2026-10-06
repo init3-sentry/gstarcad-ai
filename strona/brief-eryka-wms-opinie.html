@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karta GSAI_WMS i Głos z praktyki</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--navy:#001e4d;--accent:#3f71ff;--bg:#f2f5f9;--card:#fff;--muted:#4a5878;--chip:#e8eeff;--line:#dbe3f1;
+  --f-d:"Poppins",system-ui,sans-serif;--f-b:"Segoe UI",system-ui,sans-serif;--f-m:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:var(--f-b);font-size:16px;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding:40px 20px 64px;display:grid;gap:36px}
+h1,h2,h3{font-family:var(--f-d);font-weight:500;margin:0;text-wrap:balance}
+h1{font-size:30px}h2{font-size:22px}h3{font-size:17px;font-weight:600}
+p{margin:0;max-width:70ch}
+section{display:grid;gap:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-d);font-weight:500;font-size:13px;color:var(--muted)}
+code,.m{font-family:var(--f-m);font-size:.88em}
+.tab{overflow-x:auto}
+ol,ul{margin:0;padding-left:22px;display:grid;gap:6px}
+pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto;font-family:var(--f-m);font-size:13px;margin:0}
+.etyk{font-family:var(--f-d);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+/* komponent */
+.glos{background:var(--card);border-radius:21px;box-shadow:0 10px 30px rgba(63,113,255,.12);padding:28px 36px;display:grid;grid-template-columns:auto 1fr;gap:6px 22px;max-width:820px;margin:0 auto;width:100%}
+.glos-znak{font-family:var(--f-d);font-size:64px;line-height:.8;color:var(--accent);font-weight:600;grid-row:span 3}
+.glos-cytat{font-family:var(--f-d);font-weight:500;font-size:24px;line-height:1.35;margin:0}
+.glos-stopka{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:15px;color:var(--muted);margin-top:8px}
+.glos-podpis{font-weight:600;color:var(--navy)}
+.chip{display:inline-flex;background:var(--chip);color:var(--accent);border-radius:999px;padding:4px 12px;font-family:var(--f-m);font-size:13px;text-decoration:none}
+.duch{border:1px dashed #c3cde0;border-radius:18px;padding:12px;text-align:center;color:#8a97b3;font-size:13px;font-family:var(--f-d)}
+.duch.c{background:#0e1a3d;border:none;color:#9fb2ea}
+.strona{background:linear-gradient(#fff,var(--bg));border:1px solid var(--line);border-radius:12px;padding:24px 16px;display:grid;gap:20px}
+@media (max-width:560px){.glos{grid-template-columns:1fr;padding:22px 18px}.glos-znak{grid-row:auto;font-size:48px}.glos-cytat{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:8px">
+  <div class="etyk">ai.gstarcad.pl · zlecenie · 6 października 2026</div>
+  <h1>Karta GSAI_WMS i blok „Głos z praktyki”</h1>
+  <p>Dwie rzeczy: nowa karta narzędzia GSAI_WMS w bibliotece i nowy blok z opinią użytkownika. Opinia pochodzi z pliku na naszym serwerze, tak jak changelog, więc tekstu nie wpisujesz ręcznie.</p>
+</header>
+
+<section>
+  <h2>1. Karta GSAI_WMS</h2>
+  <p>Narzędzie przeszło odbiór i jest na liście „Na stronę” w NARZEDZIA-DLA-ERYKI-AKTUALNE.md. Karta jak pozostałe karty w bibliotece.</p>
+  <div class="box tab">
+    <table>
+      <tr><th>Element</th><th>Treść</th></tr>
+      <tr><td>Adres</td><td><code>/biblioteka/gsai_wms/</code> (ten adres jest już zapisany w pliku opinii, prosimy go nie zmieniać)</td></tr>
+      <tr><td>Nagłówek</td><td><code>GSAI_WMS</code></td></tr>
+      <tr><td>Kategoria</td><td>Geodezja, narzędzie darmowe</td></tr>
+      <tr><td>Jedno zdanie</td><td>Ortofotomapa i granice działek prosto z geoportalu GUGiK, wczytane w rysunku na właściwych współrzędnych. Zdjęcie widać pod działkami, numery czytelne. GstarCAD sam tego nie potrafi. Za darmo.</td></tr>
+      <tr><td>Film</td><td><code>GSAI_WMS_PL_16x9.mp4</code> w załączniku (45 s, z muzyką). Do wersji mobilnej jest <code>GSAI_WMS_PL_9x16.mp4</code>.</td></tr>
+      <tr><td>Kiedy użyć? / Co robi? / Jak użyć?</td><td>Z sekcji „Do czego”, „Co daje” i „Dobrze wiedzieć” w załączonym opisie <code>GSAI_WMS.md</code> (wersja 2, rozwinięta), tak jak przy innych kartach.</td></tr>
+      <tr><td>Pod „Jak użyć?”</td><td>Blok „Głos z praktyki” z punktu 2, wariant na karcie.</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>2. Blok „Głos z praktyki”</h2>
+  <h3>Gdzie</h3>
+  <ul>
+    <li><b>Strona główna:</b> między sekcją „Od pomysłu do gotowego rozwiązania” a granatowym banerem „Przejdź do biblioteki gotowych narzędzi GstarCAD”.</li>
+    <li><b>Karta narzędzia:</b> pod „Jak użyć?”, z nagłówkiem „Co mówią użytkownicy”, tylko gdy w pliku jest opinia o tym narzędziu (pole <code>narzedzie</code> = nazwa komendy karty). Na razie dotyczy tylko GSAI_WMS.</li>
+  </ul>
+
+  <h3>Jak wygląda (strona główna)</h3>
+  <div class="strona">
+    <div class="duch">Od pomysłu do gotowego rozwiązania · 1. Pomysł · 2. Analiza · 3. Decyzja · 4. Gotowe narzędzie</div>
+    <figure class="glos" style="margin:0">
+      <div class="glos-znak" aria-hidden="true">„</div>
+      <div class="etyk">Głos z praktyki</div>
+      <blockquote class="glos-cytat">GSAI_WMS działa super, warto tą funkcjonalność dalej rozwijać.</blockquote>
+      <figcaption class="glos-stopka">
+        <span class="glos-podpis">Przemek, branża mostowa</span>
+        <a class="chip" href="https://ai.gstarcad.pl/biblioteka/gsai_wms/">GSAI_WMS · podkład z geoportalu</a>
+        <span>wrzesień 2026</span>
+      </figcaption>
+    </figure>
+    <div class="duch c">Przejdź do biblioteki gotowych narzędzi GstarCAD</div>
+  </div>
+  <div class="box">
+    <h3>Wygląd w szczegółach</h3>
+    <ul>
+      <li>Biała karta, zaokrąglenie 21 px, miękki niebieski cień jak przy innych kartach. Szerokość do ok. 820 px, wyśrodkowana.</li>
+      <li>Duży cudzysłów „ w kolorze akcentu <code>#3F71FF</code>, Poppins.</li>
+      <li>Etykieta „GŁOS Z PRAKTYKI”: 12 px, wersaliki, lekkie rozstrzelenie, kolor akcentu.</li>
+      <li>Cytat: Poppins 500, ok. 24 px (na telefonie 20 px), kolor tekstu <code>#001E4D</code>.</li>
+      <li>Stopka: podpis pogrubiony, obok „chip” z nazwą narzędzia (link do karty), obok miesiąc słownie.</li>
+      <li>Na karcie narzędzia: ta sama karta bez cienia, z cienką ramką, cytat ok. 19 px, bez chipu (jesteśmy już na karcie tego narzędzia).</li>
+      <li>Bez nagłówka „Opinie”, bez karuzeli, bez kropek, bez zdjęć.</li>
+    </ul>
+  </div>
+
+  <h3>Skąd dane</h3>
+  <div class="box">
+    <p>Plik JSON na naszym serwerze, aktualizowany przez nas:</p>
+    <ul>
+      <li>PL: <code>https://upd.tmsys.pl/opinie/opinie.json</code></li>
+      <li>DE: <code>https://upd.tmsys.pl/opinie/opinie-DE.json</code>, RO: <code>https://upd.tmsys.pl/opinie/opinie-RO.json</code> (na razie puste — strona DE/RO nie pokazuje bloku)</li>
+    </ul>
+    <p>Pobranie po stronie serwera (np. <code>wp_remote_get</code>) z pamięcią podręczną na ok. 1 godzinę. Serwer nie wysyła nagłówków CORS, więc pobieranie z przeglądarki nie zadziała. Gdy plik nie odpowiada, blok się nie pokazuje.</p>
+    <pre>{
+  "rynek": "PL",
+  "opinie": [
+    {
+      "id": "szczepanski-skarpa-wms",
+      "cytat": "GSAI_WMS działa super, warto tą funkcjonalność dalej rozwijać.",
+      "podpis": "Przemek, branża mostowa",
+      "narzedzie": "GSAI_WMS",
+      "narzedzie_opis": "podkład z geoportalu",
+      "karta_url": "https://ai.gstarcad.pl/biblioteka/gsai_wms/",
+      "miesiac": "2026-09"
+    }
+  ]
+}</pre>
+  </div>
+
+  <h3>Zasady</h3>
+  <ul>
+    <li><b>0 opinii:</b> blok nie pojawia się wcale.</li>
+    <li><b>1 opinia:</b> jak na makiecie.</li>
+    <li><b>2 i więcej:</b> nadal jeden blok, jedna losowa opinia przy każdym wczytaniu.</li>
+    <li><code>cytat</code> i <code>podpis</code> pokazujemy dokładnie tak, jak są w pliku, bez skracania i poprawiania. Autor sam wybrał podpis i zgodził się na publikację.</li>
+    <li><code>karta_url</code> pusty (<code>null</code>) = chip bez linku, w szarym kolorze.</li>
+    <li><code>miesiac</code> w formacie RRRR-MM, na stronie słownie: „wrzesień 2026”.</li>
+    <li>Zmiany treści albo usunięcie opinii robimy u nas w pliku, na stronie nic nie trzeba ruszać.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>W załączniku</h2>
+  <ul>
+    <li><code>GSAI_WMS_PL_16x9.mp4</code>, <code>GSAI_WMS_PL_9x16.mp4</code> — film na kartę</li>
+    <li><code>GSAI_WMS.md</code> — opis narzędzia (wersja krótka i rozwinięta)</li>
+    <li><code>ico_gsai_wms_32.png</code> — ikona narzędzia z wstążki GstarCAD, jeśli przyda się na karcie</li>
+    <li>ten dokument</li>
+  </ul>
+  <p>Po wdrożeniu prosimy o link do karty i do strony głównej, sprawdzimy i zapiszemy publikację opinii u siebie.</p>
+</section>
+</div>
+</body>
+</html>
