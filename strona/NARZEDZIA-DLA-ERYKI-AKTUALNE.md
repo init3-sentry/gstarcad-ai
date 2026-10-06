@@ -1,17 +1,28 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-05**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-06**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **20** | w testach: **29** | poza strona (w budowie/wycofane/wstrzymane): **16**
+## 🔔 Co sie zmienilo od ostatniego razu
+- ~ GSAI_WMS: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
+- ~ GSAI_NUM: 🟡 w testach (jeszcze nie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
+- ~ GSAI_ZNAKI: 🟡 w testach (jeszcze nie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
+- ~ GSAI_MEBLE: 🟡 w testach (jeszcze nie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
+- ~ GSAI_UMEBLUJ: 🔧 poza strona (w budowie) -> 🔴 poza strona (wstrzymane — nie obiecywac)
+
+Gotowych na strone: **21** | w testach: **25** | poza strona (w budowie/wycofane/wstrzymane): **19**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
 Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go w podreczniku. Nie wiadomo, kiedy wroci. Powod stoi w `NARZEDZIA.md`.
 
 - `GSAI_DL` — Suma długości wskazanych obiektów + trwała etykieta z przedrostkiem na rysunku. Natywne MEASUREGEOM/DIST zostawiają wynik w linii poleceń. Alias GSAI_TLEN.
+- `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
+- `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_PROFIL` — Profil podłużny terenu wzdłuż wskazanej linii cięcia: linia terenu, osie, pikietaż, rzędne, przewyższenie. Silnik geo wspólny z GSAI_TIN. Natywnie brak (SOLPROF to profil bryły, nie terenu).
 - `GSAI_TIN` — Warstwice z chmury punktów wysokościowych (triangulacja + przekroje poziomami): poziomice na osobnych warstwach, główne co którąś, podpisy wysokości. Silnik geo wspólny z GSAI_PROFIL. Natywnie brak (GstarCAD ma tylko izolinie brył 3D).
+- `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
+- `GSAI_ZNAKI` — Tarcze pionowych znaków drogowych (grupy A/B/C/D) + znak B-33 wg Dz.U. 2003/2181; wynik jako blok.
 
 ## ✅ Na strone (gotowe)
 
@@ -30,6 +41,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_SCHODY`** — Generator schodów (rzut / łuk / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. Rysuje też po ponownym otwarciu pliku (generatywne → odporne na BUG-10).
 - **`GSAI_SLONCE`** — Diagram nasłonecznienia / ścieżka słońca (biegunowy wykres): szerokość geo + data → horyzont, pierścienie wysokości, azymuty N/E/S/W, ścieżka słońca + przesilenia/równonoc. Okno z dropdownem 18 miast wojewódzkich + ręczna szerokość. v2 06.08: legenda „jak czytać" (praktyk brał to za mapę cienia). Generatywne → BUG-10-safe. Spina z Linijką Słońca. GSAI_SUNPATH = alias.
 - **`GSAI_SPADEK`** — Strzałka spadku + wartość (%/‰/°/1:n) — dachy, tarasy, odwodnienie; tryb ręczny albo auto z różnicy wysokości. Natywnie brak. Generatywne → BUG-10-safe.
+- **`GSAI_WMS`** — Podkład z usług WMS wprost w rysunku, na prawdziwych współrzędnych: ortofotomapa geoportalu GUGiK + granice/numery działek EGiB + własny URL WMS. Okno wyboru usług + jakość podkładu (Szybka–podgląd / Standardowa–czytelne numery, domyślna / Wysoka–do wydruku), obszar = prostokąt (dwa naroża). Silnik osadzania wspólny z GSAI_GEORASTER; obraz siada na współrzędnych, nowy podkład kasuje stary nakładający się, osobne obszary współistnieją (multi-raster ≥260827). Darmowy magnes: dane geoportalu publiczne (INSPIRE 2007/2/WE + ustawa IIP Dz.U. 2010/76/489 + art. 40a PGiK). Przejmuje popyt płatnej wtyczki Wms2Cad (599–799 zł/rok). Kod chroniony (.pyd), zależność gsai_geoportal_core.
 - **`GSAI_WSS`** — Warstwy Standard Short — praktyczny zestaw 42 warstw jednym poleceniem (ustawienia praktyka wg wzorca Roberta: grupy A/E/S/L/W + systemowe, gotowe kolory ACI+RGB, typy linii i grubości pod codzienną robotę). Zakłada tylko te, których w rysunku jeszcze nie ma. Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_SHORT.
 - **`GSAI_XYZ`** — Plik z Excela/Notatnika ze współrzędnymi → punkty z numerami. Natywnie brak (płatne nakładki = dowód popytu).
 - **`GSAI_ZAZNACZ`** — Wybór ramką wzdłuż osi obróconego USC: w prawo oknem (ramka niebieska), w lewo przecięciem (zielona); ramka obraca się z USC już w trakcie ciągnięcia. Pomija warstwy wyłączone i zamrożone, wynik zostaje zaznaczony dla następnego polecenia (PRZESUŃ, USUŃ…). Natywnie ramka jest zawsze prostokątna do ekranu, obraca się tylko cały widok (PLAN).
@@ -47,8 +59,6 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_GEOPORTAL` — Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo.
 - `GSAI_KOL` — Menedżer kolejności rysowania wg warstw (rework FAZA 2): przenosi wszystkie obiekty wskazanej warstwy na wierzch albo spód i zapisuje — strzałki góra/dół, sort A→Z, zapisz/odtwórz układ. Działa na zapisanych rysunkach klienta. Native DRAWORDER robi per-obiekt — per-warstwa + persystencja układu to nasza wartość.
 - `GSAI_LEGW` — Wstawia legendę warstw jako tabelę na rysunku: nazwa + próbka koloru + próbka typu linii (graficznie) + szerokość + druk + opis. Pomysł Roberta (robert#13). Natywnie brak. Generatywne → BUG-10-safe.
-- `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
-- `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_ODSWIEZ` — Serwis — sprawdza, czy zestawienia liczone z rysunku (np. pola z GSAI_POLA) są aktualne; nieaktualne opisy zaznacza na czerwono, jednym poleceniem dla wszystkich narzędzi naraz.
 - `GSAI_ORIENTACYJNY` — Plan orientacyjny odcinka drogi (projekt stałej organizacji ruchu): początek i koniec odcinka wskazane na rysunku albo wpisane (PL-2000 / PL-1992 / WGS84, osie rozpoznawane same), arkusz A4/A3 w skali 1:10 000 / 1:15 000 / 1:25 000, mapa topograficzna GUGiK kolorowa albo czarno-biała (kafelki ~150 dpi, zapisane obok rysunku z world file), odcinek z kreskami i opisem „droga km od–do”, nowy układ z ramką GSAI_FORMATKA, GSAI_TABELKA, podziałką, strzałką północy i atrybucją © GUGiK. Natywnie GstarCAD nie ma WMS ani planu z dwóch punktów. Tylko PL.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG — „brak POG" to poprawny wynik. 🔴 Do sprawdzenia przez człowieka (18.09): notka mówiła, że Studia obowiązują do 31.08.2026. Ta data minęła, a treść nie była od tego czasu weryfikowana. Zanim POG pójdzie do klienta, trzeba sprawdzić w ustawie, jaki jest obecny stan przepisu przejściowego — i czy komunikat narzędzia nadal jest prawdziwy. Nie zgadywać. Spina dawne narzędzia chłonność + POG.
@@ -61,12 +71,10 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_TRASA` — Wskaż polilinię przyłącza → wykaz przeciętych działek (obrysy + numery) w rysunku.
 - `GSAI_WEKTORYZUJ` — Skan rastrowy → polilinie, lokalnie.
 - `GSAI_WLADANIE` — Wskaż punkt → kto włada działką (Skarb Państwa / gmina / osoba fizyczna — bez nazwisk, RODO) + ścieżka „do kogo się zwrócić". Źródło: KIEG (grupa_rejestrowa). Podstawa: §14 rozp. EGiB (Dz.U. 2024/219). Hak — pojedyncza działka.
-- `GSAI_WMS` — Podkład z usług WMS wprost w rysunku, na prawdziwych współrzędnych: ortofotomapa geoportalu GUGiK + granice/numery działek EGiB + własny URL WMS. Okno wyboru usług + jakość podkładu (Szybka–podgląd / Standardowa–czytelne numery, domyślna / Wysoka–do wydruku), obszar = prostokąt (dwa naroża). Silnik osadzania wspólny z GSAI_GEORASTER; obraz siada na współrzędnych, nowy podkład kasuje stary nakładający się, osobne obszary współistnieją (multi-raster ≥260827). Darmowy magnes: dane geoportalu publiczne (INSPIRE 2007/2/WE + ustawa IIP Dz.U. 2010/76/489 + art. 40a PGiK). Przejmuje popyt płatnej wtyczki Wms2Cad (599–799 zł/rok). Kod chroniony (.pyd), zależność gsai_geoportal_core.
 - `GSAI_WSF` — Warstwy Standard Full — pełny branżowy zestaw warstw wg normy (A/K/instalacje/Z + systemowe), kolory kolejne z palety indeksu ACI 1–255 do własnego dostrojenia. Panel wyboru branż. Rodzeństwo GSAI_WSS (Short). Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_FULL.
 - `GSAI_WYKAZ` — Wskazana działka + sąsiedzi graniczni → tabela właścicieli/instytucji na rysunku.
 - `GSAI_WYSOKOSC` — Etykieta wysokości H z Numerycznego Modelu Terenu (GUGiK).
 - `GSAI_ZABYTKI` — Wskaż punkt → czy objęty ochroną konserwatorską (NID: zabytek nieruchomy / archeologiczny / UNESCO) + numer rejestru + „wymagane pozwolenie WKZ". Źródło: usługi INSPIRE NID (usluga.zabytek.gov.pl). Podstawa: art. 36 ust. z 23.07.2003 o ochronie zabytków.
-- `GSAI_ZNAKI` — Tarcze pionowych znaków drogowych (grupy A/B/C/D) + znak B-33 wg Dz.U. 2003/2181; wynik jako blok.
 
 ## 🔧 W budowie — poza strona
 
@@ -76,7 +84,6 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_GML` — Import GML EGiB (ewidencja gruntów i budynków): rysuje działki / budynki / kontury użytków / klasy jako zamknięte polilinie i punkty graniczne na warstwach EGIB_*. Czyta układ z srsName, dla PL-2000 / PL-1992 zamienia osie (X=E, Y=N), obsługuje Polygon / Surface-patches / MultiSurface z otworami; opcja przesunięcia do punktu bazowego (wsp. rzędu 7 mln). Alias globalny GSAI_IMPORTGML. MVP. Silnik (gsai_gml_core) przetestowany na realnym pliku EGiB (zsk_2025.gml: 14 działek / 7 budynków / 92 punkty / 89 użytków / 63 klasy, EPSG 2178, swap OK); samo rysowanie w GstarCAD bez runtime-pass — czeka odbiór praktyka (Robert). Opis (2 wersje) = szkic do odbioru Roberta.
 - `GSAI_PRZK` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.
 - `GSAI_RURA` — Osłona kabla krzyżującego uzbrojenie: wskaż trasę (także z kilku osobnych odcinków), a narzędzie rysuje osłonę jako jedną zamkniętą polilinię. Długość z normy — wskazujesz krzyżowany obiekt, narzędzie mierzy jego szerokość i dokłada zapas z obu stron (domyślnie 50 cm, N SEP-E-004 p. 3.1.6.1). Tryb ciągły: kolejne skrzyżowania do ESC. Opcjonalne podpisy R1, R2, R3 z własnym przedrostkiem, numeracja idzie dalej od tej w rysunku.
-- `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
 
 ## ⛔ NIE umieszczac (wycofane / zastapione natywnym GstarCAD)
 
