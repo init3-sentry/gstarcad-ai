@@ -1,20 +1,9 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-06**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-07**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- ~ GSAI_WSF: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-- ~ GSAI_SKL: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-- ~ GSAI_CHROP: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-- ~ GSAI_RZUT: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-- ~ GSAI_GEORASTER: 🔧 poza strona (w budowie) -> ✅ NA STRONE
-- ~ GSAI_GML: 🔧 poza strona (w budowie) -> ✅ NA STRONE
-- ~ GSAI_TABELKA: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-- ~ GSAI_KOL: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-- ~ GSAI_RURA: 🔧 poza strona (w budowie) -> ✅ NA STRONE
-
-Gotowych na strone: **30** | w testach: **19** | poza strona (w budowie/wycofane/wstrzymane): **16**
+Gotowych na strone: **31** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **16**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -41,6 +30,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_ILOSCI`** — Zestawienie ilości w jednej tabeli: długości linii i polilinii, liczba bloków oraz pole i obwód kreskowań, grupowane po warstwie albo po rodzaju linii („JakWarstwa” liczone jako rodzaj linii warstwy). Na starcie pytanie [Rysunek/Obiekty] (Enter = cały rysunek). Okno z listą pozycji, wyszukiwarką, odznaczaniem (linia ciągła odznaczona przy rodzaju), wyborem kolumn tabeli (długości / sztuki bloków / pola / obwody — jak właściwości w DATAEXTRACTION), wyborem jednostki rysunku z podpowiedzią z wymiarów (nagłówki kolumn zawijane po słowach), kopiowaniem do Excela. Tabela pamiętająca ustawienia czerwienieje, gdy zmieni się rysunek (zmiana liczb, dorysowanie), nie od samego zaznaczenia obiektu, i działa po Ctrl+Z; GSAI_ODSWIEZ przelicza ją w miejscu. Natywnie QSELECT/DATAEXTRACTION — ręcznie, typ po typie.
 - **`GSAI_KOL`** — Menedżer kolejności rysowania wg warstw (rework FAZA 2): przenosi wszystkie obiekty wskazanej warstwy na wierzch albo spód i zapisuje — strzałki góra/dół, sort A→Z, zapisz/odtwórz układ. Działa na zapisanych rysunkach klienta. Native DRAWORDER robi per-obiekt — per-warstwa + persystencja układu to nasza wartość.
 - **`GSAI_LINIA`** — Generator złożonego rodzaju linii z wtopionym tekstem (—A—A—); opis wyśrodkowany w przerwie + wybór stylu tekstu. Natywnie brak. Generatywne → BUG-10-safe.
+- **`GSAI_ORIENTACYJNY`** — Plan orientacyjny odcinka drogi (projekt stałej organizacji ruchu): początek i koniec odcinka wskazane na rysunku albo wpisane (PL-2000 / PL-1992 / WGS84, osie rozpoznawane same), arkusz A4/A3 w skali 1:10 000 / 1:15 000 / 1:25 000, ułożony poziomo albo pionowo — domyślnie dobrany do kierunku odcinka, mapa topograficzna GUGiK kolorowa albo czarno-biała (kafelki ~150 dpi, zapisane obok rysunku z world file), odcinek z kreskami i opisem „droga km od–do” w wybranym kolorze (na czarno-białej domyślnie niebieski; kolor zostaje na wydruku), nowy układ z ramką GSAI_FORMATKA, GSAI_TABELKA, podziałką, strzałką północy i atrybucją © GUGiK. Okno na małym ekranie przewija treść, przyciski zostają na dole. Natywnie GstarCAD nie ma WMS ani planu z dwóch punktów. Tylko PL.
 - **`GSAI_PN`** — Ozdobna strzałka północy — 6 stylów dwutonowych (prosta/strzałka/romb/róża wiatrów/kompas geodezyjny/iglica), panel wyboru z podglądem + wysokość + klik. v2 06.08: wynik jako blok na bieżącej warstwie (obrót przez ROTATE, przesuń/kasuj jako jeden obiekt). Natywnie brak (GstarCAD ma tylko COMPASS/NORTHDIRECTION). Generatywne → BUG-10-safe. GSAI_STRZALKA_GALERIA = wszystkie naraz.
 - **`GSAI_PODZIALKA`** — Podziałka liniowa (skala rysunku) na arkuszu — rysowana w mm w Przestrzeni Papieru. Generatywne → BUG-10-safe.
 - **`GSAI_POLA`** — Pole i obwód pól/pomieszczeń: zaznacz oknem albo wskaż pomieszczenie → opis w centroidzie + tabela zbiorcza + eksport CSV. Liczy też na pliku ZAPISANYM od klienta (obejście BUG-10 przez jawne rzutowanie — 2026-09-18, build 260827). Wchłonęło ZESTAWIENIE i PRZEDMIAR (konsolidacja, Robert ✓).
@@ -71,7 +61,6 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_GEOPORTAL` — Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo.
 - `GSAI_LEGW` — Wstawia legendę warstw jako tabelę na rysunku: nazwa + próbka koloru + próbka typu linii (graficznie) + szerokość + druk + opis. Pomysł Roberta (robert#13). Natywnie brak. Generatywne → BUG-10-safe.
 - `GSAI_ODSWIEZ` — Serwis — sprawdza, czy zestawienia liczone z rysunku (np. pola z GSAI_POLA) są aktualne; nieaktualne opisy zaznacza na czerwono, jednym poleceniem dla wszystkich narzędzi naraz.
-- `GSAI_ORIENTACYJNY` — Plan orientacyjny odcinka drogi (projekt stałej organizacji ruchu): początek i koniec odcinka wskazane na rysunku albo wpisane (PL-2000 / PL-1992 / WGS84, osie rozpoznawane same), arkusz A4/A3 w skali 1:10 000 / 1:15 000 / 1:25 000, mapa topograficzna GUGiK kolorowa albo czarno-biała (kafelki ~150 dpi, zapisane obok rysunku z world file), odcinek z kreskami i opisem „droga km od–do”, nowy układ z ramką GSAI_FORMATKA, GSAI_TABELKA, podziałką, strzałką północy i atrybucją © GUGiK. Natywnie GstarCAD nie ma WMS ani planu z dwóch punktów. Tylko PL.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG — „brak POG" to poprawny wynik. 🔴 Do sprawdzenia przez człowieka (18.09): notka mówiła, że Studia obowiązują do 31.08.2026. Ta data minęła, a treść nie była od tego czasu weryfikowana. Zanim POG pójdzie do klienta, trzeba sprawdzić w ustawie, jaki jest obecny stan przepisu przejściowego — i czy komunikat narzędzia nadal jest prawdziwy. Nie zgadywać. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJ` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_SCHRON` — Checker budowli ochronnej (schron/ukrycie): wskaż zamkniętą polilinię strefy → pole → opcjonalnie liczba osób → sprawdza wymagania WT: min 1 m²/os; wyjścia (>50 os → ≥2, >1000 os → ≥2 poza strefę zagruzowania); wejścia (>300 os → ≥2); podział na strefy (ukrycie ≤300 os, schron S-1 ≤1000 os); dopuszczalność szybu (≤35 m² i ≤10 os); szer. drogi ewakuacyjnej 0,4 m/100 os. Zakres v1: wymiarowy (grubości przegród / wentylacja / dojście ≤500 m poza zakresem). Podstawa: rozp. MSWiA z 4.11.2025 (Dz.U. 2025/1548) + ust. z 5.12.2024 o ochronie ludności (Dz.U. 2024/1907).
