@@ -3,7 +3,10 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-07**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **31** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **16**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_RZUTNIE (✅ NA STRONE)
+
+Gotowych na strone: **32** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **16**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -38,6 +41,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_RURA`** — Osłona kabla krzyżującego uzbrojenie: wskaż trasę (także z kilku osobnych odcinków), a narzędzie rysuje osłonę jako jedną zamkniętą polilinię. Długość z normy — wskazujesz krzyżowany obiekt, narzędzie mierzy jego szerokość i dokłada zapas z obu stron (domyślnie 50 cm, N SEP-E-004 p. 3.1.6.1). Tryb ciągły: kolejne skrzyżowania do ESC. Opcjonalne podpisy R1, R2, R3 z własnym przedrostkiem, numeracja idzie dalej od tej w rysunku.
 - **`GSAI_RZEDNE`** — Znacznik rzędnej wysokościowej na rzucie i w przekroju — wskaż dowolny punkt jako ±0,000 (nie musi to być początek układu), kolejne liczone od niego: auto-odczyt różnicy albo wpis ręczny. Symbol wg PN-B-01025:2004 §3.5, Rys. 6a–d: krzyżyk / kółko na rzucie, grot otwarty na przekroju, grot w połowie zaczerniony dla ±0,000; przecinek dziesiętny, 3 miejsca. Każdy znacznik = blok; GSAI_RZEDNE_AKTUALIZUJ przelicza wszystkie od aktualnego położenia bazy. Natywnie brak dedykowanego. Generatywne → BUG-10-safe. Alias globalny: GSAI_LEVEL.
 - **`GSAI_RZUT`** — Tabliczkowy symbol metody rzutowania 1./3. kąta (ISO 5456-2) — ścięty stożek w dwóch widokach. Natywnie brak. Generatywne.
+- **`GSAI_RZUTNIE`** — Układy z ramek: rysujesz wszystko w Modelu, a każdy arkusz masz w ramce o wymiarach kartki (zamknięta polilinia albo prostokąt, razem z legendą i tabelką). Narzędzie robi z każdej ramki osobny układ z rzutnią w podanej skali, wyśrodkowaną i zablokowaną. W oknie: skala (jedna dla wszystkich wybranych ramek), wzór układu — „automatycznie” = najmniejszy papier z układów rysunku, na którym mieści się ramka — i przedrostek nazw; ramki zaznaczasz klikiem, oknem albo lassem. Układy powstają kolejno, na końcu paska zakładek, w kolejności ramek („Ramka 1”, „Ramka 2”…). Papier i ustawienia wydruku układ bierze ze wzoru (z kodu nie da się ich ustawić); gdy ramka nie mieści się na żadnym wzorze, komunikat mówi, który układ poprawić. Natywnie układ i rzutnię stawia się osobno dla każdej ramki (LAYOUT + MVIEW), bez wsadu z ramek.
 - **`GSAI_SCHODY`** — Generator schodów (rzut / łuk / przekrój; tryby biegu) — „wow": schody w GstarCAD za darmo. Rysuje też po ponownym otwarciu pliku (generatywne → odporne na BUG-10).
 - **`GSAI_SKL`** — Skala linii warstwy — ustawia skalę rodzaju linii (gęstość kreskowania) dla całej warstwy naraz; natywnie tylko globalnie albo obiekt po obiekcie.
 - **`GSAI_SLONCE`** — Diagram nasłonecznienia / ścieżka słońca (biegunowy wykres): szerokość geo + data → horyzont, pierścienie wysokości, azymuty N/E/S/W, ścieżka słońca + przesilenia/równonoc. Okno z dropdownem 18 miast wojewódzkich + ręczna szerokość. v2 06.08: legenda „jak czytać" (praktyk brał to za mapę cienia). Generatywne → BUG-10-safe. Spina z Linijką Słońca. GSAI_SUNPATH = alias.
