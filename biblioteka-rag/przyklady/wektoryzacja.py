@@ -33,6 +33,12 @@
 #     gesto-wypelnione wiersze). Zdegradowany druk OK. Pojedyncze, osamotnione etykiety moga
 #     zostac (bezpieczny kierunek bledu). OCR = wersja 2.0 (osobny segment, decyzja — ADR 05).
 #   - kolor: obraz jest splaszczany do szarosci. Mapy kolorowe = osobny temat
+#   - PORZADKOWANIE (08.10, skan dachu Rafala #190): linie prawie poziome/pionowe -> dokladnie
+#     H/V (tylko gdy przesuniecie <= 2 px, wiec ukosne granice map zostaja), domykanie rogow
+#     przez PRZECIECIE linii (nie srodek ciezkosci — ten przekrzywial proste), sklejanie
+#     kawalkow jednej prostej przecietej na skrzyzowaniu albo w wyblaklym miejscu (linie
+#     kreskowe zostaja przerywane). Pomiar: produkt-i-badania/wektoryzacja-poprawki-2026-10-08.md
+#     w gstarcad-ai-wewnetrzne.
 
 from pygcad.core import *
 from pygcad.core.runtime import *
@@ -458,27 +464,25 @@ def _dlugosc_lamanej(p):
     return s
 
 
-def domknij_konce(polilinie, tol=14.0, max_klaster=3, min_dlugosc_linii=40.0):
-    """Snapuje bliskie KONCE lancuchow do wspolnego punktu (centroid klastra).
-    Zamyka szpary i ostrzy narozniki: szkielet urywa lancuch na wezle 1-2 px od sasiada
-    i zaokragla rogi (ukos zamiast ostrego kata), wiec konce w rogu/skrzyzowaniu sa rozjechane.
+def _kierunek_konca(pl, wierzch):
+    """Kierunek odcinka koncowego polilinii, skierowany NA ZEWNATRZ (od wnetrza do konca),
+    plus jego dlugosc. wierzch = 0 (poczatek) albo len(pl)-1 (koniec)."""
+    if wierzch == 0:
+        a, b = pl[1], pl[0]
+    else:
+        a, b = pl[-2], pl[-1]
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    l = (dx * dx + dy * dy) ** 0.5
+    if l < 1e-9:
+        return None, 0.0
+    return (dx / l, dy / l), l
 
-    ZABEZPIECZENIA (empiryczne, po tescie na realnym skanie geodezyjnym 2026-07-24 — bez nich
-    domykanie robilo promieniste "gwiazdy" na gestych punktach pomiarowych i zlewalo linie):
-      - `min_dlugosc_linii` — w domykaniu bierze udzial TYLKO koniec dlugiej linii; krotkie
-        lamane (opisy, cyfry, szum) sa pomijane, wiec sie nie zlewaja.
-      - `max_klaster` — snapujemy tylko MALE skupiska koncow (rog/T/X = 2-3 konce); geste
-        skupisko (>max_klaster) zostawiamy nietkniete, zeby nie robic gwiazdy.
-      - `tol` umiarkowany (~pol grubosci kreski).
-    Rusza TYLKO konce (nie srodkowe wierzcholki) i tylko skupiska 2..max_klaster."""
-    if not polilinie:
-        return polilinie
-    konce = []                                   # [pl_idx, wierzch_idx, x, y]
-    for i, pl in enumerate(polilinie):
-        if len(pl) >= 2 and _dlugosc_lamanej(pl) >= min_dlugosc_linii:
-            konce.append([i, 0, pl[0][0], pl[0][1]])
-            konce.append([i, len(pl) - 1, pl[-1][0], pl[-1][1]])
-    n = len(konce)
+
+def _sklej_bliskie(punkty, promien):
+    """Union-find punktow (x, y) blizszych niz promien. Siatka komorek zamiast O(n^2) —
+    na skanie 300 dpi koncow sa tysiace. Zwraca liste grup (listy indeksow)."""
+    from collections import defaultdict
+    n = len(punkty)
     parent = list(range(n))
 
     def find(a):
@@ -487,29 +491,96 @@ def domknij_konce(polilinie, tol=14.0, max_klaster=3, min_dlugosc_linii=40.0):
             a = parent[a]
         return a
 
-    t2 = tol * tol
-    for a in range(n):
-        for b in range(a + 1, n):
-            dx = konce[a][2] - konce[b][2]
-            dy = konce[a][3] - konce[b][3]
-            if dx * dx + dy * dy <= t2:
-                parent[find(a)] = find(b)
-
-    grupy = {}
+    kom = defaultdict(list)
+    for k, (x, y) in enumerate(punkty):
+        kom[(int(x // promien), int(y // promien))].append(k)
+    r2 = promien * promien
+    for (cx, cy), lst in kom.items():
+        sas = []
+        for ddx in (-1, 0, 1):
+            for ddy in (-1, 0, 1):
+                sas += kom.get((cx + ddx, cy + ddy), [])
+        for a in lst:
+            for b in sas:
+                if b <= a:
+                    continue
+                dx = punkty[a][0] - punkty[b][0]
+                dy = punkty[a][1] - punkty[b][1]
+                if dx * dx + dy * dy <= r2:
+                    parent[find(a)] = find(b)
+    grupy = defaultdict(list)
     for k in range(n):
-        r = find(k)
-        if r not in grupy:
-            grupy[r] = []
-        grupy[r].append(k)
+        grupy[find(k)].append(k)
+    return list(grupy.values())
+
+
+def domknij_konce(polilinie, tol=14.0, max_klaster=3, min_dlugosc_linii=40.0, max_skret_deg=4.0):
+    """Snapuje bliskie KONCE lancuchow do wspolnego punktu.
+    Zamyka szpary i ostrzy narozniki: szkielet urywa lancuch na wezle 1-2 px od sasiada
+    i zaokragla rogi (ukos zamiast ostrego kata), wiec konce w rogu/skrzyzowaniu sa rozjechane.
+
+    PUNKT DOCELOWY (zmiana 08.10, skan dachu Rafala #190): przeciecie linii koncowych
+    metoda najmniejszych kwadratow, NIE srodek ciezkosci koncow. Srodek ciezkosci przesuwal
+    koniec dlugiej prostej w bok o kilka px i ja PRZEKRZYWIAL (na dachu: dolna krawedz
+    swietlika i pion osi wychodzily ukosem przez pol swietlika). Przeciecie lezy NA obu
+    liniach, wiec rog jest ostry, a linie zostaja proste.
+      - same rownolegle konce (kat < 15 st.) -> nie ma rogu, nic nie ruszamy
+        (przerwe w JEDNEJ prostej skleja polacz_wspolliniowe()).
+      - punkt dalej niz tol od ktoregos konca -> nic nie ruszamy.
+      - koniec dlugiej linii (>= 3*tol), ktora skrecilaby o wiecej niz max_skret_deg -> zostaje.
+
+    ZABEZPIECZENIA z 2026-07-24 (bez nich domykanie robilo promieniste "gwiazdy" na gestych
+    punktach pomiarowych i zlewalo linie) zostaja:
+      - `min_dlugosc_linii` — w domykaniu bierze udzial TYLKO koniec dlugiej linii; krotkie
+        lamane (opisy, cyfry, szum) sa pomijane, wiec sie nie zlewaja.
+      - `max_klaster` — snapujemy tylko MALE skupiska koncow (rog/T/X = 2-3 konce); geste
+        skupisko (>max_klaster) zostawiamy nietkniete, zeby nie robic gwiazdy.
+    Rusza TYLKO konce (nie srodkowe wierzcholki)."""
+    if not polilinie:
+        return polilinie
+    konce = []                                   # [pl_idx, wierzch_idx, x, y]
+    for i, pl in enumerate(polilinie):
+        if len(pl) >= 2 and _dlugosc_lamanej(pl) >= min_dlugosc_linii:
+            konce.append([i, 0, pl[0][0], pl[0][1]])
+            konce.append([i, len(pl) - 1, pl[-1][0], pl[-1][1]])
 
     pl2 = [list(p) for p in polilinie]
-    for _, idxs in grupy.items():
+    prog_kata = 1.0 - np.cos(np.radians(15.0))   # min. wartosc wlasna = linie nierownolegle
+    max_skret = np.radians(max_skret_deg)
+    for idxs in _sklej_bliskie([(k[2], k[3]) for k in konce], tol):
         if len(idxs) < 2 or len(idxs) > max_klaster:   # samotny lub geste skupisko — zostaw
             continue
-        cx = sum(konce[k][2] for k in idxs) / len(idxs)
-        cy = sum(konce[k][3] for k in idxs) / len(idxs)
+        # punkt najblizszy wszystkim liniom koncowym: sum(I - d d^T) p = sum(I - d d^T) e
+        A = np.zeros((2, 2))
+        bb = np.zeros(2)
+        linie = []
         for k in idxs:
-            pl2[konce[k][0]][konce[k][1]] = (cx, cy)
+            pi, vi, x, y = konce[k]
+            d, l = _kierunek_konca(polilinie[pi], vi)
+            if d is None:
+                linie = []
+                break
+            Pm = np.eye(2) - np.outer(d, d)
+            A += Pm
+            bb += Pm @ np.array([x, y])
+            linie.append((k, d, l))
+        if not linie or np.linalg.eigvalsh(A)[0] < prog_kata:
+            continue
+        cel = np.linalg.solve(A, bb)
+        if any(np.hypot(cel[0] - konce[k][2], cel[1] - konce[k][3]) > tol for k in idxs):
+            continue
+        for k, d, l in linie:
+            pi, vi = konce[k][0], konce[k][1]
+            pl = polilinie[pi]
+            sasiad = pl[1] if vi == 0 else pl[-2]
+            nx, ny = cel[0] - sasiad[0], cel[1] - sasiad[1]
+            nl = (nx * nx + ny * ny) ** 0.5
+            if nl < 1e-9:
+                continue
+            kat = np.arccos(max(-1.0, min(1.0, (nx * d[0] + ny * d[1]) / nl)))
+            if l >= 3.0 * tol and kat > max_skret:
+                continue                          # przekrzywiloby dluga prosta — zostaw
+            pl2[pi][vi] = (float(cel[0]), float(cel[1]))
 
     # sprzataj zdegenerowane: usun kolejne identyczne wierzcholki, odrzuc polilinie < 2 pkt
     wynik = []
@@ -520,6 +591,171 @@ def domknij_konce(polilinie, tol=14.0, max_klaster=3, min_dlugosc_linii=40.0):
                 czysta.append(v)
         if len(czysta) >= 2:
             wynik.append([tuple(v) for v in czysta])
+    return wynik
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Porzadkowanie geometrii (08.10, skan dachu Rafala #190 + #33)
+#
+# Po trasowaniu linia ze skanu jest "prawie" pozioma (0,1-0,3 st. szumu), sciany i ramki
+# porwane na skrzyzowaniach (szkielet tnie lancuch na kazdym wezle) i w miejscach, gdzie
+# kreska na skanie wyblakla. W CAD to boli: ORTO nie trzyma, prostokat to 4-8 kawalkow,
+# a uzytkownik i tak musi to sam sklejac.
+def prostuj_do_osi(polilinie, tol_deg=1.5, min_odc=12.0, max_przes=2.0):
+    """Odcinki prawie poziome/pionowe -> DOKLADNIE poziome/pionowe.
+    Ciag kolejnych odcinkow H dostaje wspolne Y (srednia wazona dlugoscia), V -> wspolne X.
+    Wierzcholek miedzy H i V bierze Y z H i X z V -> naroznik dokladnie 90 st.
+
+    BEZPIECZNIK max_przes: prostujemy tylko wtedy, gdy zaden wierzcholek nie przesunie sie
+    o wiecej niz max_przes px. Szum skanu na prostej to ulamki piksela-2 px; prawdziwa
+    granica dzialki pod katem 1 st. na 500 px to ~9 px — zostaje nietknieta (mapy!)."""
+    tg = np.tan(np.radians(tol_deg))
+    wynik = []
+    for p in polilinie:
+        p = [list(v) for v in p]
+        typ = []
+        for a, b in zip(p[:-1], p[1:]):
+            dx, dy = abs(b[0] - a[0]), abs(b[1] - a[1])
+            l = (dx * dx + dy * dy) ** 0.5
+            if l >= min_odc and dy <= tg * dx:
+                typ.append("H")
+            elif l >= min_odc and dx <= tg * dy:
+                typ.append("V")
+            else:
+                typ.append(None)
+        i = 0
+        while i < len(typ):
+            t = typ[i]
+            if t is None:
+                i += 1
+                continue
+            j = i
+            while j + 1 < len(typ) and typ[j + 1] == t:
+                j += 1
+            os_ = 1 if t == "H" else 0          # H -> wspolne Y (indeks 1), V -> wspolne X (0)
+            sw = 0.0
+            sl = 0.0
+            for k in range(i, j + 1):
+                a, b = p[k], p[k + 1]
+                l = ((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2) ** 0.5
+                sw += l * (a[os_] + b[os_]) / 2.0
+                sl += l
+            m = sw / sl
+            if max(abs(p[k][os_] - m) for k in range(i, j + 2)) <= max_przes:
+                for k in range(i, j + 2):
+                    p[k][os_] = m
+            i = j + 1
+        wynik.append([tuple(v) for v in p])
+    return wynik
+
+
+def usun_wspolliniowe(p, tol_px=0.75):
+    """Usuwa wierzcholki lezace na prostej miedzy sasiadami (odchylka <= tol_px, bez zawracania).
+    Po sklejeniu dwoch kawalkow jednej prostej w miejscu szwu zostaja 2 zbedne wierzcholki."""
+    if len(p) < 3:
+        return p
+    out = [p[0]]
+    for k in range(1, len(p) - 1):
+        a, v, b = out[-1], p[k], p[k + 1]
+        abx, aby = b[0] - a[0], b[1] - a[1]
+        n = (abx * abx + aby * aby) ** 0.5
+        if n > 1e-9:
+            d = abs(abx * (v[1] - a[1]) - aby * (v[0] - a[0])) / n
+            t = ((v[0] - a[0]) * abx + (v[1] - a[1]) * aby) / (n * n)
+            if d <= tol_px and 0.0 < t < 1.0:
+                continue
+        out.append(v)
+    out.append(p[-1])
+    return out
+
+
+def polacz_wspolliniowe(polilinie, max_szpara=14.0, frakcja=0.25, min_szpara=3.0,
+                        tol_kat_deg=3.0, tol_bok=2.0, min_odc=10.0):
+    """Skleja polilinie, ktore sa kawalkami JEDNEJ prostej: przerwa w wyblaklej kresce,
+    skrzyzowanie X/T przeciete przez szkielet. Warunki: konce naprzeciw siebie, kierunki
+    zgodne (<= tol_kat_deg), przesuniecie boczne <= tol_bok px, a szpara
+        <= min(max_szpara, max(min_szpara, frakcja * krotszy odcinek koncowy)).
+    FRAKCJA chroni linie KRESKOWE i OSIOWE: kreska 40 px z przerwa 15 px nie spelnia
+    15 <= 0,25*40, wiec zostaje przerywana. max_szpara chroni otwory (drzwi) w scianach."""
+    from collections import defaultdict
+    konce = []                                   # (pl, koniec 0/1, x, y, ux, uy, dl)
+    for i, p in enumerate(polilinie):
+        if len(p) < 2:
+            continue
+        for kon in (0, 1):
+            d, l = _kierunek_konca(p, 0 if kon == 0 else len(p) - 1)
+            if d is None or l < min_odc:
+                continue
+            v = p[0] if kon == 0 else p[-1]
+            konce.append((i, kon, v[0], v[1], d[0], d[1], l))
+    cos_t = np.cos(np.radians(tol_kat_deg))
+    kom = defaultdict(list)
+    for k, e in enumerate(konce):
+        kom[(int(e[2] // max_szpara), int(e[3] // max_szpara))].append(k)
+    pary = []
+    for k, e in enumerate(konce):
+        cx, cy = int(e[2] // max_szpara), int(e[3] // max_szpara)
+        for ddx in (-1, 0, 1):
+            for ddy in (-1, 0, 1):
+                for m in kom.get((cx + ddx, cy + ddy), []):
+                    if m <= k:
+                        continue
+                    f = konce[m]
+                    if f[0] == e[0]:
+                        continue
+                    if e[4] * f[4] + e[5] * f[5] > -cos_t:      # musza patrzec na siebie
+                        continue
+                    vx, vy = f[2] - e[2], f[3] - e[3]
+                    wzdl = vx * e[4] + vy * e[5]
+                    if wzdl < -1.0:
+                        continue
+                    if abs(vx * e[5] - vy * e[4]) > tol_bok or abs(vx * f[5] - vy * f[4]) > tol_bok:
+                        continue
+                    szp = (vx * vx + vy * vy) ** 0.5
+                    lim = min(max_szpara, max(min_szpara, frakcja * min(e[6], f[6])))
+                    if szp <= lim:
+                        pary.append((szp, k, m))
+    pary.sort()
+    lacz = {}                                    # (pl, koniec) -> (pl, koniec)
+    for _, k, m in pary:
+        a = (konce[k][0], konce[k][1])
+        b = (konce[m][0], konce[m][1])
+        if a in lacz or b in lacz:
+            continue
+        lacz[a] = b
+        lacz[b] = a
+
+    uzyte = set()
+    wynik = []
+    for i in range(len(polilinie)):
+        if i in uzyte:
+            continue
+        # cofnij sie do poczatku lancucha (wolnego konca); petla zamknieta -> start gdziekolwiek
+        pl, we = i, 0
+        widziane = {i}
+        while (pl, we) in lacz:
+            npl, nk = lacz[(pl, we)]
+            if npl in widziane:
+                break
+            widziane.add(npl)
+            pl, we = npl, 1 - nk
+        out = []
+        while pl not in uzyte:                   # idz do przodu, wchodzac koncem `we`
+            uzyte.add(pl)
+            p = polilinie[pl]
+            out.extend(p if we == 0 else list(reversed(p)))
+            nast = lacz.get((pl, 1 - we))
+            if nast is None:
+                break
+            pl, we = nast
+        if not out:
+            continue
+        czysta = [out[0]]
+        for v in out[1:]:
+            if v != czysta[-1]:
+                czysta.append(v)
+        if len(czysta) >= 2:
+            wynik.append(usun_wspolliniowe([tuple(v) for v in czysta]))
     return wynik
 
 
@@ -709,7 +945,8 @@ def maska_tekstu(bw, glif_px=None, min_glifow=3, promien_k=None):
 
 
 def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol_domk=14.0,
-               prostuj=True, tol_prost=2.5, min_prosta=25.0, pomijaj_tekst=False):
+               prostuj=True, tol_prost=2.5, min_prosta=25.0, pomijaj_tekst=False,
+               do_osi=True, laczenie=True):
     """Obraz w skali szarosci (uint8) -> lista polilinii [(x, y), ...] w pikselach.
     UWAGA: zwraca x=kolumna, y=wiersz. Zamiana na uklad rysunku jest po stronie CAD.
 
@@ -721,7 +958,11 @@ def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol
     linia wymiarowa znikala z wyniku bez sladu w liczbach.
     Smieci odsiewa filtr min_dlugosc PO trasowaniu: plamka daje krotki lancuch i wypada.
     ZMIERZONE: 200 plam szumu -> 0 smieciowych polilinii, a kreski 1/2/4 px zachowane.
-    despeckle=True zostawione dla skanow tak brudnych, ze inaczej sie nie da."""
+    despeckle=True zostawione dla skanow tak brudnych, ze inaczej sie nie da.
+
+    do_osi / laczenie (08.10, #190/#33): prostowanie prawie-poziomych/pionowych do osi
+    i sklejanie porwanych kawalkow jednej prostej. Wylaczenie: do_osi=False, laczenie=False
+    (wtedy wynik jak przed 08.10, poza poprawionym domykaniem)."""
     prog = otsu(szary)
     bw = szary < prog                       # kreska ciemna na jasnym papierze
     if pomijaj_tekst:                        # OPCJA: wywal skupiska opisow/cyfr (geometria zostaje)
@@ -739,8 +980,16 @@ def wektoryzuj(szary, eps=1.5, despeckle=False, min_dlugosc=8, domykaj=True, tol
             pkt = rdp(ch, eps)
         if len(pkt) >= 2:
             polilinie.append(pkt)
+    if do_osi:                                        # prawie H/V -> dokladnie H/V
+        polilinie = prostuj_do_osi(polilinie)
     if domykaj:                                       # zamknij szpary + ostrzej narozniki
         polilinie = domknij_konce(polilinie, tol=tol_domk)
+    if laczenie:                                      # sklej kawalki jednej prostej
+        polilinie = polacz_wspolliniowe(polilinie, max_szpara=tol_domk)
+    if do_osi:                                        # szwy po sklejeniu -> jeszcze raz
+        polilinie = prostuj_do_osi(polilinie)
+        polilinie = [usun_wspolliniowe(p) for p in polilinie]
+        polilinie = prostuj_do_osi(polilinie)
     return polilinie, prog, int(szk.sum())
 
 
