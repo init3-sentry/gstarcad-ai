@@ -6,7 +6,8 @@
 #
 # WYMAGA (jednorazowo, wg wyniku #32):
 #   "<sciezka>\python.exe" -m pip install numpy pillow
-#   Sciezke poda GSAI_PYENV. numpy juz macie — dochodzi tylko pillow (~3 MB).
+#   Sciezke poda GSAI_PYENV. UWAGA: wozony Python 3.11.8 embed NIE ma ani numpy, ani pillow
+#   (Rafal 08.10 wgral oba recznie; reinstalacja je kasuje) — rachunek: wektoryzacja-decyzja-2026-10-12.md.
 #
 # Zaleznosci CELOWO ograniczone do numpy + Pillow (~16 MB). Bez scikit-image, bez
 # OpenCV, bez scipy — te ciagna ~300 MB i u klienta zamienilyby sie w instalator,
@@ -1006,9 +1007,263 @@ def _open_ms():
     return ms if st == Gcad.eOk else None
 
 
+# ===================== SCIEZKA "KLIK W OBRAZ" (prototyp, zespol#33/#190) =====================
+# Pomysl Rafala (08.10): najpierw wstawic skan do rysunku jako OBRAZ (IMAGE), potem wskazac go
+# kliknieciem — polilinie leza DOKLADNIE na obrazie (to samo polozenie, skala i obrot), zamiast
+# zgadywac narozniki i szerokosc w wierszu polecen.
+#
+# Skad bierzemy dane (obiektowe API, NIE DXF — punktow DXF nie da sie odczytac, BUG-14):
+#   - sciezka pliku : IMAGE.imageDefId() -> IMAGEDEF.activeFileName()/sourceFileName()
+#   - polozenie     : IMAGE.getOrientation(origin, u, v)  (parametry WYJSCIOWE)
+#                     zapas: position() + rotation() + width() + height()
+#   - rozmiar obrysu: IMAGE.width()/height() w jednostkach rysunku. Dlatego kierunek bierzemy
+#                     z u/v, a DLUGOSC z width()/height() — nie zgadujemy, czy u/v sa pelne
+#                     (cala krawedz) czy "na piksel" (konwencja DXF/AutoCAD).
+# Po zapisie i ponownym otwarciu rysunku IMAGE/IMAGEDEF wracaja jako bazowe GcDbEntity/GcDbObject
+# (BUG-10/15) — wtedy rzutowanie TYLKO przez gsai_downcast_core (brama buildu 260827).
+# Odrzucamy z komunikatem: obraz przyciety (clip), obraz poza plaszczyzna XY.
+
+def _xyz(p):
+    """(x, y, z) z GcGePoint3d / GcGeVector3d — atrybuty albo indeksy (zaleznie od wiazania)."""
+    try:
+        return float(p.x), float(p.y), float(p.z)
+    except Exception:
+        return float(p[0]), float(p[1]), float(p[2])
+
+
+def pelne_wektory(U, V, szer, wys):
+    """Obrys obrazu jako PELNE wektory (jednostki rysunku) z kierunkow U,V i rozmiaru obrysu.
+    U, V = (x,y,z) z getOrientation; szer, wys = width()/height() albo None.
+    Zwraca (Uf, Vf, tryb); tryb 'pelne' | 'z_rozmiaru' | 'bez_rozmiaru' (do dziennika)."""
+    lu = (U[0] ** 2 + U[1] ** 2 + U[2] ** 2) ** 0.5
+    lv = (V[0] ** 2 + V[1] ** 2 + V[2] ** 2) ** 0.5
+    if lu <= 0 or lv <= 0:
+        return None, None, "zerowy_wektor"
+    if not szer or not wys or szer <= 0 or wys <= 0:
+        return tuple(U), tuple(V), "bez_rozmiaru"        # jak gsai_raster_core.osadz: pelne
+    Uf = tuple(c / lu * szer for c in U)
+    Vf = tuple(c / lv * wys for c in V)
+    tryb = "pelne" if abs(lu - szer) <= 0.01 * szer else "z_rozmiaru"   # 'na piksel': |u| = szer/Wpx
+    return Uf, Vf, tryb
+
+
+def mapa_obrazu(W, H, O, Uf, Vf):
+    """Funkcja (px, py) -> (X, Y, Z): piksel (kolumna px, wiersz py od GORY, srodek piksela)
+    na wspolrzedne rysunku. O = lewy dolny naroznik obrazu, Uf/Vf = pelne wektory obrysu.
+    Czysta matematyka — dziala tez dla obrazu obroconego, skalowanego, sfalowanego i odbitego."""
+    def f(px, py):
+        a = (px + 0.5) / W
+        b = (H - (py + 0.5)) / H
+        return (O[0] + a * Uf[0] + b * Vf[0],
+                O[1] + a * Uf[1] + b * Vf[1],
+                O[2] + a * Uf[2] + b * Vf[2])
+    return f
+
+
+def _dc():
+    """gsai_downcast_core albo None (przyklad uruchomiony poza paczka GSAI)."""
+    try:
+        import gsai_downcast_core
+        return gsai_downcast_core
+    except Exception:
+        return None
+
+
+def _typ_dxf(en):
+    """Typ DXF (grupa 0, np. 'IMAGE') wskazanej encji — tylko do komunikatu, geometrii z DXF NIE czytamy."""
+    try:
+        rb = gcdbEntGet(en)
+    except Exception:
+        return None
+    if rb is None:
+        return None
+    try:
+        node = rb
+        while node is not None:
+            try:
+                if node.restype == 0:
+                    return node.resval.rstring
+            except Exception:
+                pass
+            node = node.rbnext
+        return None
+    finally:
+        try:
+            gcutRelRb(rb)
+        except Exception:
+            pass
+
+
+def _plik_obrazu(defobj):
+    """Pierwsza istniejaca sciezka pliku obrazu z IMAGEDEF (active, potem source, takze wzgledna
+    do folderu rysunku). Zwraca (sciezka, lista_prob)."""
+    proby = []
+    for nazwa in ("activeFileName", "sourceFileName"):
+        try:
+            s = getattr(defobj, nazwa)()
+        except Exception:
+            s = None
+        if s and s not in proby:
+            proby.append(s)
+    folder = None
+    try:
+        import gsai_cad_core as _cc
+        pr = _cc.plik_rysunku()
+        folder = os.path.dirname(pr) if pr else None
+    except Exception:
+        folder = None
+    kand = list(proby)
+    if folder:
+        for s in proby:
+            if not os.path.isabs(s):
+                kand.append(os.path.join(folder, s))
+            kand.append(os.path.join(folder, os.path.basename(s)))
+    for s in kand:
+        if os.path.isfile(s):
+            return s, proby
+    return None, proby
+
+
+def odczytaj_obraz(en):
+    """Dane obrazu wskazanego w rysunku: (dane, blad). dane = dict(sciezka, O, Uf, Vf, tryb, zrodlo)
+    albo None + tekst bledu dla uzytkownika. Obiekty zawsze zamykane (try/finally)."""
+    dc = _dc()
+    entId = GcDbObjectId()
+    if gcdbGetObjectId(entId, en) != Gcad.eOk:
+        return None, "Nie moge odczytac wskazanego obiektu."
+    st, ent = gcdbOpenGcDbEntity(entId, GcDb.kForRead, False)
+    if st != Gcad.eOk or ent is None:
+        return None, "Nie moge otworzyc wskazanego obiektu."
+    try:
+        tn = type(ent).__name__
+        img = None
+        if tn == "GcDbRasterImage":
+            img = ent
+        elif tn in ("GcDbEntity", "GcDbObject") and dc is not None:
+            img = dc.as_dokladnie(ent, "GcDbRasterImage", "imageDefId")
+        if img is None:
+            typ = _typ_dxf(en)
+            if typ is not None and typ != "IMAGE":
+                return None, "To nie jest obraz (%s). Wskaz obraz albo Enter, zeby wybrac plik." % typ
+            return None, ("Nie moge odczytac tego obrazu na tym buildzie GstarCAD "
+                          "(rysunek byl zapisany i otwarty ponownie). Wybierz plik recznie (Enter).")
+        try:
+            if img.isClipped():
+                return None, ("Obraz jest przyciety (CLIP). Usun przyciecie (IMAGECLIP > Usun) "
+                              "albo wybierz plik recznie (Enter).")
+        except Exception:
+            pass                                          # brak metody != przyciety
+        # --- geometria ---
+        O = U = V = None
+        zrodlo = "getOrientation"
+        try:
+            o3, u3, v3 = GcGePoint3d(), GcGeVector3d(), GcGeVector3d()
+            img.getOrientation(o3, u3, v3)
+            O, U, V = _xyz(o3), _xyz(u3), _xyz(v3)
+            if (U[0] ** 2 + U[1] ** 2 + U[2] ** 2) <= 0:
+                O = None
+        except Exception:
+            O = None
+        szer = wys = None
+        try:
+            szer, wys = float(img.width()), float(img.height())
+        except Exception:
+            pass
+        if O is None:                                      # zapas: pozycja + obrot + rozmiar
+            import math
+            zrodlo = "position+rotation"
+            if not szer or not wys:
+                return None, "Nie moge odczytac polozenia ani rozmiaru obrazu."
+            O = _xyz(img.position())
+            r = float(img.rotation())
+            U = (math.cos(r), math.sin(r), 0.0)
+            V = (-math.sin(r), math.cos(r), 0.0)
+        Uf, Vf, tryb = pelne_wektory(U, V, szer, wys)
+        if Uf is None:
+            return None, "Obraz ma zerowy rozmiar."
+        for w in (Uf, Vf):
+            if abs(w[2]) > 1e-6 * (w[0] ** 2 + w[1] ** 2) ** 0.5:
+                return None, ("Obraz nie lezy w plaszczyznie XY (obrocony w 3D). "
+                              "Ta wersja liczy tylko obrazy plaskie.")
+        # --- plik z IMAGEDEF ---
+        defId = img.imageDefId()
+        s2, dobj = gcdbOpenObject(defId, GcDb.kForRead)
+        if s2 != Gcad.eOk or dobj is None:
+            return None, "Nie moge otworzyc definicji obrazu (IMAGEDEF)."
+        try:
+            d = dobj
+            if type(dobj).__name__ != "GcDbRasterImageDef":
+                d = dc.as_dokladnie(dobj, "GcDbRasterImageDef", "activeFileName") if dc else None
+            if d is None:
+                return None, ("Nie moge odczytac pliku obrazu na tym buildzie GstarCAD. "
+                              "Wybierz plik recznie (Enter).")
+            sciezka, proby = _plik_obrazu(d)
+        finally:
+            try: dobj.close()
+            except Exception: pass
+        if not sciezka:
+            return None, ("Plik obrazu nie istnieje pod sciezka z rysunku (%s). "
+                          "Odnajdz go w menedzerze obrazow (IMAGEMANAGER) albo wybierz plik recznie (Enter)."
+                          % (proby[0] if proby else "?"))
+        return dict(sciezka=sciezka, O=O, Uf=Uf, Vf=Vf, tryb=tryb, zrodlo=zrodlo,
+                    szer=szer, wys=wys), None
+    finally:
+        try: ent.close()
+        except Exception: pass
+
+
+def _wykonaj(szary, mapa, pomijaj, elewacja=0.0, wstaw=True):
+    """Wektoryzuje, mapuje piksele funkcja `mapa` i (wstaw=True) dopisuje polilinie do Model Space.
+    Zwraca dict(ile, wierz, dt, prog, npix, swiat) — `swiat` = wierzcholki w jednostkach rysunku."""
+    t0 = time.time()
+    pol, prog, npix = wektoryzuj(szary, eps=1.5, pomijaj_tekst=pomijaj)
+    swiat = [[mapa(px, py)[:2] for (px, py) in linia] for linia in pol]
+    dt = time.time() - t0
+    ile = 0
+    if pol and wstaw:
+        ms = _open_ms()
+        if ms is None:
+            raise RuntimeError("Nie moge otworzyc przestrzeni modelu.")
+        # Model space ZAWSZE zamkniety — otwarta blokada zapisu wywraca program
+        # przy autozapisie kilkanascie minut pozniej.
+        try:
+            for linia in swiat:
+                pl = GcDbPolyline()
+                try:
+                    for i, (X, Y) in enumerate(linia):
+                        pl.addVertexAt(i, GcGePoint2d(X, Y))
+                    if elewacja:
+                        try: pl.setElevation(elewacja)
+                        except Exception: pass
+                    ms.appendGcDbEntity(pl)
+                    ile += 1
+                finally:
+                    pl.close()
+        finally:
+            ms.close()
+    return dict(ile=ile, wierz=sum(len(p) for p in pol), dt=dt, prog=prog, npix=npix,
+                swiat=swiat, n_pol=len(pol))
+
+
+def wektoryzuj_obraz_z_rysunku(en, pomijaj=False, wstaw=True):
+    """Cala sciezka 'klik w obraz' bez pytan (komenda i autotest). en = nazwa wskazanego obiektu.
+    Zwraca (wynik, blad)."""
+    from PIL import Image
+    dane, blad = odczytaj_obraz(en)
+    if blad:
+        return None, blad
+    szary = np.asarray(Image.open(dane["sciezka"]).convert("L"), dtype=np.uint8)
+    H, W = szary.shape
+    mapa = mapa_obrazu(W, H, dane["O"], dane["Uf"], dane["Vf"])
+    w = _wykonaj(szary, mapa, pomijaj, elewacja=dane["O"][2], wstaw=wstaw)
+    w["dane"] = dane
+    w["W"], w["H"] = W, H
+    return w, None
+
+
 @command(local_name='GSAI_WEKTORYZUJ', global_name='GSAI_WEKTORYZUJ', group_name='GSAI')
 def wektoryzuj_cmd():
-    """Wskaz plik ze skanem -> polilinie w rysunku. Nic nie wychodzi z tego komputera."""
+    """Wskaz obraz w rysunku (albo plik ze skanem) -> polilinie. Nic nie wychodzi z tego komputera."""
     try:
         if np is None:
             gcutPrintf("\n[WEKTOR] Brak numpy. Odpal GSAI_PYENV — poda gotowa komende pip.")
@@ -1020,39 +1275,58 @@ def wektoryzuj_cmd():
             gcutPrintf("\n         \"<sciezka>\\python.exe\" -m pip install pillow")
             return
 
-        rbf = resbuf()
-        rc = gcedGetFileD("Wskaz skan do wektoryzacji", "", "png;jpg;jpeg;tif;tiff;bmp", 0, rbf)
-        if rc != RTNORM:
+        # --- 1. ZRODLO: obraz w rysunku (klik) albo plik (stara sciezka) ---
+        en = gds_name()
+        klik = GcGePoint3d()
+        st = gcedEntSel("\nWskaz obraz w rysunku <Enter = wskaz plik ze skanem>: ", en, klik)
+        dane = None
+        if st == RTNORM:
+            dane, blad = odczytaj_obraz(en)
+            if blad:
+                gcutPrintf("\n[WEKTOR] " + blad)
+                return
+            gcutPrintf("\n[WEKTOR] Obraz: %s" % dane["sciezka"])
+        elif st == RTCAN:
             gcutPrintf("\nAnulowano.")
             return
-        path = rbf.resval.rstring
 
-        # gcedGetPoint przyjmuje punkt jako parametr WYJSCIOWY (nie zwraca krotki
-        # jak gcedGetReal) — wzorzec zwalidowany na zywo w geoportal.py
-        pt = GcGePoint3d()
-        if gcedGetPoint(None, "\nWskaz lewy dolny naroznik wstawienia: ", pt) != RTNORM:
-            gcutPrintf("\nAnulowano.")
-            return
+        path = dane["sciezka"] if dane else None
+        szer = x0 = y0 = None
+        if dane is None:
+            rbf = resbuf()
+            rc = gcedGetFileD("Wskaz skan do wektoryzacji", "", "png;jpg;jpeg;tif;tiff;bmp", 0, rbf)
+            if rc != RTNORM:
+                gcutPrintf("\nAnulowano.")
+                return
+            path = rbf.resval.rstring
 
-        # UWAGA: gcedGetReal NIE zwraca krotki. pygcad wystawia go jako
-        #   (prompt: str, result: float) -> int
-        # czyli z parametrem wyjsciowym, ktorego z Pythona nie da sie wypelnic
-        # (float jest niezmienny). Wzorzec 02 w bibliotece uczy blednej formy
-        #   status, radius = gcedGetReal(prompt)
-        # i wlasnie na tym wywrocilo sie u Jakuba (#32, 2026-07-16).
-        # Do czasu wyjasnienia: pytamy tekstem i parsujemy sami. Dziala pewnie.
-        st, txt = gcedGetString(1, "\nSzerokosc rysunku w jednostkach (np. 10000 dla 10 m): ")
-        if st != RTNORM or not txt or not txt.strip():
-            gcutPrintf("\nAnulowano.")
-            return
-        try:
-            szer = float(txt.strip().replace(",", "."))    # przecinek dziesietny PL
-        except ValueError:
-            gcutPrintf("\n[WEKTOR] '%s' to nie jest liczba. Anulowano." % txt)
-            return
-        if szer <= 0:
-            gcutPrintf("\n[WEKTOR] Szerokosc musi byc dodatnia. Anulowano.")
-            return
+            # gcedGetPoint przyjmuje punkt jako parametr WYJSCIOWY (nie zwraca krotki
+            # jak gcedGetReal) — wzorzec zwalidowany na zywo w geoportal.py
+            pt = GcGePoint3d()
+            if gcedGetPoint(None, "\nWskaz lewy dolny naroznik wstawienia: ", pt) != RTNORM:
+                gcutPrintf("\nAnulowano.")
+                return
+
+            # UWAGA: gcedGetReal NIE zwraca krotki. pygcad wystawia go jako
+            #   (prompt: str, result: float) -> int
+            # czyli z parametrem wyjsciowym, ktorego z Pythona nie da sie wypelnic
+            # (float jest niezmienny). Wzorzec 02 w bibliotece uczy blednej formy
+            #   status, radius = gcedGetReal(prompt)
+            # i wlasnie na tym wywrocilo sie u Jakuba (#32, 2026-07-16).
+            # Do czasu wyjasnienia: pytamy tekstem i parsujemy sami. Dziala pewnie.
+            st, txt = gcedGetString(1, "\nSzerokosc rysunku w jednostkach (np. 10000 dla 10 m): ")
+            if st != RTNORM or not txt or not txt.strip():
+                gcutPrintf("\nAnulowano.")
+                return
+            try:
+                szer = float(txt.strip().replace(",", "."))    # przecinek dziesietny PL
+            except ValueError:
+                gcutPrintf("\n[WEKTOR] '%s' to nie jest liczba. Anulowano." % txt)
+                return
+            if szer <= 0:
+                gcutPrintf("\n[WEKTOR] Szerokosc musi byc dodatnia. Anulowano.")
+                return
+            x0, y0 = pt[0], pt[1]
 
         # OPCJA (retest #32): pomijanie skupisk opisow/cyfr. Domyslnie NIE — geometria 1:1.
         # T = sprobuj wyciac tekst (krzyzyki/linie/znaczniki zostaja). Prototyp: tabele i
@@ -1070,45 +1344,29 @@ def wektoryzuj_cmd():
         gcutPrintf("\n[WEKTOR] %d x %d px (%.1f Mpx)%s. Licze — to potrwa kilka sekund..."
                    % (W, H, W * H / 1e6, " | pomijam tekst" if pomijaj else ""))
 
-        pol, prog, npix = wektoryzuj(szary, eps=1.5, pomijaj_tekst=pomijaj)
-        dt = time.time() - t0
-        if not pol:
+        if dane is not None:
+            mapa = mapa_obrazu(W, H, dane["O"], dane["Uf"], dane["Vf"])
+            elew = dane["O"][2]
+        else:
+            skala = float(szer) / float(W)           # jednostki rysunku na piksel
+            # obraz liczy wiersze z gory, CAD ma Y do gory -> odbicie
+            mapa = lambda px, py: (x0 + px * skala, y0 + (H - py) * skala, 0.0)
+            elew = 0.0
+
+        w = _wykonaj(szary, mapa, pomijaj, elewacja=elew)
+        if not w["n_pol"]:
             gcutPrintf("\n[WEKTOR] Nie znalazlem zadnych linii. Za jasny skan albo za duzo szumu?")
             return
-
-        skala = float(szer) / float(W)               # jednostki rysunku na piksel
-        x0, y0 = pt[0], pt[1]
-
-        ms = _open_ms()
-        if ms is None:
-            gcutPrintf("\n[WEKTOR] Nie moge otworzyc przestrzeni modelu.")
-            return
-        # Model space ZAWSZE zamkniety — otwarta blokada zapisu wywraca program
-        # przy autozapisie kilkanascie minut pozniej.
-        ile = 0
-        try:
-            for linia in pol:
-                pl = GcDbPolyline()
-                try:
-                    for i, (px, py) in enumerate(linia):
-                        # obraz liczy wiersze z gory, CAD ma Y do gory -> odbicie
-                        X = x0 + px * skala
-                        Y = y0 + (H - py) * skala
-                        pl.addVertexAt(i, GcGePoint2d(X, Y))
-                    ms.appendGcDbEntity(pl)
-                    ile += 1
-                finally:
-                    pl.close()
-        finally:
-            ms.close()
-
-        wierz = sum(len(p) for p in pol)
+        dt = time.time() - t0
         gcutPrintf("\n[WEKTOR] Gotowe w %.1f s." % dt)
-        gcutPrintf("\n         Wstawiono %d polilinii, %d wierzcholkow." % (ile, wierz))
+        gcutPrintf("\n         Wstawiono %d polilinii, %d wierzcholkow." % (w["ile"], w["wierz"]))
         gcutPrintf("\n         Prog jasnosci: %d | pikseli linii: %d (kompresja %.0f×)"
-                   % (prog, npix, npix / max(1, wierz)))
+                   % (w["prog"], w["npix"], w["npix"] / max(1, w["wierz"])))
         gcutPrintf("\n         Nic nie wyszlo z tego komputera — liczone lokalnie.")
-        gcutPrintf("\n         Zrob ZOOM > Zakres (ZE), zeby zobaczyc.")
+        if dane is None:
+            gcutPrintf("\n         Zrob ZOOM > Zakres (ZE), zeby zobaczyc.")
+        else:
+            gcutPrintf("\n         Polilinie leza na obrazie (to samo polozenie, skala i obrot).")
 
     except Exception as err:
         gcutPrintf("\n[WEKTOR BLAD] %s: %s" % (type(err).__name__, err))
