@@ -1,9 +1,12 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-12**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-13**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **32** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **16**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_BOKI (✅ NA STRONE)
+
+Gotowych na strone: **33** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **16**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -20,6 +23,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 ## ✅ Na strone (gotowe)
 
 - **`GSAI_AUDYTZ`** — Znajduje i zaznacza obiekty, które „uciekły" w Z≠0 (z góry niewidoczne, psują pomiary w płaskim rysunku). Prostowanie natywnym FLATTEN.
+- **`GSAI_BOKI`** — Wymiary wszystkich boków polilinii jednym poleceniem: wskazujesz polilinię (zamkniętą albo otwartą), a każdy bok dostaje wymiar po zewnętrznej stronie konturu, niezależnie od kierunku rysowania — odcinki wymiarem równoległym, łuki wymiarem długości łuku, promienia albo obu (pytanie przy łukach). To zwykłe wymiary GstarCAD w bieżącym stylu i na bieżącej warstwie, odsunięte wg skali stylu; całość cofa jedno Ctrl+Z. Działa też na polilinii z pliku zapisanego i otwartego od nowa. Natywnie: QDIM na polilinii daje rzuty na oś (bok skośny wychodzi krótszy, łuk bez promienia i długości), DIMCONTINUE łańcuchuje po jednym wymiarze — nasz wyróżnik: cały kontur ze skosami i łukami jednym wskazaniem.
 - **`GSAI_CHROP`** — Symbol chropowatości powierzchni (haczyk 60°, warianty usunięcia materiału, półka na dane).
 - **`GSAI_CUI`** — „Odzyskaj wstążkę" — naprawa interfejsu GstarCAD, gdy zniknie wstążka/menu (uszkodzony gcad.cuix / porwany rejestr MenuFile). Przywraca z baseline sprzed instalacji albo z 5 zdrowych snapshotów (ring), naprawia rejestrację głównego menu; okno z przyciskiem „Odzyskaj wstążkę" + modal „ZRESTARTUJ GstarCAD". Naprawa interfejsu, nie danych — rysunki nietknięte. Alias globalny: GSAI_REPAIRCUI.
 - **`GSAI_DACH`** — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Działa też na pliku otwartym ponownie (odczyt obrysu native-first + jawne rzutowanie — 2026-09-18, build 260827). Generowania połaci z obrysu nie ma nikt.
