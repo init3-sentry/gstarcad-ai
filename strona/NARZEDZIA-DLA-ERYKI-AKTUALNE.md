@@ -1,12 +1,12 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-13**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-14**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 ## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_BOKI (✅ NA STRONE)
+- ~ GSAI_PRZK: 🔧 poza strona (w budowie) -> ✅ NA STRONE
 
-Gotowych na strone: **33** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **16**
+Gotowych na strone: **34** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **15**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -39,6 +39,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_PODZIALKA`** — Podziałka liniowa (skala rysunku) na arkuszu — rysowana w mm w Przestrzeni Papieru. Generatywne → BUG-10-safe.
 - **`GSAI_POLA`** — Pole i obwód pól/pomieszczeń: zaznacz oknem albo wskaż pomieszczenie → opis w centroidzie + tabela zbiorcza + eksport CSV. Liczy też na pliku ZAPISANYM od klienta (obejście BUG-10 przez jawne rzutowanie — 2026-09-18, build 260827). Wchłonęło ZESTAWIENIE i PRZEDMIAR (konsolidacja, Robert ✓).
 - **`GSAI_POMIAR`** — Pomiar z opisem: długości + odległość punkt-punkt, „obwód" w opisie zamkniętej polilinii, linia przerywana skąd-dokąd, przełącznik orientacji opisu. Natywnie brak takiego złożenia.
+- **`GSAI_PRZK`** — Przekrój drogowy z opisami warstw, skarp i pasów: wybierasz klasę drogi (A, S, GP, G, Z, L, D) i liczbę pasów, a narzędzie rysuje typowy przekrój poprzeczny — jezdnię ze spadkami (daszkową albo z przechyłką), pobocza, skarpy nasypu lub wykopu i warstwy konstrukcyjne nawierzchni; opcjonalnie rów, pas awaryjny (A/S), przepust rurowy lub skrzynkowy i pikietaż. Opisy pasów, poboczy, skarp i warstw są rozmieszczone bez nakładania na siebie i na skarpę (opisy warstw na odnośnikach pod jezdnią). Po podaniu długości odcinka wypisuje przedmiar nawierzchni i robót ziemnych. Parametry wg WT dróg publicznych (Dz.U. 2022/1518) i WR-D-22-2; grubości warstw typowe, rów przybliżony. Natywnie GstarCAD nie ma takiej funkcji.
 - **`GSAI_RURA`** — Osłona kabla krzyżującego uzbrojenie: wskaż trasę (także z kilku osobnych odcinków), a narzędzie rysuje osłonę jako jedną zamkniętą polilinię. Długość z normy — wskazujesz krzyżowany obiekt, narzędzie mierzy jego szerokość i dokłada zapas z obu stron (domyślnie 50 cm, N SEP-E-004 p. 3.1.6.1). Tryb ciągły: kolejne skrzyżowania do ESC. Opcjonalne podpisy R1, R2, R3 z własnym przedrostkiem, numeracja idzie dalej od tej w rysunku.
 - **`GSAI_RZEDNE`** — Znacznik rzędnej wysokościowej na rzucie i w przekroju — wskaż dowolny punkt jako ±0,000 (nie musi to być początek układu), kolejne liczone od niego: auto-odczyt różnicy albo wpis ręczny. Symbol wg PN-B-01025:2004 §3.5, Rys. 6a–d: krzyżyk / kółko na rzucie, grot otwarty na przekroju, grot w połowie zaczerniony dla ±0,000; przecinek dziesiętny, domyślnie 3 miejsca. Od 12.10 (klient Kubacki): dokładność zapisu „1 cm” (2 miejsca) albo „5 mm” (3 miejsca, zaokrąglone do 5 mm), rodzaj symbolu „Konstrukcja” (pełny zaczerniony trójkąt poza zerem, przy zerze pusty), pole „Rysunek jest narysowany w” (cm/m), baza i znaczniki tej samej wielkości, Odśwież przelicza każdy znacznik także po obcym obiekcie i przy kilku bazach na tej samej wysokości; ustawienia zostają po zapisie i ponownym otwarciu (LC 9/9). Każdy znacznik = blok; GSAI_RZEDNE_AKTUALIZUJ przelicza wszystkie od aktualnego położenia bazy. Natywnie brak dedykowanego. Generatywne → BUG-10-safe. Alias globalny: GSAI_LEVEL.
 - **`GSAI_RZUT`** — Tabliczkowy symbol metody rzutowania 1./3. kąta (ISO 5456-2) — ścięty stożek w dwóch widokach. Natywnie brak. Generatywne.
@@ -81,7 +82,6 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 
 - `GSAI_ANONIM` — Bloki bez nazwy (*U###) z DIALuxa i innych eksportów dostają nazwy: narzędzie rozpoznaje, które mają ten sam kształt, i nadaje każdej grupie wspólną nazwę — podaną przez użytkownika (domyślnie SYMBOL_01). Natywnie GstarCAD to potrafi, ale po jednej sztuce (REFEDIT; BEDIT anonimowych nie pokazuje) — przy 77 definicjach to nie jest droga.
 - `GSAI_BLOKI` — Okno ze spisem bloków w rysunku i liczbą sztuk: kliknięcie nazwy podświetla wszystkie egzemplarze i przesuwa na nie widok, strzałki (także klawisze) chodzą po sztukach pojedynczo, wyszukiwarka zawęża listę. Rysunku nie zmienia. Natywny BCOUNT podaje same liczby do wiersza poleceń, bez wskazania miejsca.
-- `GSAI_PRZK` — Przekrój drogowy z parametrów normy. Generatywne → BUG-10-safe. Core self-test 13/13; brak przebiegu zespołu na rysunku.
 
 ## ⛔ NIE umieszczac (wycofane / zastapione natywnym GstarCAD)
 
