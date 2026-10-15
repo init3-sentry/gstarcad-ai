@@ -1,12 +1,12 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-14**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-16**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 ## 🔔 Co sie zmienilo od ostatniego razu
-- ~ GSAI_PRZK: 🔧 poza strona (w budowie) -> ✅ NA STRONE
+- ~ GSAI_TIN: 🔴 poza strona (wstrzymane — nie obiecywac) -> ✅ NA STRONE
 
-Gotowych na strone: **34** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **15**
+Gotowych na strone: **35** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **14**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -16,7 +16,6 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_PROFIL` — Profil podłużny terenu wzdłuż wskazanej linii cięcia: linia terenu, osie, pikietaż, rzędne, przewyższenie. Silnik geo wspólny z GSAI_TIN. Natywnie brak (SOLPROF to profil bryły, nie terenu).
-- `GSAI_TIN` — Warstwice z chmury punktów wysokościowych (triangulacja + przekroje poziomami): poziomice na osobnych warstwach, główne co którąś, podpisy wysokości. Silnik geo wspólny z GSAI_PROFIL. Natywnie brak (GstarCAD ma tylko izolinie brył 3D).
 - `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
 - `GSAI_ZNAKI` — Tarcze pionowych znaków drogowych (grupy A/B/C/D) + znak B-33 wg Dz.U. 2003/2181; wynik jako blok.
 
@@ -49,6 +48,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_SLONCE`** — Diagram nasłonecznienia / ścieżka słońca (biegunowy wykres): szerokość geo + data → horyzont, pierścienie wysokości, azymuty N/E/S/W, ścieżka słońca + przesilenia/równonoc. Okno z dropdownem 18 miast wojewódzkich + ręczna szerokość. v2 06.08: legenda „jak czytać" (praktyk brał to za mapę cienia). Generatywne → BUG-10-safe. Spina z Linijką Słońca. GSAI_SUNPATH = alias.
 - **`GSAI_SPADEK`** — Strzałka spadku + wartość (%/‰/°/1:n) — dachy, tarasy, odwodnienie; tryb ręczny albo auto z różnicy wysokości. Natywnie brak. Generatywne → BUG-10-safe.
 - **`GSAI_TABELKA`** — NOWA 07.08 — połowa rozdziału GSAI_FORMATKA: tabliczka rysunkowa ISO 7200 (PL) + pas właściciela (logo + Biuro) jako osobny blok ATTDEF, dla tych bez własnej tabliczki. Szerokość 180 mm (≤180mm, wymóg Roberta), wysokość 63 mm. Punkt wstawienia = prawy dolny narożnik (klik, tabliczka rozwija się w lewo/górę — dosuwalna do dowolnego rogu ramki). Guard „tylko Arkusz". Generatywne → BUG-10-safe. Styl TTF GSAI_PL dla polskich znaków.
+- **`GSAI_TIN`** — Warstwice z punktów pomiarowych: zaznaczasz punkty wysokościowe w rysunku albo wczytujesz plik X Y Z, a narzędzie buduje model terenu i kreśli warstwice w wybranym cięciu (0,25 do 5 m) — główne grubszą linią, z podpisami wysokości (góra cyfr w stronę wzniesienia, wg K-1), na osobnych warstwach GSAI_WARSTWICE i GSAI_WARSTWICE_GL. Kolor ACI 7: czarny na wydruku, biały na ciemnym tle. Opcjonalnie: podpisy rzędnych przy punktach, siatka trójkątów, hipsometria i mapa spadków. Czyta zwykłe punkty (POINT) z Z, także z pliku zapisanego i otwartego od nowa; teksty z rzędnymi i bloki pomija. Kilkadziesiąt tysięcy punktów liczy się w kilka sekund. Natywnie brak (GstarCAD ma tylko izolinie brył 3D).
 - **`GSAI_WMS`** — Podkład z usług WMS wprost w rysunku, na prawdziwych współrzędnych: ortofotomapa geoportalu GUGiK + granice/numery działek EGiB + własny URL WMS. Okno wyboru usług + jakość podkładu (Szybka–podgląd / Standardowa–czytelne numery, domyślna / Wysoka–do wydruku), obszar = prostokąt (dwa naroża). Silnik osadzania wspólny z GSAI_GEORASTER; obraz siada na współrzędnych, nowy podkład kasuje stary nakładający się, osobne obszary współistnieją (multi-raster ≥260827). Darmowy magnes: dane geoportalu publiczne (INSPIRE 2007/2/WE + ustawa IIP Dz.U. 2010/76/489 + art. 40a PGiK). Przejmuje popyt płatnej wtyczki Wms2Cad (599–799 zł/rok). Kod chroniony (.pyd), zależność gsai_geoportal_core.
 - **`GSAI_WSF`** — Warstwy Standard Full — pełny branżowy zestaw warstw wg normy (A/K/instalacje/Z + systemowe), kolory kolejne z palety indeksu ACI 1–255 do własnego dostrojenia. Panel wyboru branż. Rodzeństwo GSAI_WSS (Short). Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_FULL.
 - **`GSAI_WSS`** — Warstwy Standard Short — praktyczny zestaw 42 warstw jednym poleceniem (ustawienia praktyka wg wzorca Roberta: grupy A/E/S/L/W + systemowe, gotowe kolory ACI+RGB, typy linii i grubości pod codzienną robotę). Zakłada tylko te, których w rysunku jeszcze nie ma. Natywnie brak. Generatywne → BUG-10-safe. Alias globalny: GSAI_LAYERSTD_SHORT.
