@@ -3,7 +3,10 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-16**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **35** | w testach: **19** | poza strona (w budowie/wycofane/wstrzymane): **14**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_PODKLAD (🟡 w testach (jeszcze nie))
+
+Gotowych na strone: **35** | w testach: **20** | poza strona (w budowie/wycofane/wstrzymane): **14**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -64,6 +67,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_GEOPORTAL` — Panel checkboxów: wskaż punkt → zaciąga zaznaczone warstwy. Agregator pozostałych narzędzi geo.
 - `GSAI_LEGW` — Wstawia legendę warstw jako tabelę na rysunku: nazwa + próbka koloru + próbka typu linii (graficznie) + szerokość + druk + opis. Pomysł Roberta (robert#13). Natywnie brak. Generatywne → BUG-10-safe.
 - `GSAI_ODSWIEZ` — Serwis — sprawdza, czy zestawienia liczone z rysunku (np. pola z GSAI_POLA) są aktualne; nieaktualne opisy zaznacza na czerwono, jednym poleceniem dla wszystkich narzędzi naraz.
+- `GSAI_PODKLAD` — Czyszczenie podkładu architekta pod branżę instalacyjną w jednym oknie: lista warstw (alfabetycznie, z liczbą obiektów) do usunięcia, scalenia i wygaszenia, naprawa rysunku (AUDIT), usunięcie dokładnych duplikatów (OVERKILL tylko identyczne) i nieużywanych definicji (PURGE), opcjonalne wyszarzenie reszty podkładu. Zablokowane warstwy odblokowuje na czas pracy i przywraca; całość cofa jedno UNDO. Natywnie to osobne komendy (AUDIT, -PURGE, OVERKILL, LAYDEL, LAYMRG) — tu jednym przejściem według profilu. Zgłoszenie: ELB Łukasz Bobkowski.
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG — „brak POG" to poprawny wynik. 🔴 Do sprawdzenia przez człowieka (18.09): notka mówiła, że Studia obowiązują do 31.08.2026. Ta data minęła, a treść nie była od tego czasu weryfikowana. Zanim POG pójdzie do klienta, trzeba sprawdzić w ustawie, jaki jest obecny stan przepisu przejściowego — i czy komunikat narzędzia nadal jest prawdziwy. Nie zgadywać. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJ` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_SCHRON` — Checker budowli ochronnej (schron/ukrycie): wskaż zamkniętą polilinię strefy → pole → opcjonalnie liczba osób → sprawdza wymagania WT: min 1 m²/os; wyjścia (>50 os → ≥2, >1000 os → ≥2 poza strefę zagruzowania); wejścia (>300 os → ≥2); podział na strefy (ukrycie ≤300 os, schron S-1 ≤1000 os); dopuszczalność szybu (≤35 m² i ≤10 os); szer. drogi ewakuacyjnej 0,4 m/100 os. Zakres v1: wymiarowy (grubości przegród / wentylacja / dojście ≤500 m poza zakresem). Podstawa: rozp. MSWiA z 4.11.2025 (Dz.U. 2025/1548) + ust. z 5.12.2024 o ochronie ludności (Dz.U. 2024/1907).
