@@ -3,10 +3,7 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-16**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- ~ GSAI_TIN: 🔴 poza strona (wstrzymane — nie obiecywac) -> ✅ NA STRONE
-
-Gotowych na strone: **35** | w testach: **18** | poza strona (w budowie/wycofane/wstrzymane): **14**
+Gotowych na strone: **35** | w testach: **19** | poza strona (w budowie/wycofane/wstrzymane): **14**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -74,6 +71,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_TRASA` — Wskaż polilinię przyłącza → wykaz przeciętych działek (obrysy + numery) w rysunku.
 - `GSAI_WEKTORYZUJ` — Skan rastrowy → polilinie, lokalnie.
 - `GSAI_WLADANIE` — Wskaż punkt → kto włada działką (Skarb Państwa / gmina / osoba fizyczna — bez nazwisk, RODO) + ścieżka „do kogo się zwrócić". Źródło: KIEG (grupa_rejestrowa). Podstawa: §14 rozp. EGiB (Dz.U. 2024/219). Hak — pojedyncza działka.
+- `GSAI_WYDRUK` — Wydruk ramek do PDF: rysujesz wszystko w Modelu, a każdy arkusz masz w ramce o wymiarach kartki (zamknięta polilinia albo blok z ramką i tabliczką). Zaznaczasz ramki, podajesz jedną skalę i jednostkę rysunku, a narzędzie każdej ramce dobiera najmniejszy format ISO (A4–A0, poziomo lub pionowo), na którym się mieści. Wynik: jeden wielostronicowy PDF (domyślnie) albo osobny plik na każdą ramkę; strony idą rzędami od lewej-góry, istniejących plików nie nadpisuje, rysunku nie zmienia. Natywny wydruk wsadowy (Batch Print) zostawia jeden format papieru dla całej serii — tu format dobiera się sam do każdej ramki. Zgłoszenia trzech projektantów (wrzesień).
 - `GSAI_WYKAZ` — Wskazana działka + sąsiedzi graniczni → tabela właścicieli/instytucji na rysunku.
 - `GSAI_WYSOKOSC` — Etykieta wysokości H z Numerycznego Modelu Terenu (GUGiK).
 - `GSAI_ZABYTKI` — Wskaż punkt → czy objęty ochroną konserwatorską (NID: zabytek nieruchomy / archeologiczny / UNESCO) + numer rejestru + „wymagane pozwolenie WKZ". Źródło: usługi INSPIRE NID (usluga.zabytek.gov.pl). Podstawa: art. 36 ust. z 23.07.2003 o ochronie zabytków.
