@@ -3,9 +3,6 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-23**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-## 🔔 Co sie zmienilo od ostatniego razu
-- ~ GSAI_WYDRUK: 🟡 w testach (jeszcze nie) -> ✅ NA STRONE
-
 Gotowych na strone: **39** | w testach: **30** | poza strona (w budowie/wycofane/wstrzymane): **12**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
