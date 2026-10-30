@@ -1,10 +1,7 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-28**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-29**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
-
-## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_CIECIE (🔴 poza strona (wstrzymane — nie obiecywac))
 
 Gotowych na strone: **39** | w testach: **32** | poza strona (w budowie/wycofane/wstrzymane): **13**
 
@@ -12,7 +9,7 @@ Gotowych na strone: **39** | w testach: **32** | poza strona (w budowie/wycofane
 
 Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go w podreczniku. Nie wiadomo, kiedy wroci. Powod stoi w `NARZEDZIA.md`.
 
-- `GSAI_CIECIE` — Linia cięcia przekroju na rzucie 2D: wskazuje się punkty łamanej (z uskokami), a narzędzie oznacza linię cięcia, kreski kierunku patrzenia na obu końcach i literę, domyślnie następną wolną w rysunku. Dwa style: kreska (linia kropkowana, wzór z rysunku klienta) i ISO (grube końce, strzałki, litery także przy załamaniach). Okno z domyślnymi wartościami (skala 1:N, wysokość litery, własna warstwa albo bieżąca), słowo Odwroc zmienia stronę patrzenia. Natywnie: SECTIONPLANE tnie bryły 3D, oznaczenia linii cięcia na rzucie 2D brak (referencja komend gs2027-komendy-zmienne.md, nie pomiar na LC). Zgłoszenie: Grzegorz Dyksiński, BPiN (TT38213), karta K-97.
+- `GSAI_CIECIE` — Linia cięcia przekroju na rzucie 2D: wskazuje się punkty łamanej (z uskokami), a narzędzie oznacza linię cięcia, kreski kierunku patrzenia na obu końcach i literę, domyślnie następną wolną w rysunku. Dwa style: kreska (linia kropkowana, wzór z rysunku klienta) i ISO (grube końce, strzałki, litery także przy załamaniach). Okno z domyślnymi wartościami (skala 1:N, wysokość litery, własna warstwa albo bieżąca), słowo Odwroc zmienia stronę patrzenia. Natywnie: SECTIONPLANE tnie bryły 3D, oznaczenia linii cięcia na rzucie 2D brak (referencja komend gs2027-komendy-zmienne.md, nie pomiar na LC). Zgłoszenie klienta z branży projektowej (karta K-97).
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
