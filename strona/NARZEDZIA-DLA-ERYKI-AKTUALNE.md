@@ -1,15 +1,17 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-10-29**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-11-02**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **39** | w testach: **32** | poza strona (w budowie/wycofane/wstrzymane): **13**
+## 🔔 Co sie zmienilo od ostatniego razu
+- ~ GSAI_CIECIE: 🔴 poza strona (wstrzymane — nie obiecywac) -> ✅ NA STRONE
+
+Gotowych na strone: **40** | w testach: **32** | poza strona (w budowie/wycofane/wstrzymane): **12**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
 Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go w podreczniku. Nie wiadomo, kiedy wroci. Powod stoi w `NARZEDZIA.md`.
 
-- `GSAI_CIECIE` — Linia cięcia przekroju na rzucie 2D: wskazuje się punkty łamanej (z uskokami), a narzędzie oznacza linię cięcia, kreski kierunku patrzenia na obu końcach i literę, domyślnie następną wolną w rysunku. Dwa style: kreska (linia kropkowana, wzór z rysunku klienta) i ISO (grube końce, strzałki, litery także przy załamaniach). Okno z domyślnymi wartościami (skala 1:N, wysokość litery, własna warstwa albo bieżąca), słowo Odwroc zmienia stronę patrzenia. Natywnie: SECTIONPLANE tnie bryły 3D, oznaczenia linii cięcia na rzucie 2D brak (referencja komend gs2027-komendy-zmienne.md, nie pomiar na LC). Zgłoszenie klienta z branży projektowej (karta K-97).
 - `GSAI_MEBLE` — Rozbudowany katalog ~60 symboli (kuchnia, sanitariat, meble pokojowe) wstawianych jako bloki.
 - `GSAI_NUM` — Automatyczne wstawianie i inkrementacja numerów rysunków/arkuszy.
 - `GSAI_UMEBLUJ` — Automatyczne umeblowanie: wstawia bloki mebli wzdłuż ścian. Generatywne. Smoke-test: WC wstawia się poprawnie (#107), zestaw 1/5, pre-Robert.
@@ -20,6 +22,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - **`GSAI_AUDYTZ`** — Znajduje i zaznacza obiekty, które „uciekły" w Z≠0 (z góry niewidoczne, psują pomiary w płaskim rysunku). Prostowanie natywnym FLATTEN.
 - **`GSAI_BOKI`** — Wymiary wszystkich boków polilinii jednym poleceniem: wskazujesz polilinię (zamkniętą albo otwartą), a każdy bok dostaje wymiar po zewnętrznej stronie konturu, niezależnie od kierunku rysowania — odcinki wymiarem równoległym, łuki wymiarem długości łuku, promienia albo obu (pytanie przy łukach). To zwykłe wymiary GstarCAD w bieżącym stylu i na bieżącej warstwie, odsunięte wg skali stylu; całość cofa jedno Ctrl+Z. Działa też na polilinii z pliku zapisanego i otwartego od nowa. Natywnie: QDIM na polilinii daje rzuty na oś (bok skośny wychodzi krótszy, łuk bez promienia i długości), DIMCONTINUE łańcuchuje po jednym wymiarze — nasz wyróżnik: cały kontur ze skosami i łukami jednym wskazaniem.
 - **`GSAI_CHROP`** — Symbol chropowatości powierzchni (haczyk 60°, warianty usunięcia materiału, półka na dane).
+- **`GSAI_CIECIE`** — Linia cięcia przekroju na rzucie 2D: wskazuje się punkty łamanej (z uskokami), a narzędzie oznacza linię cięcia, kreski kierunku patrzenia na obu końcach i literę, domyślnie następną wolną w rysunku. Dwa style: kreska (linia kropkowana, wzór z rysunku klienta) i ISO (grube końce, strzałki, litery także przy załamaniach). Okno z domyślnymi wartościami (skala 1:N, wysokość litery, własna warstwa albo bieżąca), słowo Odwroc zmienia stronę patrzenia. Natywnie: SECTIONPLANE tnie bryły 3D, oznaczenia linii cięcia na rzucie 2D brak (referencja komend gs2027-komendy-zmienne.md, nie pomiar na LC). Zgłoszenie klienta z branży projektowej (karta K-97).
 - **`GSAI_CUI`** — „Odzyskaj wstążkę" — naprawa interfejsu GstarCAD, gdy zniknie wstążka/menu (uszkodzony gcad.cuix / porwany rejestr MenuFile). Przywraca z baseline sprzed instalacji albo z 5 zdrowych snapshotów (ring), naprawia rejestrację głównego menu; okno z przyciskiem „Odzyskaj wstążkę" + modal „ZRESTARTUJ GstarCAD". Naprawa interfejsu, nie danych — rysunki nietknięte. Alias globalny: GSAI_REPAIRCUI.
 - **`GSAI_DACH`** — Generator połaci dachu ze straight-skeleton: wskaż obrys → połacie, kalenice, krawędzie, opisy i strzałki spadków. Działa też na pliku otwartym ponownie (odczyt obrysu native-first + jawne rzutowanie — 2026-09-18, build 260827). Generowania połaci z obrysu nie ma nikt.
 - **`GSAI_FORMATKA`** — Sama ramka rysunkowa (margines 25 mm lewy / 5 mm pozostałe), formaty A4–A0 (A4 też poziomo), guard „tylko Arkusz", BEZ tabliczki (każda firma ma własną). Natywnie brak w bazie Professional. Generatywne → BUG-10-safe.
