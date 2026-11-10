@@ -4,10 +4,9 @@
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
 ## 🔔 Co sie zmienilo od ostatniego razu
-- + NOWE: GSAI_DRZEWA (🟡 w testach (jeszcze nie))
-- + NOWE: GSAI_SYMBOLE (🟡 w testach (jeszcze nie))
+- + NOWE: GSAI_LISTY (🟡 w testach (jeszcze nie))
 
-Gotowych na strone: **40** | w testach: **36** | poza strona (w budowie/wycofane/wstrzymane): **11**
+Gotowych na strone: **40** | w testach: **37** | poza strona (w budowie/wycofane/wstrzymane): **11**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -74,6 +73,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_KLOTOIDA` — Klotoida (krzywa przejściowa) między prostą a łukiem kołowym: wskazujesz trzy punkty osi (PZ) albo istniejącą prostą i styczny łuk, podajesz promień R i parametr A (druga klotoida może mieć inne A), a narzędzie rysuje oś jako jedną polilinię (klotoidy jako łamana o strzałce cięciwy ≤ 5 mm, łuk dokładny), punkty PK1/KK1/PK2/KK2 z pikietażem i współrzędnymi oraz znaczniki pikietażu co zadany krok, na własnych warstwach. Ostrzega, gdy A albo długość klotoidy wyglądają na zbyt małe. Natywnie brak (GS 2027: tylko HELIX i SPLINE). Zgłoszenie: zespół (zespol#185) i drogowiec Maciej (ZG-0009). Alias GSAI_CLOTHOID.
 - `GSAI_LEGW` — Wstawia legendę warstw jako tabelę na rysunku: nazwa + próbka koloru + próbka typu linii (graficznie) + szerokość + druk + opis. Pomysł Roberta (robert#13). Natywnie brak. Generatywne → BUG-10-safe.
 - `GSAI_LINIA2K` — Linia dwukolorowa „na przemian” (np. żółto-zielona bednarka uziemienia): na wskazanej linii, łuku albo polilinii obiekt główny dostaje typ linii A, a kopia na drugiej warstwie typ B w przerwach; kolory BYLAYER, zmiana w tabeli warstw.
+- `GSAI_LISTY` — Listy urządzeń, zaworów i instrumentów: zestawia atrybuty bloków-etykiet schematu do szablonów xlsx klienta (urządzenia, zawory, instrumenty) i listę numerów linii (Line list); poprawki z arkusza wracają do atrybutów jednym importem (jedno Undo), klucz powiązania to uchwyt bloku
 - `GSAI_METRYKA` — Metryka działki jednym raportem: wskazujesz punkt w działce, a narzędzie zbiera z czterech źródeł i wpisuje na rysunek (warstwa GSAI_METRYKA, tekst pisany od punktu w dół; te same linie w wierszu poleceń): numer działki i powierzchnię w m² i ha (z odjęciem enklaw, ULDK), rzędną terenu z NMT GUGiK, plan miejscowy (nazwa, przeznaczenie, symbol, uchwała z datą, odnośnik do uchwały; maks. wysokość i intensywność tylko gdy KIMPZP je poda; przy braku planu odsyła do GSAI_POG) oraz formy ochrony przyrody z GDOŚ. Układ rysunku rozpoznawany po współrzędnych (PL-2000 str. 5–8 / PL-1992); punkt spoza Polski, w rysunku lokalnym albo z zamienionymi osiami kończy się komunikatem bez zapytań, a punkt poza działką EGiB dostaje zastrzeżenie, że „brak” nie potwierdza braku ograniczeń. Wysokość tekstu jak w pozostałych narzędziach geoportalowych (1/60 boku działki, 1,5–25). Natywnie brak.
 - `GSAI_MPZP` — Plan miejscowy w punkcie: wskazujesz punkt, a narzędzie pyta Krajową Integrację MPZP (KIMPZP, GUGiK) i stawia napis „MPZP: TAK” / „brak”; w wierszu poleceń podaje nazwę planu, przeznaczenie terenu z symbolem i odnośnik do uchwały, a przy braku planu odsyła do GSAI_POG. Gdy usługa odda intensywność zabudowy albo maks. wysokość (zwykle nie oddaje), otwiera okno koperty chłonności (pole działki + wskaźniki, powierzchnia zabudowy = mniejsza z: maks. % zabudowy, 1 − min. % PBC). Układ rysunku sprawdzany z współrzędnych (PL-2000 str. 5–8 / PL-1992), punkt spoza Polski albo z zamienionymi osiami odrzucany z komunikatem. Natywnie brak komendy planistycznej.
 - `GSAI_NUM` — Numeracja arkuszy: numeruje wybrane arkusze w kolejności zakładek wg schematu projektu (ISO 19650, NCS albo własny); numer trafia do atrybutu tabliczki (NUMER, NR_RYS, DWG_NO…, lista w oknie), na arkuszu bez tabliczki jako tekst w jednym wskazanym miejscu; ponowne uruchomienie przenumerowuje. Tryb Model: tekst, w serii kolejny numer.
