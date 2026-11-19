@@ -3,7 +3,10 @@
 > **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-11-19**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **40** | w testach: **40** | poza strona (w budowie/wycofane/wstrzymane): **15**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_REWIZJA (🟡 w testach (jeszcze nie))
+
+Gotowych na strone: **40** | w testach: **41** | poza strona (w budowie/wycofane/wstrzymane): **15**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -86,6 +89,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_PRZEJ` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_PRZYRODA` — Ochrona przyrody w punkcie: wskazujesz punkt, a narzędzie pyta Geoserwis GDOŚ o park narodowy, rezerwat, park krajobrazowy, obszar chronionego krajobrazu, Natura 2000 (OSO i SOO), użytek ekologiczny i zespół przyrodniczo-krajobrazowy; stawia napis „Przyroda — ochrona: TAK (n)” / „otulina” / „ochrona: brak”, a w wierszu poleceń wymienia formy z nazwą i kodem. Otulina podawana osobno. Pomniki i stanowiska punktowe nie są sprawdzane. Natywnie brak.
 - `GSAI_PRZYTNIJ` — Przycięcie mapy do zakresu: przycina rysunek do wskazanej zamkniętej polilinii (także z łukami) albo okręgu — linie, łuki, okręgi i polilinie przecinające granicę cięte na granicy (właściwości i rzędna zachowane), obiekty w całości na zewnątrz usuwane po potwierdzeniu, wnętrze bez zmian; bloki i teksty na granicy wg opcji Zostaw/Usuń (zapamiętywane), obiekty na warstwach wyłączonych, zamrożonych i zablokowanych pomijane (liczby podawane przed potwierdzeniem i w podsumowaniu), nieobsługiwane typy na granicy zaznaczane; jedno Undo (K-100, Kulik).
+- `GSAI_REWIZJA` — Rejestr rewizji: rysuje chmurkę rewizji (zamknięta polilinia z łukami) z opisem uwagi jako blok na warstwie z datą rewizji (REWIZJA_DD-MM-RRRR, kolejny kolor, niedrukowana); numer, data, autor i opis w XDATA wstawienia; opcja Tabela tworzy albo odświeża na miejscu zestawienie rewizji (Data/Autor/Opis, wiersze w kolorze warstwy); jedno Undo (zgłoszenie klienta ZG-0126, projektant).
 - `GSAI_ROZSUN` — Rozsunięcie nachodzących opisów: rozsuwa nachodzące na siebie opisy TEXT i MTEXT (redakcja mapy, K-101, Kulik); Enter = wszystkie opisy w modelu, warstwy opisów sieci pomijane (lista zapamiętywana), opis zostaje w obrysie swojej działki lub budynku, chyba że użytkownik zezwoli na wyjście poza obrys; opisy bez miejsca zostają i są zaznaczane; jedno Undo.
 - `GSAI_SCHRON` — Checker budowli ochronnej (schron/ukrycie): wskaż zamkniętą polilinię strefy → pole → opcjonalnie liczba osób → sprawdza wymagania WT: min 1 m²/os; wyjścia (>50 os → ≥2, >1000 os → ≥2 poza strefę zagruzowania); wejścia (>300 os → ≥2); podział na strefy (ukrycie ≤300 os, schron S-1 ≤1000 os); dopuszczalność szybu (≤35 m² i ≤10 os); szer. drogi ewakuacyjnej 0,4 m/100 os. Zakres v1: wymiarowy (grubości przegród / wentylacja / dojście ≤500 m poza zakresem). Podstawa: rozp. MSWiA z 4.11.2025 (Dz.U. 2025/1548) + ust. z 5.12.2024 o ochronie ludności (Dz.U. 2024/1907).
 - `GSAI_SIATKA_KRZYZY` — Siatka krzyży: krzyże siatki kwadratów z opisem współrzędnych X= (poziomo) i Y= (pionowo) w PL-2000 / PL-1992 (rozpoznanie po współrzędnych); skala 1:500 domyślnie, odstęp w mm na papierze, obszar z dwóch narożników albo zamkniętej polilinii, opisy [Wszystkie/Zaznacz/Brak] (od 19.11 „Zaznacz” zamiast „Wskaż” — skrót W nie bierze już Wszystkie); całość w jednej grupie (Kulik, panel/14).
