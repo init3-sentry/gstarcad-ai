@@ -1,9 +1,12 @@
 # Narzedzia na strone - LISTA AUTOMATYCZNA (dla Eryki)
 
-> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-11-21**.
+> **Aktualizowane automatycznie z NARZEDZIA.md.** Zerkaj tu **raz dziennie**. Ostatnia aktualizacja: **2026-11-24**.
 > Regula: **na strone idzie tylko ✅.** 🟡 = jeszcze nie obiecuj (moze sie zmienic). **NIE edytuj tego pliku recznie** — zrodlem jest `NARZEDZIA.md`.
 
-Gotowych na strone: **40** | w testach: **41** | poza strona (w budowie/wycofane/wstrzymane): **15**
+## 🔔 Co sie zmienilo od ostatniego razu
+- + NOWE: GSAI_PODLOGOWKA (🟡 w testach (jeszcze nie))
+
+Gotowych na strone: **40** | w testach: **42** | poza strona (w budowie/wycofane/wstrzymane): **15**
 
 ## 🔴 Wstrzymane — nie obiecywac, nawet jako wkrotce
 
@@ -82,6 +85,7 @@ Narzedzie jest zdjete klientowi na wszystkich rynkach: nie ma kafelka, nie ma go
 - `GSAI_ODTWORZKRESK` — Odtworzenie kreskowań: z kreskowań rozbitych na równoległe odcinki (eksport arkusza Allplan do DWG) odtwarza kreskowania wzorem użytkownika o tym samym kącie, odstępie, punkcie bazowym i obrysie, także krzyżowe; kreskowania z linii przerywanych i żelbet (linie ciągłe na przemian z przerywanymi) dostają własny wzór .pat zapisany w rysunku; tylko kreskowania zgodne 1:1 z odcinkami, warstwa/kolor z oryginału (K-99).
 - `GSAI_ODTWORZWYM` — Odtworzenie wymiarów: z wymiarów rozbitych na odcinki i teksty (eksport arkusza Allplan do DWG) odtwarza prawdziwe wymiary liniowe, także łańcuchowe; skala opisu z rysunku (K-99).
 - `GSAI_PODKLAD` — Czyszczenie podkładu architekta pod branżę instalacyjną w jednym oknie: lista warstw (alfabetycznie, z liczbą obiektów) do usunięcia, scalenia i wygaszenia, naprawa rysunku (AUDIT), usunięcie dokładnych duplikatów (OVERKILL tylko identyczne) i nieużywanych definicji (PURGE), opcjonalne wyszarzenie reszty podkładu. Zablokowane warstwy odblokowuje na czas pracy i przywraca; całość cofa jedno UNDO. Natywnie to osobne komendy (AUDIT, -PURGE, OVERKILL, LAYDEL, LAYMRG) — tu jednym przejściem według profilu. Zgłoszenie: ELB Łukasz Bobkowski.
+- `GSAI_PODLOGOWKA` — Ogrzewanie podłogowe (wodne, MVP): pomieszczenia z zamkniętych polilinii (ściany prostopadłe, L/T/U), pętle ślimak albo meander do jednego rozdzielacza z podziałem wg L max; rozstaw (tryb licz, dziś T = 15 cm), moc, przepływ, ΔP, dławienie wg PN-EN 1264-2 (dane tablicowe do potwierdzenia); tabela reaktywna + opisy pętli i pomieszczeń; Przelicz po edycji chwytami (długości z rysunku), Edytuj; kolizje dojść jako kod DOJSCIA_KRZYZUJA; zawroty łamane, straty w dół pominięte
 - `GSAI_POG` — Plan Ogólny gminy: strefa planistyczna + wskaźniki (maks. intensywność, maks. % zabudowy, maks. wysokość, min. pow. biologicznie czynna) + flaga Obszaru Uzupełnienia Zabudowy + policzona koperta chłonności z pola działki. Źródło: usługa PlanyOgolneGmin (WMS). Podstawa: reforma planistyczna (ust. 7.07.2023) + rozp. MRiT 8.12.2023 + WT §39 (Dz.U. 2022/1225). ⚠️ Mało gmin ma uchwalony POG — „brak POG" to poprawny wynik. 🔴 Do sprawdzenia przez człowieka (stan 17.10): opis dla klienta nie zawiera już zdania o Studiach (usunięte 17.10), ale komunikat narzędzia przy braku POG (gsai_pog_core._studium_zdanie) nadal dopisuje, że „Studium straciło moc 31.08.2026 (art. 65 ust. 1 ustawy z 7.07.2023)”; to twierdzenie prawne nie było weryfikowane w tekście ustawy. Przed wydaniem sprawdzić albo usunąć. Nie zgadywać. Spina dawne narzędzia chłonność + POG.
 - `GSAI_PRZEJ` — Analiza przejezdności (swept-path): obwiednia pojazdu miarodajnego na trasie + ścięcie zakrętu (śmieciarka, naczepa, autobus).
 - `GSAI_PRZYRODA` — Ochrona przyrody w punkcie: wskazujesz punkt, a narzędzie pyta Geoserwis GDOŚ o park narodowy, rezerwat, park krajobrazowy, obszar chronionego krajobrazu, Natura 2000 (OSO i SOO), użytek ekologiczny i zespół przyrodniczo-krajobrazowy; stawia napis „Przyroda — ochrona: TAK (n)” / „otulina” / „ochrona: brak”, a w wierszu poleceń wymienia formy z nazwą i kodem. Otulina podawana osobno. Pomniki i stanowiska punktowe nie są sprawdzane. Natywnie brak.
